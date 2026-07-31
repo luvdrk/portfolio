@@ -60,7 +60,6 @@ html {
      canvas, so body paints as a normal box and the gradient percentages
      below resolve against the page — same as the wrapper div they came from. */
   background-color:var(--bg);
-  transition:background-color .35s ease, color .35s ease;
 
   /* iOS inflates text in landscape unless told not to. */
   -webkit-text-size-adjust:100%;
@@ -110,13 +109,7 @@ button { font-family:inherit; }
 }
 
 body, .card, .project, .btn, .chip, .theme-btn, input {
-  transition:background-color .35s ease, border-color .35s ease, color .35s ease;
-}
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration:.35s;
-  animation-timing-function:ease;
+  transition:background-color .18s ease, border-color .18s ease, color .18s ease;
 }
 
 @media (prefers-reduced-motion:reduce) {
