@@ -1,0 +1,11 @@
+# Vercel
+.vercel
+
+# Source images — the site uses the resized copies, not these
+1st picture.png
+2nd picture.png
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

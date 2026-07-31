@@ -1,0 +1,761 @@
+/* ══ Tokens ═══════════════════════════════════════════════ */
+:root {
+  --bg:#f7f7f6;
+  --surface:#ffffff;
+  --surface2:#f2f3f5;
+  --ink:#17181a;
+  --muted:#6c6e74;
+  --faint:#8b8d93;
+  --line:rgba(0,0,0,.09);
+  --stripe-a:#e6e7ea;
+  --stripe-b:#f1f2f4;
+  --accent:oklch(0.55 0.14 250);
+  --accent-soft:oklch(0.95 0.03 250);
+  --accent-ink:oklch(0.45 0.12 250);
+  --shadow:0 8px 24px rgba(0,0,0,.10);
+  --invert-bg:#17181a;
+  --invert-ink:#ffffff;
+  --invert-muted:#9a9ca2;
+
+  /* Background layers: dot grid, diagonal hairlines, two colour washes */
+  --dot:rgba(0,0,0,.07);
+  --rule:rgba(0,0,0,.035);
+  --wash:oklch(0.55 0.14 250 / 0.13);
+  --wash2:oklch(0.62 0.11 205 / 0.13);
+
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Public Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+}
+
+[data-theme="dark"] {
+  --bg:#0f1113;
+  --surface:#16181b;
+  --surface2:#1d2024;
+  --ink:#ecedef;
+  --muted:#9a9ca2;
+  --faint:#6f727a;
+  --line:rgba(255,255,255,.10);
+  --stripe-a:#1c1f23;
+  --stripe-b:#23262b;
+  --accent:oklch(0.72 0.13 250);
+  --accent-soft:oklch(0.30 0.06 250);
+  --accent-ink:oklch(0.85 0.09 250);
+  --shadow:0 8px 24px rgba(0,0,0,.45);
+  --invert-bg:#ecedef;
+  --invert-ink:#0f1113;
+  --invert-muted:#4a4c52;
+
+  --dot:rgba(255,255,255,.075);
+  --rule:rgba(255,255,255,.035);
+  --wash:oklch(0.62 0.15 250 / 0.20);
+  --wash2:oklch(0.60 0.12 205 / 0.18);
+}
+
+/* ══ Base ═════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing:border-box; }
+
+html {
+  scroll-behavior:smooth;
+  /* Giving <html> a background stops <body>'s from propagating to the
+     canvas, so body paints as a normal box and the gradient percentages
+     below resolve against the page — same as the wrapper div they came from. */
+  background-color:var(--bg);
+
+  /* iOS inflates text in landscape unless told not to. */
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  /* Belt and braces against a stray wide element causing sideways scroll. */
+  overflow-x:hidden;
+}
+
+body {
+  margin:0;
+  min-height:100vh;
+  color:var(--ink);
+  font:400 15px/1.5 var(--sans);
+  -webkit-font-smoothing:antialiased;
+
+  /* Four stacked layers, front to back:
+     1. teal wash, top-right      3. dot grid, 26px
+     2. accent wash, upper-left   4. diagonal hairlines at 115°       */
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(60% 46% at 88% 4%, var(--wash2) 0%, transparent 66%),
+    radial-gradient(70% 40% at 6% 30%, var(--wash)  0%, transparent 70%),
+    radial-gradient(var(--dot) 1.1px, transparent 1.2px),
+    repeating-linear-gradient(115deg, var(--rule) 0 1px, transparent 1px 9px);
+  background-size:auto, auto, 26px 26px, auto;
+  background-position:0 0, 0 0, 0 0, 0 0;
+  background-repeat:no-repeat, no-repeat, repeat, repeat;
+  background-attachment:scroll, scroll, scroll, scroll;
+}
+
+h1,h2,h3,p,ul,figure { margin:0; }
+ul { list-style:none; padding:0; }
+
+/* Long repo names and URLs shouldn't push the layout sideways. */
+h1,h2,h3,p,span,a,li { overflow-wrap:break-word; }
+img { max-width:100%; }
+
+a { color:var(--accent-ink); }
+a:hover { color:var(--accent); }
+
+button { font-family:inherit; }
+
+:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:4px;
+}
+
+body, .card, .project, .btn, .chip, .theme-btn, input {
+  transition:background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+  *,*::before,*::after { transition:none !important; animation:none !important; }
+}
+
+.skip-link {
+  position:absolute; left:-9999px; top:0; z-index:100;
+  padding:10px 16px; background:var(--invert-bg); color:var(--invert-ink);
+  border-radius:0 0 8px 0; font:600 13px/1 var(--sans); text-decoration:none;
+}
+.skip-link:focus { left:0; }
+
+.dot { width:8px; height:8px; border-radius:50%; background:var(--accent); display:block; flex:none; }
+.dot-sm { width:5px; height:5px; border-radius:50%; background:var(--faint); display:block; flex:none; }
+
+/* ══ Topbar ═══════════════════════════════════════════════ */
+/* Deliberately not sticky — the page is meant to be read top to
+   bottom, so nothing follows the reader down. */
+.topbar {
+  display:flex; justify-content:flex-end;
+  padding:16px 0 0;
+}
+
+.theme-btn {
+  display:flex; align-items:center; gap:7px;
+  padding:6px 11px; border-radius:7px;
+  border:1px solid var(--line); background:var(--surface);
+  color:var(--ink); cursor:pointer;
+  font:500 11px/1 var(--mono);
+}
+.theme-btn:hover { border-color:var(--accent); }
+.theme-btn .dot { width:9px; height:9px; }
+
+/* ══ Shell ════════════════════════════════════════════════ */
+.shell { max-width:1080px; margin:0 auto; padding:0 28px 64px; }
+
+/* ══ Hero ═════════════════════════════════════════════════ */
+.hero {
+  display:flex; gap:28px;
+  padding:22px 0 32px;
+  border-bottom:1px solid var(--line);
+}
+/* Two stacked photos; the second fades in on hover, focus or tap.
+   The striped background shows through only while both images are missing. */
+.hero-photo {
+  position:relative; isolation:isolate;
+  width:124px; height:152px; flex:none;
+  border-radius:12px; overflow:hidden; cursor:pointer;
+  background:repeating-linear-gradient(135deg,var(--stripe-a) 0 7px,var(--stripe-b) 7px 14px);
+  display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px;
+}
+.hero-photo .photo {
+  position:absolute; inset:0; z-index:1;
+  width:100%; height:100%; object-fit:cover; object-position:center top;
+  transition:opacity .32s ease;
+}
+/* A missing file leaves a broken-image glyph — hide it and let the
+   placeholder show instead. JS adds this class on the error event. */
+.hero-photo .photo.missing { display:none; }
+
+.hero-photo .photo-b { opacity:0; }
+.hero-photo:hover .photo-b,
+.hero-photo:focus-visible .photo-b,
+.hero-photo.is-touched .photo-b { opacity:1; }
+
+.hero-photo:hover .photo-a,
+.hero-photo:focus-visible .photo-a,
+.hero-photo.is-touched .photo-a { opacity:0; }
+
+.photo-fallback { font:500 9px/1 var(--mono); color:var(--faint); letter-spacing:.08em; }
+
+.hero-body { flex:1; min-width:0; display:flex; flex-direction:column; }
+.hero-top { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+.hero-ident { display:flex; flex-direction:column; gap:8px; }
+.hero-nameline { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.hero-nameline h1 { font:600 36px/1.05 var(--sans); letter-spacing:-.025em; }
+
+.badge-open {
+  display:flex; align-items:center; gap:6px;
+  padding:4px 9px; border-radius:999px;
+  background:var(--accent-soft); color:var(--accent-ink);
+  font:500 11px/1 var(--mono);
+}
+.badge-open .dot { width:6px; height:6px; }
+
+.hero-loc { display:flex; align-items:center; gap:7px; font:400 13.5px/1 var(--sans); color:var(--muted); }
+
+.chip-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; }
+.chip {
+  padding:5px 11px; border-radius:6px; background:var(--surface2);
+  font:500 12.5px/1 var(--sans); color:var(--ink);
+}
+
+/* Right-hand column of the hero: school badge, then profile links. */
+.hero-aside {
+  display:flex; flex-direction:column; align-items:flex-end; gap:12px;
+  min-width:0;
+}
+.hero-school {
+  padding:7px 12px; border-radius:8px;
+  background:var(--accent-soft); border:1px solid var(--accent);
+  font:500 11px/1.3 var(--mono); color:var(--accent-ink);
+  display:flex; align-items:center; flex:none;
+}
+
+/* Two-line link cards: platform on top, what's there underneath. */
+.hero-links {
+  display:flex; flex-wrap:wrap; gap:8px;
+  justify-content:flex-end; max-width:360px;
+  margin-top:14px;              /* sits clear of the school badge */
+}
+.hero-links a {
+  display:flex; flex-direction:column; gap:3px;
+  padding:7px 11px 8px; border-radius:8px;
+  border:1px solid var(--line); background:var(--surface);
+  text-decoration:none;
+  position:relative; overflow:hidden;
+}
+/* Accent edge that fills in on hover */
+.hero-links a::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
+  background:var(--accent); opacity:0; transition:opacity .18s ease;
+}
+.hero-links a:hover { border-color:var(--accent); }
+.hero-links a:hover::before { opacity:1; }
+
+.hl-top {
+  display:flex; align-items:center; gap:5px;
+  font:600 11.5px/1 var(--mono); color:var(--ink);
+}
+.hl-out { font-size:10px; color:var(--faint); }
+.hero-links a:hover .hl-out { color:var(--accent); }
+
+.hl-sub {
+  font:500 9px/1.1 var(--mono); color:var(--faint);
+  letter-spacing:.07em; text-transform:uppercase;
+}
+.hero-links a:hover .hl-sub { color:var(--accent-ink); }
+
+/* Claims a full row so it can't be pulled up beside the others. */
+.hl-own-row { flex:1 0 100%; display:flex; justify-content:flex-end; }
+
+.hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+.btn {
+  display:inline-flex; align-items:center; gap:9px;
+  padding:11px 18px; border-radius:8px;
+  text-decoration:none; cursor:pointer;
+  font:500 13.5px/1 var(--sans);
+  border:1px solid transparent;
+}
+.btn-solid { background:var(--invert-bg); color:var(--invert-ink); font-weight:600; }
+.btn-solid:hover { opacity:.85; color:var(--invert-ink); }
+.btn-ghost { background:var(--surface); border-color:var(--line); color:var(--ink); }
+.btn-ghost:hover { border-color:var(--accent); color:var(--ink); }
+.btn-dashed { background:var(--surface); border:1px dashed var(--accent); color:var(--accent-ink); }
+.btn-dashed:hover { background:var(--accent-soft); }
+
+/* ══ Grid ═════════════════════════════════════════════════ */
+.grid {
+  display:grid; grid-template-columns:minmax(0,1fr) 330px;
+  gap:36px; padding-top:34px; align-items:start;
+}
+.col-main { display:flex; flex-direction:column; gap:34px; min-width:0; }
+.col-side { display:flex; flex-direction:column; gap:28px; min-width:0; }
+
+.block { display:flex; flex-direction:column; gap:12px; scroll-margin-top:70px; }
+.block h2 { font:600 17px/1 var(--sans); letter-spacing:-.01em; }
+.block p { font:400 14.5px/1.65 var(--sans); color:var(--muted); text-wrap:pretty; }
+.block p strong { color:var(--ink); font-weight:600; }
+
+.block-head { display:flex; align-items:center; gap:10px; }
+.block-head.baseline { align-items:baseline; justify-content:space-between; }
+
+.tag-accent {
+  padding:3px 8px; border-radius:5px;
+  background:var(--accent-soft); color:var(--accent-ink);
+  font:500 10.5px/1.3 var(--mono);
+}
+.muted-sm { font:400 12px/1 var(--sans); color:var(--faint); }
+
+/* ══ Panzi card ═══════════════════════════════════════════ */
+.card {
+  border:1px solid var(--line); border-radius:12px;
+  background:var(--surface); padding:22px;
+  display:flex; flex-direction:column; gap:16px;
+}
+.card-head { display:flex; flex-direction:column; gap:6px; }
+.card-head h3 { font:600 20px/1.2 var(--sans); letter-spacing:-.01em; }
+.card-head h3 a { color:var(--ink); text-decoration:none; }
+.card-head h3 a:hover { color:var(--accent-ink); text-decoration:underline; text-underline-offset:3px; }
+.card-head p { font:400 13.5px/1.6 var(--sans); color:var(--muted); text-wrap:pretty; }
+
+.card-title-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+/* Secondary ongoing item — same card, dialled down a step. */
+.card-sub { padding:18px; }
+.card-sub .card-head h3 { font-size:16px; }
+.card-sub .card-head p { font-size:13px; }
+
+.shot-sm { height:104px; }
+
+/* ══ Design section ═══════════════════════════════════════ */
+.design-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.design-grid li {
+  display:flex; gap:9px; align-items:baseline;
+  font:400 13px/1.45 var(--sans); color:var(--muted);
+}
+.design-grid .num { font:500 10px/1.4 var(--mono); color:var(--accent); flex:none; }
+
+.design-figure { margin:0; display:flex; flex-direction:column; gap:8px; }
+.design-figure figcaption {
+  font:400 11.5px/1.4 var(--mono); color:var(--faint);
+}
+
+/* ══ Before / after comparison ════════════════════════════ */
+.compare {
+  position:relative; isolation:isolate;
+  border-radius:10px; overflow:hidden;
+  border:1px solid var(--line); background:var(--surface2);
+  line-height:0;               /* kill the inline-image gap */
+  touch-action:pan-y;          /* let the page still scroll vertically */
+}
+.compare-img {
+  display:block; width:100%; height:auto;
+}
+/* The second image sits exactly on top of the first and is clipped
+   to --pos, so the left slice is DAY and the right slice is NIGHT. */
+.compare-top {
+  position:absolute; inset:0; z-index:1;
+  clip-path:inset(0 calc(100% - var(--pos)) 0 0);
+}
+
+/* Hairline divider — thin and accent-tinted rather than a heavy white bar. */
+.compare-line {
+  position:absolute; top:0; bottom:0; z-index:3;
+  left:var(--pos); width:1px; margin-left:-0.5px;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 0 12px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+
+/* Vertical pill handle: glassy, mono grip lines, accent hairline. */
+.compare-grip {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:26px; height:52px; border-radius:999px;
+  background:rgba(20,22,25,.62);
+  backdrop-filter:blur(8px) saturate(160%);
+  -webkit-backdrop-filter:blur(8px) saturate(160%);
+  border:1px solid rgba(255,255,255,.42);
+  box-shadow:0 4px 18px rgba(0,0,0,.45);
+  display:flex; align-items:center; justify-content:center; gap:3px;
+}
+/* Three grip lines, echoing the mono type used everywhere else. */
+.compare-grip::before, .compare-grip::after {
+  content:''; width:1.5px; height:14px; border-radius:1px;
+  background:rgba(255,255,255,.75);
+}
+.compare-grip::before { box-shadow:4.5px 0 0 rgba(255,255,255,.75); }
+.compare-grip::after  { margin-left:4.5px; }
+
+.compare:hover .compare-grip { border-color:var(--accent); }
+
+.compare-tag {
+  position:absolute; bottom:10px; z-index:2;
+  padding:4px 9px; border-radius:999px;
+  background:rgba(20,22,25,.58);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.92);
+  font:500 9px/1 var(--mono); letter-spacing:.14em;
+  pointer-events:none;
+}
+.compare-tag.tag-l { left:10px; }
+.compare-tag.tag-r { right:10px; }
+
+/* The real control: invisible, full-bleed, keyboard-operable. */
+.compare-range {
+  position:absolute; inset:0; z-index:4;
+  width:100%; height:100%; margin:0; padding:0;
+  -webkit-appearance:none; appearance:none;
+  background:transparent; border:none; outline:none;
+  cursor:ew-resize;
+}
+.compare-range::-webkit-slider-thumb {
+  -webkit-appearance:none; appearance:none;
+  width:44px; height:600px; cursor:ew-resize;
+  background:transparent; border:none;
+}
+.compare-range::-moz-range-thumb {
+  width:44px; height:600px; cursor:ew-resize;
+  background:transparent; border:none; border-radius:0;
+}
+.compare-range::-moz-range-track { background:transparent; border:none; }
+
+.compare-range:focus-visible ~ .compare-line { background:var(--accent); }
+.compare-range:focus-visible ~ .compare-line .compare-grip {
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-soft), 0 4px 18px rgba(0,0,0,.45);
+}
+
+.feature-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.feature-grid li {
+  display:flex; gap:9px; align-items:baseline;
+  font:400 13px/1.45 var(--sans); color:var(--muted);
+}
+.feature-grid .num { font:500 10px/1.4 var(--mono); color:var(--accent); flex:none; }
+
+.shot {
+  height:150px; border-radius:9px;
+  background:repeating-linear-gradient(135deg,var(--stripe-a) 0 7px,var(--stripe-b) 7px 14px);
+  display:flex; align-items:center; justify-content:center;
+}
+.shot span { font:500 10px/1 var(--mono); color:var(--faint); letter-spacing:.08em; }
+
+.stack-row { display:flex; flex-wrap:wrap; gap:7px; }
+.stack-row li {
+  padding:4px 9px; border-radius:5px; border:1px solid var(--line);
+  font:500 11.5px/1.3 var(--mono); color:var(--muted);
+}
+
+/* ══ Projects ═════════════════════════════════════════════ */
+.project-list { display:flex; flex-direction:column; gap:10px; }
+.project {
+  display:flex; gap:16px; align-items:center;
+  padding:15px 16px; border:1px solid var(--line);
+  border-radius:10px; background:var(--surface);
+}
+.project:hover { border-color:var(--accent); }
+/* Monogram tile tinted with the repo's main GitHub language colour.
+   Set --lang and data-mono inline. Replacing the <div> with an <img class="thumb">
+   works as-is: the sizing and radius carry over, ::after just won't render. */
+.thumb {
+  width:56px; height:56px; flex:none; border-radius:8px;
+  object-fit:cover;
+  background:
+    linear-gradient(150deg,
+      color-mix(in srgb, var(--lang, var(--stripe-a)) 26%, var(--surface2)) 0%,
+      color-mix(in srgb, var(--lang, var(--stripe-b)) 8%,  var(--surface2)) 100%);
+  border:1px solid color-mix(in srgb, var(--lang, var(--line)) 22%, transparent);
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.thumb::after {
+  content:attr(data-mono);
+  font:600 15px/1 var(--mono); letter-spacing:-.02em;
+  color:color-mix(in srgb, var(--lang, var(--faint)) 78%, var(--ink));
+}
+/* No colour set → keep the original stripes. */
+.thumb:not([style*="--lang"]) {
+  background:repeating-linear-gradient(135deg,var(--stripe-a) 0 6px,var(--stripe-b) 6px 12px);
+  border:none;
+}
+.project-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+.project-title {
+  font:600 15px/1.2 var(--sans); color:var(--ink);
+  text-decoration:none; width:fit-content;
+}
+a.project-title:hover { color:var(--accent-ink); text-decoration:underline; text-underline-offset:2px; }
+.project-desc { font:400 13px/1.5 var(--sans); color:var(--muted); }
+.project-meta { font:400 10.5px/1 var(--mono); color:var(--faint); margin-top:2px; }
+.project-tech { flex:none; font:500 11.5px/1.3 var(--mono); color:var(--faint); }
+
+.link-out { text-decoration:none; color:var(--faint); font-family:var(--mono); }
+.link-out:hover { color:var(--accent); }
+
+/* Flagship entry — taller, aligned to the top rather than centred. */
+.project-lead { align-items:flex-start; }
+.project-lead .thumb { height:96px; }
+.project-lead .project-title { font-size:16px; }
+.project-lead .project-desc { font-size:13.5px; }
+
+.repo-links { display:flex; flex-wrap:wrap; gap:12px; margin-top:4px; }
+.repo-links a {
+  font:500 11.5px/1.3 var(--mono); color:var(--accent-ink); text-decoration:none;
+}
+.repo-links a:hover { color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
+
+/* ══ Builder pass ═════════════════════════════════════════ */
+.pass {
+  border-radius:14px; padding:20px;
+  background:linear-gradient(160deg,#212327 0%,#131417 100%);
+  display:flex; flex-direction:column; gap:16px;
+  box-shadow:var(--shadow);
+}
+.pass-top { display:flex; align-items:center; justify-content:space-between; }
+.pass-mark { font:600 13px/1 var(--mono); color:#f4f5f6; }
+.pass-kicker { font:400 9.5px/1 var(--mono); color:#6c6e74; letter-spacing:.1em; }
+.pass-title { display:flex; flex-direction:column; gap:3px; margin-top:26px; }
+.pass-h { font:600 17px/1.2 var(--mono); color:#f4f5f6; letter-spacing:-.01em; }
+.pass-sub { font:400 9.5px/1 var(--mono); color:#6c6e74; letter-spacing:.14em; }
+.pass-foot { display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; gap:12px; }
+.pass-holder { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.pass-label { font:400 9px/1 var(--mono); color:#5c5e64; letter-spacing:.12em; }
+.pass-name { font:500 11.5px/1.3 var(--mono); color:#e4e5e8; }
+.pass-chip {
+  width:52px; height:52px; flex:none; border-radius:5px;
+  background:repeating-linear-gradient(45deg,#2b2d31 0 3px,#3a3d42 3px 6px);
+}
+.pass-strip {
+  margin:6px -20px -20px; padding:11px 20px;
+  background:var(--accent); border-radius:0 0 14px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.pass-strip span:first-child { font:600 12px/1 var(--mono); color:#fff; }
+.pass-strip span:last-child { font:400 10px/1 var(--mono); color:rgba(255,255,255,.72); }
+
+/* ══ Side lists ═══════════════════════════════════════════ */
+.stack-groups { display:flex; flex-direction:column; gap:12px; }
+.stack-group { display:flex; flex-direction:column; gap:7px; }
+.stack-label { font:500 11px/1 var(--mono); color:var(--faint); letter-spacing:.08em; }
+.stack-group ul { display:flex; flex-wrap:wrap; gap:6px; }
+.stack-group li {
+  padding:4px 9px; border-radius:5px; background:var(--surface2);
+  font:400 12px/1.3 var(--sans); color:var(--ink);
+}
+/* Languages actually present in the public repos */
+.stack-group li.ghv {
+  display:inline-flex; align-items:center; gap:6px;
+}
+.stack-group li.ghv::before {
+  content:''; width:5px; height:5px; border-radius:50%;
+  background:var(--accent); flex:none;
+}
+
+/* Tools with real but occasional use — named, not claimed as core. */
+.stack-aside {
+  font:400 11px/1.4 var(--sans); color:var(--faint); margin-top:1px;
+}
+
+.stack-legend {
+  display:flex; align-items:center; gap:6px; margin-top:2px;
+  font:400 11px/1.3 var(--sans) !important; color:var(--faint) !important;
+}
+.dot-accent {
+  width:5px; height:5px; border-radius:50%;
+  background:var(--accent); display:block; flex:none;
+}
+
+.entry { display:flex; flex-direction:column; gap:4px; }
+.entry-title { font:600 14px/1.3 var(--sans); }
+.entry-desc { font:400 12.5px/1.55 var(--sans); color:var(--muted); }
+.entry-meta { font:400 11.5px/1 var(--mono); color:var(--faint); margin-top:4px; }
+
+/* ══ CTA ══════════════════════════════════════════════════ */
+/* ══ Footer ═══════════════════════════════════════════════ */
+.foot {
+  margin-top:52px; padding-top:20px; border-top:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+  gap:20px; flex-wrap:wrap;
+}
+.foot span { font:400 11.5px/1 var(--mono); color:var(--faint); }
+
+/* ══ Assistant ════════════════════════════════════════════ */
+.chat-fab {
+  position:fixed; right:24px; bottom:24px; z-index:60;
+  display:flex; align-items:center; gap:10px;
+  padding:13px 18px; border-radius:999px; border:none;
+  background:var(--invert-bg); color:var(--invert-ink);
+  cursor:pointer; font:600 13px/1 var(--sans);
+  box-shadow:0 10px 28px rgba(0,0,0,.25);
+}
+.chat-fab:hover { opacity:.9; }
+
+.chat {
+  position:fixed; right:24px; bottom:92px; z-index:60;
+  width:352px; max-width:calc(100vw - 32px);
+  border-radius:14px; background:var(--surface);
+  border:1px solid var(--line);
+  box-shadow:0 18px 48px rgba(0,0,0,.22);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.chat[hidden] { display:none; }
+
+.chat-head {
+  padding:13px 15px; border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.chat-id { display:flex; align-items:center; gap:9px; }
+.chat-id > div { display:flex; flex-direction:column; gap:2px; }
+.chat-mark {
+  width:26px; height:26px; flex:none; border-radius:7px;
+  background:var(--accent); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font:600 11px/1 var(--mono);
+}
+.chat-title { font:600 13px/1 var(--sans); }
+.chat-sub { font:400 10.5px/1 var(--mono); color:var(--faint); }
+.chat-x {
+  border:none; background:transparent; color:var(--faint);
+  cursor:pointer; font:400 18px/1 var(--sans); padding:2px 6px;
+}
+.chat-x:hover { color:var(--ink); }
+
+.chat-log {
+  padding:15px; display:flex; flex-direction:column; gap:11px;
+  height:308px; overflow-y:auto; overscroll-behavior:contain;
+}
+.msg {
+  max-width:88%; padding:9px 12px;
+  font:400 13px/1.5 var(--sans); white-space:pre-wrap;
+}
+.msg-user {
+  align-self:flex-end; max-width:82%;
+  border-radius:11px 11px 3px 11px;
+  background:var(--accent); color:#fff;
+}
+.msg-bot {
+  align-self:flex-start;
+  border-radius:11px 11px 11px 3px;
+  background:var(--surface2); color:var(--ink);
+}
+.msg-bot a { color:var(--accent-ink); }
+
+.typing { align-self:flex-start; padding:10px 13px; border-radius:11px; background:var(--surface2); display:flex; gap:5px; }
+.typing span {
+  width:5px; height:5px; border-radius:50%; background:var(--faint);
+  display:block; animation:pfblink 1s infinite;
+}
+.typing span:nth-child(2) { animation-delay:.2s; }
+.typing span:nth-child(3) { animation-delay:.4s; }
+@keyframes pfblink { 0%,100%{opacity:.25} 50%{opacity:1} }
+
+.chat-suggest { padding:0 15px 11px; display:flex; flex-wrap:wrap; gap:6px; }
+.chat-suggest button {
+  padding:5px 10px; border-radius:999px;
+  border:1px solid var(--line); background:var(--surface);
+  color:var(--muted); cursor:pointer;
+  font:400 11.5px/1.3 var(--sans);
+}
+.chat-suggest button:hover { border-color:var(--accent); color:var(--ink); }
+
+.chat-form {
+  padding:11px 15px 14px; border-top:1px solid var(--line);
+  display:flex; gap:8px; align-items:center;
+}
+.chat-form input {
+  flex:1; min-width:0; padding:9px 11px; border-radius:8px;
+  border:1px solid var(--line); background:var(--bg); color:var(--ink);
+  font:400 13px/1.3 var(--sans); outline:none;
+}
+.chat-form input:focus { border-color:var(--accent); }
+.chat-form button {
+  flex:none; padding:9px 14px; border-radius:8px; border:none;
+  background:var(--invert-bg); color:var(--invert-ink);
+  cursor:pointer; font:600 12.5px/1.3 var(--sans);
+}
+.chat-form button:hover { opacity:.85; }
+
+/* ══ Responsive ═══════════════════════════════════════════ */
+
+/* ── Tablet: side column drops below the main one ────────── */
+@media (max-width:900px) {
+  .grid { grid-template-columns:minmax(0,1fr); gap:34px; }
+  .col-side { order:2; }
+
+  /* The links column no longer has a narrow slot to fit — let it breathe. */
+  .hero-links { max-width:none; }
+}
+
+/* ── Large phones / small tablets ─────────────────────────── */
+@media (max-width:760px) {
+  .hero-top { gap:16px; }
+  .hero-aside { align-items:flex-start; width:100%; }
+  .hero-links { justify-content:flex-start; margin-top:10px; }
+  .hl-own-row { justify-content:flex-start; }
+}
+
+/* ── Phones ───────────────────────────────────────────────── */
+@media (max-width:640px) {
+  .shell { padding:0 16px 72px; }   /* extra bottom room for the chat button */
+
+  .hero { flex-direction:column; gap:18px; padding:12px 0 24px; }
+
+  /* Portrait crop rather than a full-width letterbox band. */
+  .hero-photo { width:132px; height:164px; align-self:flex-start; }
+
+  .hero-nameline h1 { font-size:27px; }
+  .hero-nameline { gap:8px; }
+  .hero-loc { font-size:13px; }
+
+  /* Full-width buttons are easier to hit than side-by-side ones. */
+  .hero-actions { gap:8px; }
+  .hero-actions .btn { flex:1 1 100%; justify-content:center; padding:13px 18px; }
+
+  /* Two per row beats a ragged wrap on a narrow screen. */
+  .hero-links { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .hero-links a { min-height:44px; width:100%; justify-content:center; }
+  .hl-own-row { grid-column:1 / -1; }
+
+  .block h2 { font-size:16px; }
+  .block p { font-size:14px; }
+
+  .card { padding:18px; }
+  .card-head h3 { font-size:18px; }
+  .card-sub { padding:16px; }
+
+  .feature-grid { grid-template-columns:1fr; }
+  .design-grid { grid-template-columns:1fr 1fr; }
+
+  .shot { height:120px; }
+  .shot-sm { height:92px; }
+
+  /* Thumbnail + title on one line, description below, tech last. */
+  .project { flex-wrap:wrap; gap:12px; padding:14px; }
+  .project-body { flex:1 1 60%; }
+  .project-tech { width:100%; }
+  .project-lead .thumb { width:48px; height:48px; }
+  .thumb { width:48px; height:48px; }
+
+  .repo-links { gap:10px; }
+
+  .pass { padding:18px; }
+  .pass-strip { margin:6px -18px -18px; padding:10px 18px; }
+  .pass-h { font-size:15px; }
+
+  .foot { flex-direction:column; align-items:flex-start; gap:8px; }
+
+  .chat { right:10px; left:10px; bottom:80px; width:auto; }
+  .chat-log { height:min(44vh,308px); }
+  .chat-fab { right:14px; bottom:14px; padding:12px 16px; }
+}
+
+/* ── Small phones ─────────────────────────────────────────── */
+@media (max-width:400px) {
+  .shell { padding:0 13px 72px; }
+  .hero-nameline h1 { font-size:24px; }
+  .hero-links { grid-template-columns:1fr; }
+  .design-grid { grid-template-columns:1fr; }
+  .hero-school { font-size:10px; padding:6px 10px; }
+  .chip { font-size:11.5px; padding:4px 9px; }
+}
+
+/* ── Coarse pointers: bigger hit areas, no hover-only states ── */
+@media (hover:none) {
+  .hero-links a { min-height:44px; }
+  .project-title, .repo-links a, .link-out { padding-block:3px; }
+}
+
+/* ══ Print ════════════════════════════════════════════════ */
+@media print {
+  .topbar, .chat, .chat-fab, .skip-link { display:none !important; }
+  body { background:#fff; }
+  .shell { max-width:none; padding:0; }
+  .grid { grid-template-columns:1fr; }
+}

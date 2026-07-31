@@ -1,0 +1,7 @@
+{
+  "name": "derrick-azaola-portfolio",
+  "private": true,
+  "scripts": {
+    "build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1"
+  }
+}
