@@ -104,7 +104,7 @@ PuzzlED is deliberately excluded. Both repos are still public on GitHub — dele
 
 CarGO gets the `project-lead` class: a taller thumbnail, slightly larger type, and two repo links instead of one. It sits first because it's the largest and most recent substantial work.
 
-In **Tech stack**, an accent dot marks anything used in the projects listed above — HTML, CSS, JavaScript, TypeScript, PHP, React, Kotlin, Supabase, PostgreSQL, Firebase. Unmarked: React Native, Android Studio, Python, MySQL and the media tools. To mark a new one, add `class="ghv"` to its `<li>`.
+In **Tech stack**, an accent dot marks anything used in the projects listed above — HTML, CSS, JavaScript, TypeScript, PHP, React, Kotlin, React Native, Android Studio, Supabase, PostgreSQL, Firebase. Unmarked: Python, MySQL and the media tools. To mark a new one, add `class="ghv"` to its `<li>`.
 
 This is a static snapshot from the GitHub API, not a live feed. When you push something new, copy an existing `<li class="project">` and edit it.
 
