@@ -21,17 +21,25 @@
       ? 'dark' : 'light';
   }
 
-  function applyTheme(theme) {
-    root.setAttribute('data-theme', theme);
-    if (label) label.textContent = theme === 'dark' ? 'LIGHT' : 'DARK';
+  function applyTheme(theme, animate) {
+    var update = function () {
+      root.setAttribute('data-theme', theme);
+      if (label) label.textContent = theme === 'dark' ? 'LIGHT' : 'DARK';
+    };
+
+    if (animate && document.startViewTransition) {
+      document.startViewTransition(update);
+    } else {
+      update();
+    }
   }
 
-  applyTheme(readTheme());
+  applyTheme(readTheme(), false);
 
   if (toggle) {
     toggle.addEventListener('click', function () {
       var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
+      applyTheme(next, true);
       try { localStorage.setItem('pf-theme', next); } catch (e) { /* ignore */ }
     });
   }
