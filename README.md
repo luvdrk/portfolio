@@ -1,158 +1,116 @@
 # Portfolio — Derrick John F. Azaola
 
-Static site. No build step, no dependencies. Open `index.html` in a browser and it runs.
+**Live: https://portfolio-cole-c2dc.vercel.app**
+
+Personal portfolio for a third-year BS Information Technology student at PHINMA
+University of Pangasinan, on the System Development track.
+
+Hand-written HTML, CSS and JavaScript. No framework, no bundler, no
+dependencies — `index.html` opens in a browser and runs.
 
 ```
-index.html    markup + content
-styles.css    theme tokens, layout, responsive rules
-script.js     theme toggle, assistant widget, nav highlight
+index.html      markup and content
+styles.css      design tokens, layout, motion
+script.js       theme toggle, nav highlight, screenshot viewer, assistant
+shots/          project screenshots
+vercel.json     clean URLs, security headers, cache policy
 ```
 
-## Mobile
+## Running it
 
-Four breakpoints: 900px (side column drops below), 760px (links column goes full width), 640px (phone layout), 400px (single-column links, smaller type).
+Any static server works. With Python:
 
-On phones the buttons go full-width and stack, the profile links become a 2-up grid with 44px minimum tap targets, the portrait stays a portrait crop instead of stretching into a letterbox band, and project rows reflow so the thumbnail and title share a line with the description underneath.
-
-Also handled: `text-size-adjust` so iOS doesn't inflate type in landscape, `overflow-x: hidden` on `<html>` as a guard against sideways scroll, `overflow-wrap` on text so long repo names can't push the layout out, `theme-color` meta for the browser chrome in both themes, and `viewport-fit=cover` for notched screens.
-
-## No navigation bar — by design
-
-There's no sticky header. The only thing at the top is the theme toggle, and it scrolls away with the page. Visitors read top to bottom instead of jumping to one section, which is the point.
-
-The section `id`s (`#about`, `#now`, `#work`) are still on the elements, so you can deep-link to them from outside if you ever want to.
-
-## What still needs your input
-
-| Where | What to swap |
-|---|---|
-| **`me-formal.jpg` + `me-pose.jpg`** | **Save both photos into this folder under exactly these names — see below** |
-| `index.html` — `.shot` in the two Now cards | Replace with real screenshots |
-| `index.html` — `.thumb` on each project | Optional: replace the monogram tiles with screenshots |
-| `index.html` — `.project-desc` lines | No repo has a GitHub description, so those lines are mine — rewrite them |
-| `resume.pdf` | Drop your résumé file in this folder; the button already links to it |
-
-### The two hero photos
-
-The hover swap is built and waiting on the files. Save them here as:
-
-```
-me-formal.jpg    straight-on portrait   → shown by default
-me-pose.jpg      the one with the hand sign → fades in on hover
+```bash
+python -m http.server 5173
 ```
 
-Both must be `.jpg` with those exact names. Crop them to roughly 4:5 (portrait) — the frame is 124 × 152 and uses `object-fit: cover` anchored to the top, so faces stay in frame.
+Then open <http://localhost:5173>. Opening `index.html` directly from disk also
+works; only the theme and boot-intro persistence need an origin.
 
-Behaviour: crossfades on hover, on keyboard focus, and on tap for touch screens (tap again or tap away to go back). If either file is missing the broken-image icon is suppressed; if both are missing it falls back to the striped placeholder and turns off the interaction entirely.
+## What's in it
 
-Your email (`djazaola24@gmail.com`) and GitHub (`github.com/luvdrk`) are already wired throughout.
+**Theme** — light and dark, following the OS by default and remembering the
+visitor's choice in `localStorage`. Switching uses the View Transitions API to
+cross-fade the whole page rather than flipping colours instantly. The palette is
+four custom properties: change `--accent`, `--accent-soft` and `--accent-ink` in
+`styles.css` to reskin the site.
 
-## GitHub content
+**Screenshot viewer** — project screenshots open in a native `<dialog>` with
+arrow-key navigation between shots in the same project. The browser supplies the
+backdrop, focus trap and Escape handling, so none of that is reimplemented. The
+thumbnails stay real links, meaning ctrl-click and middle-click still open the
+file directly and the page degrades cleanly without JavaScript.
 
-**Now** holds the two active projects — the Panzi app and the Informative Panzi Website. **Things I've built** holds the finished ones:
+**Motion** — a launch curtain on first arrival, a staggered hero intro, and
+sections that rise as they scroll into view. Everything is built so failure is
+safe: the curtain clears via a CSS animation rather than JavaScript, and reveal
+classes are applied *by* script rather than sitting in the markup, so a failed
+script load leaves a finished page rather than a blank one.
 
-| Section | Entry | Repo | Languages |
-|---|---|---|---|
-| Now | Panzi app | *(no public repo)* | React Native, Python |
-| Now | Informative Panzi Website | `Informative-Pantry-Website` | TypeScript, CSS |
-| Built | CarGO | `cargo-app` + `cargo-admin` | Kotlin, React/JS, TypeScript, PLpgSQL |
-| Built | Registrar Queue Management System | `Website-RQMS` | PHP, CSS, JS |
-| Built | Clothe Cove | `Website` | HTML, CSS |
-
-### Design section
-
-Sits below **Things I've built** in the main column. Covers the Cole Grphx work — six categories pulled from the Behance profile — plus the After Effects motion work, and links out to Behance, Facebook and TikTok.
-
-Framed deliberately as personal work, not client work: *"Nobody commissions it. It's the work I make when nobody's asked me to."* If you later want commissions, change that line and add a rate or a contact nudge.
-
-### Day/night comparison slider
-
-The Cole Graphics signage uses a drag-to-compare slider — day on the left, night on the right.
-
-```
-design-cole-graphics.jpg        day   (clipped, sits on top)
-design-cole-graphics-night.jpg  night (base layer)
-```
-
-**Both files must be identical dimensions** (currently 1200 × 676) or the two halves won't line up.
-
-The control is a real `<input type="range">` laid invisibly over the frame, which means drag, click, tap and arrow keys all work with no custom drag maths, and screen readers announce it as a slider. `touch-action: pan-y` keeps vertical page scrolling working on phones. Double-click resets to centre.
-
-To add another comparison anywhere on the page, copy the `.compare` block and swap the two `src` values — `script.js` wires up every `.compare` it finds automatically.
-
-### More design work
-
-The section currently shows one piece. Your Behance has jerseys, rosters and overlays, which are more distinctive than a logo mockup — worth adding two or three as plain `.design-figure` blocks.
-
-Figma and Lightroom sit in a muted `stack-aside` line rather than the main tool list, since you described them as occasional. Move them up into the `<ul>` if that changes.
-
-### Project thumbnails
-
-Each finished project has a monogram tile tinted with its GitHub language colour — Kotlin purple, PHP indigo, HTML orange. Two inline attributes control it:
-
-```html
-<div class="thumb" data-mono="CG" style="--lang:#A97BFF" aria-hidden="true"></div>
-```
-
-To use a real screenshot instead, replace the whole `<div>` with an image — the class carries the sizing and corner radius across:
-
-```html
-<img class="thumb" src="shots/cargo.png" alt="">
-```
-
-PuzzlED is deliberately excluded. Both repos are still public on GitHub — delete or make them private there if you don't want them found.
-
-CarGO gets the `project-lead` class: a taller thumbnail, slightly larger type, and two repo links instead of one. It sits first because it's the largest and most recent substantial work.
-
-In **Tech stack**, an accent dot marks anything used in the projects listed above — HTML, CSS, JavaScript, TypeScript, PHP, React, Kotlin, React Native, Android Studio, Supabase, PostgreSQL, Firebase. Unmarked: Python, MySQL and the media tools. To mark a new one, add `class="ghv"` to its `<li>`.
-
-This is a static snapshot from the GitHub API, not a live feed. When you push something new, copy an existing `<li class="project">` and edit it.
-
-## Theme
-
-Light/dark follows the OS by default, then remembers whatever the visitor picks (`localStorage`). The accent colour is one variable — change `--accent`, `--accent-soft` and `--accent-ink` in `styles.css` to reskin the whole site.
-
-## The assistant
-
-The chat widget answers from a local knowledge base in `script.js` (the `KB` array) — keyword matching against your facts, no API key, no network call, no cost. It works on GitHub Pages or any static host.
-
-To add or reword an answer, edit an entry in `KB`:
+**Assistant** — the chat widget answers from a keyword-matched knowledge base in
+`script.js` (the `KB` array). No API key, no network call, no cost. Add an entry:
 
 ```js
 {
-  k: ['keyword', 'another keyword'],   // any match counts toward the score
+  k: ['keyword', 'another keyword'],   // any match adds to the score
   a: 'The answer to give.'
 }
 ```
 
-The highest-scoring entry wins; if nothing matches, it falls back to pointing at your email.
+Highest score wins; with no match it points at the email address.
 
-If you later want a real LLM behind it, replace the `setTimeout` block inside `ask()` with a `fetch` to your own backend endpoint — keep any API key server-side, never in this file.
+**Comparison slider** — the Design section uses a drag-to-compare figure built on
+a real `<input type="range">` laid invisibly over the frame, so dragging,
+clicking, tapping and arrow keys all work and screen readers announce it as a
+slider. Both images must share identical dimensions. `script.js` wires up every
+`.compare` block it finds.
 
-## Deploying to Vercel
+## Accessibility
 
-`vercel.json` is already set up — clean URLs, security headers, and a one-year cache on images and fonts. No build step; it's a static site.
+`prefers-reduced-motion` is honoured throughout — animations are removed, and
+the two elements that would otherwise be stranded mid-animation (the launch
+curtain and the scroll reveals) are explicitly reset rather than left frozen.
+The theme cross-fade survives, shortened, since nothing in it travels or scales.
 
-Vercel needs a browser login, which has to be done by you. From this folder:
+Interactive elements are real buttons and links, the viewer is a `<dialog>`, and
+there's a skip link ahead of the nav.
+
+## Responsive
+
+Breakpoints at 900px (side column drops below), 760px, 640px (phone layout) and
+400px. On phones buttons stack full-width, profile links become a 2-up grid with
+44px tap targets, and the screenshot strips scroll horizontally.
+
+Also handled: `text-size-adjust` so iOS doesn't inflate type in landscape,
+`overflow-wrap` so long repo names can't push the layout sideways, `theme-color`
+for browser chrome in both themes, and `viewport-fit=cover` for notched screens.
+
+## Deploying
+
+Hosted on Vercel from this repository's root. There is no build step — the files
+at the root are the site.
 
 ```bash
-npx vercel login     # opens your browser / emails a code
-npx vercel --prod    # deploys, prints your live URL
+npx vercel --prod
 ```
 
-First run asks a few questions — accept the defaults:
+`.vercelignore` keeps `package.json` out of the upload deliberately: its build
+script shells out to PowerShell, and Vercel's builders run Linux, so leaving it
+in makes Vercel detect a framework and fail.
 
-| Prompt | Answer |
-|---|---|
-| Set up and deploy? | **Y** |
-| Which scope? | your account |
-| Link to existing project? | **N** |
-| Project name? | anything, e.g. `derrick-azaola` |
-| In which directory is your code? | `./` |
-| Modify build settings? | **N** |
+Asset URLs carry a `?v=` query string. Bump it in `index.html` whenever
+`styles.css` or `script.js` changes, or returning visitors keep the cached copy.
 
-Redeploy any time with `npx vercel --prod`.
+## Projects featured
 
-**Alternative, no terminal:** zip this folder and drop it on <https://vercel.com/new> — same result.
+| Project | Repository | Stack |
+|---|---|---|
+| Panzi — AI smart pantry | [Informative-Pantry-Website](https://github.com/luvdrk/Informative-Pantry-Website) | React Native, Python, Vision API, TypeScript |
+| CarGO — ride-hailing & parcels | [cargo-app](https://github.com/luvdrk/cargo-app) · [cargo-admin](https://github.com/luvdrk/cargo-admin) | Kotlin, React, Supabase, Firebase |
+| Registrar Queue Management System | [Website-RQMS](https://github.com/luvdrk/Website-RQMS) | PHP, JavaScript, MySQL |
+| Clothe Cove — brand storefront | [Website](https://github.com/luvdrk/Website) | HTML, CSS |
 
-**Heads up on git:** this folder sits inside a repository whose root is `C:\Users\Cole` — your entire home directory. Don't `git add` from here; you'd stage thousands of unrelated files. The Vercel CLI uploads the folder directly and doesn't need git at all. If you later want GitHub-connected auto-deploys, run `git init` *inside this folder* first so it gets its own repo.
+## Licence
+
+Code is free to learn from. The photographs, résumé, project screenshots and
+design work are not — please don't reuse those.
