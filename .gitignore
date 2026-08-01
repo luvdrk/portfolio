@@ -1,6 +1,12 @@
 # Vercel
 .vercel
 
+# Build output. scripts/build.ps1 copies the site files here, so every byte is
+# a duplicate of something already tracked at the root — and Vercel serves the
+# root anyway (see .vercelignore). The folder stays on disk; it just isn't
+# version-controlled.
+dist
+
 # Source images — the site uses the resized copies, not these
 1st picture.png
 2nd picture.png

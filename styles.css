@@ -19,7 +19,9 @@
 
   /* Background layers: dot grid, diagonal hairlines, two colour washes */
   --dot:rgba(0,0,0,.07);
+  --dot-lg:oklch(0.55 0.14 250 / 0.11);   /* sparse accent grid over the fine one */
   --rule:rgba(0,0,0,.035);
+  --ring:rgba(0,0,0,.055);                /* outlined circles */
   --wash:oklch(0.55 0.14 250 / 0.13);
   --wash2:oklch(0.62 0.11 205 / 0.13);
 
@@ -46,7 +48,9 @@
   --invert-muted:#4a4c52;
 
   --dot:rgba(255,255,255,.075);
+  --dot-lg:oklch(0.72 0.13 250 / 0.14);
   --rule:rgba(255,255,255,.035);
+  --ring:rgba(255,255,255,.06);
   --wash:oklch(0.62 0.15 250 / 0.20);
   --wash2:oklch(0.60 0.12 205 / 0.18);
 }
@@ -75,19 +79,38 @@ body {
   font:400 15px/1.5 var(--sans);
   -webkit-font-smoothing:antialiased;
 
-  /* Four stacked layers, front to back:
-     1. teal wash, top-right      3. dot grid, 26px
-     2. accent wash, upper-left   4. diagonal hairlines at 115°       */
+  /* Eight stacked layers, front to back:
+       1–2  outlined rings — the only non-repeating shapes, drawn as radial
+            gradients with hard stops so they need no extra elements
+       3–5  colour washes, spread top / middle / lower so the page doesn't go
+            flat below the first screen — the old pair both sat in the top 30%
+       6    wide accent dots, 104px — a second, sparser grid over the fine one,
+            which is what stops the field reading as uniform noise
+       7    fine dot grid, 26px
+       8    diagonal hairlines at 115°
+
+     Percentages resolve against the body box, i.e. the whole document, so
+     "52%" really is halfway down the page rather than halfway down the fold. */
   background-color:var(--bg);
   background-image:
-    radial-gradient(60% 46% at 88% 4%, var(--wash2) 0%, transparent 66%),
-    radial-gradient(70% 40% at 6% 30%, var(--wash)  0%, transparent 70%),
+    radial-gradient(circle at 90% 14%, transparent 0 217px, var(--ring) 217px 218px, transparent 219px),
+    radial-gradient(circle at 4% 63%,  transparent 0 145px, var(--ring) 145px 146px, transparent 147px),
+
+    radial-gradient(58% 26% at 88% 3%,  var(--wash2) 0%, transparent 66%),
+    radial-gradient(66% 22% at 6% 21%,  var(--wash)  0%, transparent 70%),
+    radial-gradient(54% 20% at 97% 58%, var(--wash)  0%, transparent 70%),
+
+    radial-gradient(var(--dot-lg) 1.7px, transparent 1.8px),
     radial-gradient(var(--dot) 1.1px, transparent 1.2px),
     repeating-linear-gradient(115deg, var(--rule) 0 1px, transparent 1px 9px);
-  background-size:auto, auto, 26px 26px, auto;
-  background-position:0 0, 0 0, 0 0, 0 0;
-  background-repeat:no-repeat, no-repeat, repeat, repeat;
-  background-attachment:scroll, scroll, scroll, scroll;
+  background-size:
+    auto, auto,
+    auto, auto, auto,
+    104px 104px, 26px 26px, auto;
+  background-repeat:
+    no-repeat, no-repeat,
+    no-repeat, no-repeat, no-repeat,
+    repeat, repeat, repeat;
 }
 
 h1,h2,h3,p,ul,figure { margin:0; }
@@ -108,14 +131,184 @@ button { font-family:inherit; }
   border-radius:4px;
 }
 
+/* Colour easing for browsers without view transitions — there the palette
+   swap is what the eye follows, so it gets a slightly longer ramp. */
 body, .card, .project, .btn, .chip, .theme-btn, input {
-  transition:background-color .18s ease, border-color .18s ease, color .18s ease;
+  transition:background-color .32s ease, border-color .32s ease,
+             color .32s ease, box-shadow .32s ease;
 }
+
+/* ══ Theme switch ═════════════════════════════════════════ */
+/* The whole page is cross-faded between palettes: the outgoing snapshot sits
+   on top and fades to nothing, revealing the incoming one underneath. Fading
+   only one of the two matters — cross-fading both at once dips through a
+   washed-out middle, because each is fully opaque on its own.
+
+   Snapshots are what make this work at all. The body's dot grid, hairlines
+   and colour washes are gradient images, and no CSS transition can
+   interpolate between two of those; as flattened pictures they blend fine. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode:normal;
+}
+::view-transition-new(root) {
+  animation:none;
+  z-index:0;
+}
+::view-transition-old(root) {
+  animation:theme-fade 450ms cubic-bezier(.4,0,.3,1) both;
+  z-index:1;
+}
+
+@keyframes theme-fade {
+  to { opacity:0; }
+}
+
+/* Fallback path only (see revealTheme in script.js): with no snapshots to
+   fade, the dot flips so the click still gets an answer. */
+.theme-btn.is-switching .dot { animation:dot-flip .45s cubic-bezier(.34,1.4,.5,1); }
+
+@keyframes dot-flip {
+  0%   { transform:rotateY(0) scale(1); }
+  50%  { transform:rotateY(90deg) scale(.55); }
+  100% { transform:rotateY(180deg) scale(1); }
+}
+
+/* ══ Launch curtain ═══════════════════════════════════════ */
+/* A full-bleed panel in the page background colour, carrying the same >_ mark
+   as the favicon and the assistant. It lifts at 0.42s and is gone by 0.72s,
+   which is why the hero's own delays below all start from 0.42s — the two
+   halves are one movement, not a wait followed by a movement. */
+.boot {
+  position:fixed; inset:0; z-index:200;
+  display:grid; place-items:center;
+  background:var(--bg);
+  animation:boot-out .72s cubic-bezier(.5,0,.2,1) forwards;
+}
+.boot-mark {
+  font:600 30px/1 var(--mono); color:var(--accent-ink);
+  animation:boot-mark .5s cubic-bezier(.2,.8,.3,1) backwards;
+}
+
+@keyframes boot-mark {
+  from { opacity:0; transform:translateY(7px); }
+  to   { opacity:1; transform:none; }
+}
+@keyframes boot-out {
+  0%,58%  { opacity:1; }
+  /* Off the compositor's hands entirely once it's clear, so it can never
+     sit invisibly over the page swallowing clicks. */
+  99%     { opacity:0; visibility:visible; pointer-events:none; }
+  100%    { opacity:0; visibility:hidden;  pointer-events:none; }
+}
+
+/* Already seen this tab — attribute set by the inline script in <head>. */
+[data-booted] .boot { display:none; }
+
+/* ══ Intro ════════════════════════════════════════════════ */
+/* Runs once on load, for the part of the page that's already on screen — the
+   scroll reveal below can't cover it, since it's visible before any scrolling
+   happens. `backwards` matters: without it each element would flash at full
+   opacity during its delay and then jump back to the start of the animation. */
+@keyframes intro-up {
+  from { opacity:0; transform:translateY(13px); }
+  to   { opacity:1; transform:none; }
+}
+
+.navpill,
+.hero-photo,
+.hero-nameline,
+.hero-loc,
+.hero .chip-row,
+.hero-actions,
+.hero .hero-email,
+.hero-aside {
+  animation:intro-up .58s cubic-bezier(.2,.8,.3,1) backwards;
+}
+
+/* Staggered in reading order: the bar, then the portrait, then down the
+   left column, with the right-hand links alongside.
+
+   --intro-base is when the curtain starts lifting. Everything below is
+   expressed relative to it, so retiming the whole opening is one number.
+   On a revisit the curtain is skipped and the base drops to zero. */
+:root { --intro-base:.42s; }
+[data-booted] { --intro-base:0s; }
+
+.navpill          { animation-duration:.42s; animation-delay:var(--intro-base); }
+.hero-photo       { animation-delay:calc(var(--intro-base) + .05s); }
+.hero-nameline    { animation-delay:calc(var(--intro-base) + .11s); }
+.hero-loc         { animation-delay:calc(var(--intro-base) + .16s); }
+.hero .chip-row   { animation-delay:calc(var(--intro-base) + .21s); }
+.hero-actions     { animation-delay:calc(var(--intro-base) + .27s); }
+.hero .hero-email { animation-delay:calc(var(--intro-base) + .32s); }
+.hero-aside       { animation-delay:calc(var(--intro-base) + .24s); }
+
+/* ══ Scroll reveal ════════════════════════════════════════ */
+/* Both classes are applied by script.js, never in the markup. If the script
+   fails or the browser has no IntersectionObserver, nothing is ever hidden —
+   the page just renders. Hiding in CSS and revealing in JS would risk a blank
+   page, which is a bad trade for a fade. */
+.reveal {
+  opacity:0; transform:translateY(14px);
+  transition:opacity .5s ease, transform .5s cubic-bezier(.2,.8,.3,1);
+  /* --i is set by script.js on list items so a row of projects arrives one
+     after another rather than all at once. Unset elsewhere, so the fallback
+     of 0 means no delay. */
+  transition-delay:calc(var(--i, 0) * 65ms);
+}
+.reveal.is-in { opacity:1; transform:none; }
+
+/* The pass is drawn as a physical object, so it arrives like one — tilted
+   slightly and pivoting on its lower edge, as though set down rather than
+   slid up. Longer than the standard reveal to give it some weight. */
+.pass.reveal {
+  transform:translateY(20px) scale(.965) rotate(-1.4deg);
+  transform-origin:50% 100%;
+  transition-duration:.62s;
+}
+.pass.reveal.is-in { transform:none; }
 
 @media (prefers-reduced-motion:reduce) {
   html { scroll-behavior:auto; }
   *,*::before,*::after { transition:none !important; animation:none !important; }
+
+  /* The blanket rule above kills the transition but not the start state, so
+     say it plainly — otherwise a reduced-motion visitor gets a blank page.
+     Same reasoning for the intro: `animation:none` with a `backwards` fill
+     would otherwise leave the hero frozen at opacity 0. */
+  .reveal { opacity:1 !important; transform:none !important; }
+  .navpill, .hero-photo, .hero-nameline, .hero-loc,
+  .hero .chip-row, .hero-actions, .hero .hero-email, .hero-aside {
+    opacity:1 !important; transform:none !important;
+  }
+
+  /* Critical: the blanket `animation:none` above would strand the curtain at
+     full opacity forever, leaving an opaque panel over the whole site. It has
+     no animation to remove here, so it must not exist at all. */
+  .boot { display:none !important; }
+
+  /* The theme cross-fade survives this block on purpose. Nothing travels or
+     scales in it, so it isn't the kind of motion this setting exists to
+     suppress, and a bare colour flip is the more jarring alternative. It is
+     shortened rather than removed. The universal selector above doesn't
+     reach view-transition pseudo-elements, so this is a re-declaration, not
+     an override. */
+  ::view-transition-old(root) { animation-duration:280ms; }
+
+  /* The assistant panel keeps a fade for the same reason, minus the rise and
+     the scale — those are the actual motion. This has to be !important: the
+     panel is a real element, so the blanket rule above does reach it, and
+     closeChat() waits on animationend to unmount the panel. Kill the
+     animation outright and it never fires. (script.js also carries a timeout
+     for that, but the panel shouldn't depend on the safety net.) */
+  .chat.is-open    { animation:chat-fade-in 140ms ease both !important; }
+  .chat.is-closing { animation:chat-fade-out 140ms ease both !important; }
+  .msg             { animation:none !important; }
 }
+
+@keyframes chat-fade-in  { from { opacity:0; } to { opacity:1; } }
+@keyframes chat-fade-out { from { opacity:1; } to { opacity:0; } }
 
 .skip-link {
   position:absolute; left:-9999px; top:0; z-index:100;
@@ -128,11 +321,62 @@ body, .card, .project, .btn, .chip, .theme-btn, input {
 .dot-sm { width:5px; height:5px; border-radius:50%; background:var(--faint); display:block; flex:none; }
 
 /* ══ Topbar ═══════════════════════════════════════════════ */
-/* Deliberately not sticky — the page is meant to be read top to
-   bottom, so nothing follows the reader down. */
+/* The strip the pill sticks inside. Transparent and pointer-transparent, so
+   only the pill itself is sticky-looking and only the pill takes clicks —
+   otherwise this invisible full-width band would swallow them. */
 .topbar {
-  display:flex; justify-content:flex-end;
-  padding:16px 0 0;
+  position:sticky; top:12px; z-index:50;
+  display:flex; justify-content:center;
+  padding:12px 0 0;
+  pointer-events:none;
+}
+
+.navpill {
+  pointer-events:auto;
+  display:flex; align-items:center; gap:4px;
+  max-width:100%; padding:6px;
+  border-radius:999px;
+  background:var(--surface); border:1px solid var(--line);
+  box-shadow:var(--shadow);
+}
+
+/* Links scroll rather than wrap — a pill that grows to two rows stops
+   reading as a pill. The bar is hidden; the fade below hints at the overflow. */
+.navpill-links {
+  display:flex; gap:2px; min-width:0;
+  overflow-x:auto; scrollbar-width:none;
+}
+.navpill-links::-webkit-scrollbar { display:none; }
+.navpill-links a {
+  flex:none; padding:7px 12px; border-radius:999px;
+  font:500 11.5px/1 var(--mono); color:var(--muted);
+  text-decoration:none; letter-spacing:.02em;
+  transition:color .16s ease, background-color .16s ease;
+}
+.navpill-links a:hover { color:var(--ink); background:var(--surface2); }
+/* Set by the observer in script.js as each section passes under the pill. */
+.navpill-links a.is-current { color:var(--ink); background:var(--surface2); }
+
+.navpill-sep {
+  flex:none; width:1px; height:18px; margin:0 4px;
+  background:var(--line);
+}
+
+/* The toggle loses its own border and card background inside the pill —
+   two nested outlines at this size just looks like a mistake. */
+.navpill .theme-btn {
+  flex:none; border:none; background:none;
+  padding:7px 10px; border-radius:999px;
+  color:var(--faint);
+}
+.navpill .theme-btn:hover { color:var(--ink); background:var(--surface2); }
+
+/* Phones: the theme label goes, leaving just its dot. Losing ~44px is the
+   difference between the section links fitting and having to be scrolled. */
+@media (max-width:560px) {
+  .navpill { gap:2px; }
+  .navpill .theme-btn { padding:7px 8px; }
+  .navpill #themeLabel { display:none; }
 }
 
 .theme-btn {
@@ -172,20 +416,31 @@ body, .card, .project, .btn, .chip, .theme-btn, input {
    placeholder show instead. JS adds this class on the error event. */
 .hero-photo .photo.missing { display:none; }
 
-.hero-photo .photo-b { opacity:0; }
-.hero-photo:hover .photo-b,
-.hero-photo:focus-visible .photo-b,
-.hero-photo.is-touched .photo-b { opacity:1; }
+/* Only the top image fades. Cross-fading both dips through a transparent
+   middle — two stacked layers at 50% leave the stack 25% see-through, which
+   is why the placeholder behind them flashed mid-hover. The second photo sits
+   underneath at full opacity instead, so there is never a gap to see through. */
+.hero-photo .photo-b { z-index:1; opacity:1; }
+.hero-photo .photo-a { z-index:2; opacity:1; }
 
 .hero-photo:hover .photo-a,
 .hero-photo:focus-visible .photo-a,
 .hero-photo.is-touched .photo-a { opacity:0; }
 
-.photo-fallback { font:500 9px/1 var(--mono); color:var(--faint); letter-spacing:.08em; }
+/* Hidden unless both files actually failed — script.js sets .no-photos on the
+   container once every image has fired an error. */
+.photo-fallback {
+  display:none;
+  font:500 9px/1 var(--mono); color:var(--faint); letter-spacing:.08em;
+}
+.hero-photo.no-photos .photo-fallback { display:block; }
 
 .hero-body { flex:1; min-width:0; display:flex; flex-direction:column; }
 .hero-top { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
-.hero-ident { display:flex; flex-direction:column; gap:8px; }
+/* flex:1 with min-width:0 so this column shrinks and wraps its own text.
+   Without it the column is sized to its longest line, and one long sentence
+   is enough to push .hero-aside off the row entirely. */
+.hero-ident { flex:1 1 340px; min-width:0; display:flex; flex-direction:column; gap:8px; }
 .hero-nameline { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .hero-nameline h1 { font:600 36px/1.05 var(--sans); letter-spacing:-.025em; }
 
@@ -255,6 +510,27 @@ body, .card, .project, .btn, .chip, .theme-btn, input {
 .hl-own-row { flex:1 0 100%; display:flex; justify-content:flex-end; }
 
 .hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+
+.hero-email { margin-top:10px; font:400 12px/1.4 var(--mono); color:var(--faint); }
+
+/* A button rather than styled text: clicking it does something, so it needs
+   to be reachable by keyboard and announced as an action. */
+.hero-email-addr {
+  padding:0; border:none; background:none;
+  border-bottom:1px dashed var(--line);
+  font:inherit; color:var(--muted); cursor:pointer;
+  transition:color .16s ease, border-color .16s ease;
+}
+.hero-email-addr:hover { color:var(--ink); border-bottom-color:var(--accent); }
+.hero-email-addr.is-copied {
+  color:var(--accent-ink); border-bottom-color:transparent;
+  animation:copied-in 220ms cubic-bezier(.2,.8,.3,1);
+}
+
+@keyframes copied-in {
+  from { opacity:0; transform:translateY(-3px); }
+  to   { opacity:1; transform:none; }
+}
 .btn {
   display:inline-flex; align-items:center; gap:9px;
   padding:11px 18px; border-radius:8px;
@@ -277,11 +553,20 @@ body, .card, .project, .btn, .chip, .theme-btn, input {
 .col-main { display:flex; flex-direction:column; gap:34px; min-width:0; }
 .col-side { display:flex; flex-direction:column; gap:28px; min-width:0; }
 
-.block { display:flex; flex-direction:column; gap:12px; scroll-margin-top:70px; }
+/* Clears the floating pill (12px offset + ~46px tall) plus breathing room,
+   so an anchor jump doesn't land the heading underneath it. */
+.block { display:flex; flex-direction:column; gap:12px; scroll-margin-top:84px; }
 .block h2 { font:600 17px/1 var(--sans); letter-spacing:-.01em; }
 .block p { font:400 14.5px/1.65 var(--sans); color:var(--muted); text-wrap:pretty; }
 .block p strong { color:var(--ink); font-weight:600; }
 .education-block { border-top:1px solid var(--line); padding-top:28px; }
+
+/* Closing call to action. Sits below the grid, full width, so it reads as
+   the end of the page rather than another column item. */
+.contact { margin-top:44px; padding-top:30px; border-top:1px solid var(--line); }
+.contact p { max-width:62ch; }
+.contact-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
+.contact .hero-email { margin-top:4px; }
 
 .block-head { display:flex; align-items:center; gap:10px; }
 .block-head.baseline { align-items:baseline; justify-content:space-between; }
@@ -486,6 +771,160 @@ a.project-title:hover { color:var(--accent-ink); text-decoration:underline; text
 .project-lead .project-title { font-size:16px; }
 .project-lead .project-desc { font-size:13.5px; }
 
+/* A filmstrip makes the row a few hundred pixels tall, and .project centres its
+   children — which strands the monogram and the language list halfway down all
+   that empty space. Top-align the rows that have one so both sit level with the
+   title, the way they do on rows without screenshots. */
+.project:has(.project-shots) { align-items:flex-start; }
+.project:has(.project-shots) .thumb { margin-top:2px; }
+.project:has(.project-shots) .project-tech { padding-top:3px; }
+
+/* Screenshot filmstrip. Fixed height with automatic width lets portrait phone
+   captures and landscape console ones share a row at their own aspect ratios;
+   anything that doesn't fit scrolls sideways rather than shrinking. */
+.project-shots {
+  display:flex; gap:8px; margin-top:10px;
+  overflow-x:auto; padding-bottom:10px;
+  overscroll-behavior-x:contain;
+  /* Firefox. --line is barely a tenth of an alpha, so a scrollbar drawn in it
+     is invisible against the card — --faint on a --surface2 track is the
+     faintest pairing that still reads as a control. */
+  scrollbar-width:thin; scrollbar-color:var(--faint) var(--surface2);
+}
+/* Chrome, Edge and Safari. Declaring these also opts out of overlay scrollbars,
+   so the bar stays on screen instead of fading once scrolling stops. */
+.project-shots::-webkit-scrollbar { height:10px; }
+.project-shots::-webkit-scrollbar-track {
+  background:var(--surface2); border-radius:999px;
+}
+.project-shots::-webkit-scrollbar-thumb {
+  background:var(--faint); border-radius:999px;
+  border:2px solid var(--surface2);   /* insets the thumb inside the track */
+}
+.project-shots::-webkit-scrollbar-thumb:hover { background:var(--muted); }
+.project-shots a {
+  flex:none; display:block; line-height:0;
+  border:1px solid var(--line); border-radius:8px; overflow:hidden;
+  transition:border-color .16s ease, transform .16s ease;
+}
+.project-shots a:hover { border-color:var(--accent); transform:translateY(-2px); }
+.project-shots img { height:186px; width:auto; display:block; }
+
+@media (max-width:640px) {
+  .project-shots img { height:150px; }
+}
+
+/* ══ Screenshot viewer ════════════════════════════════════ */
+.lightbox {
+  /* The <dialog> default is a small centred white box with a border. Strip all
+     of that: the image is the content, the backdrop is the surface. */
+  max-width:min(1200px, 94vw); max-height:94vh;
+  padding:0; border:none; background:none; overflow:visible;
+  color:var(--invert-muted);
+}
+/* Open and close.
+   `display` and `overlay` need `allow-discrete` or the dialog would vanish the
+   instant it's closed and there'd be nothing left to animate out. The
+   @starting-style block supplies the "before it existed" values, since the
+   element has no previous state to transition from on first paint. */
+.lightbox {
+  opacity:0; transform:scale(.97) translateY(6px);
+  transition:
+    opacity .2s ease,
+    transform .24s cubic-bezier(.2,.8,.3,1),
+    overlay .24s allow-discrete,
+    display .24s allow-discrete;
+}
+.lightbox[open] { opacity:1; transform:none; }
+@starting-style {
+  .lightbox[open] { opacity:0; transform:scale(.97) translateY(6px); }
+}
+
+.lightbox::backdrop {
+  background:rgba(0,0,0,0);
+  transition:
+    background-color .24s ease,
+    overlay .24s allow-discrete,
+    display .24s allow-discrete;
+}
+.lightbox[open]::backdrop { background:rgba(0,0,0,.82); }
+@starting-style {
+  .lightbox[open]::backdrop { background:rgba(0,0,0,0); }
+}
+
+/* Stepping between shots. The class is set by script.js in the direction of
+   travel, so the new image enters from the side you came from. */
+.lightbox-img.is-next { animation:lb-from-right .26s cubic-bezier(.2,.8,.3,1); }
+.lightbox-img.is-prev { animation:lb-from-left  .26s cubic-bezier(.2,.8,.3,1); }
+
+@keyframes lb-from-right {
+  from { opacity:0; transform:translateX(44px) scale(.985); }
+  to   { opacity:1; transform:none; }
+}
+@keyframes lb-from-left {
+  from { opacity:0; transform:translateX(-44px) scale(.985); }
+  to   { opacity:1; transform:none; }
+}
+
+/* The arrow acknowledges the press, so a held key still feels responsive
+   even when the images are identical in size. */
+.lightbox-arrow:active { transform:translateY(-50%) scale(.9); }
+
+/* The caption changes with the image, so it shouldn't sit still while the
+   image moves — a shorter, quieter version of the same fade. */
+.lightbox-cap.is-step { animation:lb-cap .26s ease; }
+@keyframes lb-cap {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+
+.lightbox-img {
+  display:block; margin:0 auto;
+  max-width:100%; max-height:82vh; width:auto; height:auto;
+  border-radius:10px; background:var(--surface);
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+
+.lightbox-cap {
+  margin-top:12px; text-align:center;
+  font:400 12px/1.5 var(--mono); color:#c8cad0;
+  max-width:70ch; margin-inline:auto;
+}
+
+/* Controls sit on the backdrop, so they're keyed to it rather than to the
+   theme — a light-theme visitor still has a dark surface behind them. */
+.lightbox-x, .lightbox-arrow {
+  position:fixed; z-index:1;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid rgba(255,255,255,.18); border-radius:999px;
+  background:rgba(20,20,22,.72); color:#f2f3f5;
+  cursor:pointer; line-height:1;
+  transition:background-color .16s ease, border-color .16s ease;
+}
+.lightbox-x:hover, .lightbox-arrow:hover {
+  background:rgba(40,40,44,.92); border-color:rgba(255,255,255,.4);
+}
+.lightbox-x { top:18px; right:18px; width:38px; height:38px; font-size:22px; }
+.lightbox-arrow {
+  top:50%; transform:translateY(-50%);
+  width:44px; height:44px; font-size:26px; padding-bottom:3px;
+}
+.lightbox-prev { left:18px; }
+.lightbox-next { right:18px; }
+/* Hidden by script when a strip holds only one image. */
+.lightbox-arrow[hidden] { display:none; }
+
+@media (max-width:560px) {
+  .lightbox-arrow { width:38px; height:38px; font-size:22px; }
+  .lightbox-prev { left:8px; }
+  .lightbox-next { right:8px; }
+}
+
+/* Plain pointer, not zoom-in. The magnifier is the conventional cue for a
+   lightbox, but it reads as a browser zoom control to most people — and the
+   thumbnails already look clickable without it. */
+.project-shots a { cursor:pointer; }
+
 .repo-links { display:flex; flex-wrap:wrap; gap:12px; margin-top:4px; }
 .repo-links a {
   font:500 11.5px/1.3 var(--mono); color:var(--accent-ink); text-decoration:none;
@@ -576,18 +1015,40 @@ a.project-title:hover { color:var(--accent-ink); text-decoration:underline; text
   background:var(--invert-bg); color:var(--invert-ink);
   cursor:pointer; font:600 13px/1 var(--sans);
   box-shadow:0 10px 28px rgba(0,0,0,.25);
+  transition:opacity .16s ease, transform .16s ease, box-shadow .16s ease;
 }
-.chat-fab:hover { opacity:.9; }
+.chat-fab:hover {
+  opacity:.9; transform:translateY(-2px);
+  box-shadow:0 14px 32px rgba(0,0,0,.28);
+}
+.chat-fab:active { transform:translateY(0) scale(.97); }
 
 .chat {
   position:fixed; right:24px; bottom:92px; z-index:60;
-  width:352px; max-width:calc(100vw - 32px);
-  border-radius:14px; background:var(--surface);
+  width:360px; max-width:calc(100vw - 32px);
+  border-radius:16px; background:var(--surface);
   border:1px solid var(--line);
-  box-shadow:0 18px 48px rgba(0,0,0,.22);
+  box-shadow:0 2px 6px rgba(0,0,0,.05), 0 20px 52px rgba(0,0,0,.24);
   display:flex; flex-direction:column; overflow:hidden;
+  /* The corner nearest the button, so the panel grows out of what was
+     clicked rather than out of its own middle. */
+  transform-origin:100% 100%;
 }
 .chat[hidden] { display:none; }
+
+/* Opening is given more time than closing: arriving wants to be seen,
+   leaving just needs to get out of the way. */
+.chat.is-open    { animation:chat-in 220ms cubic-bezier(.2,.85,.3,1) both; }
+.chat.is-closing { animation:chat-out 160ms cubic-bezier(.4,0,.9,.6) both; }
+
+@keyframes chat-in {
+  from { opacity:0; transform:translateY(8px) scale(.92); }
+  to   { opacity:1; transform:none; }
+}
+@keyframes chat-out {
+  from { opacity:1; transform:none; }
+  to   { opacity:0; transform:translateY(8px) scale(.92); }
+}
 
 .chat-head {
   padding:13px 15px; border-bottom:1px solid var(--line);
@@ -605,29 +1066,41 @@ a.project-title:hover { color:var(--accent-ink); text-decoration:underline; text
 .chat-sub { font:400 10.5px/1 var(--mono); color:var(--faint); }
 .chat-x {
   border:none; background:transparent; color:var(--faint);
-  cursor:pointer; font:400 18px/1 var(--sans); padding:2px 6px;
+  cursor:pointer; font:400 18px/1 var(--sans);
+  width:28px; height:28px; flex:none; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  transition:color .16s ease, background-color .16s ease;
 }
-.chat-x:hover { color:var(--ink); }
+.chat-x:hover { color:var(--ink); background:var(--surface2); }
 
 .chat-log {
-  padding:15px; display:flex; flex-direction:column; gap:11px;
+  padding:16px 15px; display:flex; flex-direction:column; gap:10px;
   height:308px; overflow-y:auto; overscroll-behavior:contain;
+  scrollbar-width:thin; scrollbar-color:var(--line) transparent;
 }
 .msg {
-  max-width:88%; padding:9px 12px;
-  font:400 13px/1.5 var(--sans); white-space:pre-wrap;
+  max-width:88%; padding:10px 13px;
+  font:400 13px/1.55 var(--sans); white-space:pre-wrap;
+  /* Each message lands rather than appearing, which reads as a reply
+     arriving instead of the log redrawing. */
+  animation:msg-in 240ms cubic-bezier(.2,.8,.3,1) both;
 }
 .msg-user {
   align-self:flex-end; max-width:82%;
-  border-radius:11px 11px 3px 11px;
+  border-radius:14px 14px 4px 14px;
   background:var(--accent); color:#fff;
 }
 .msg-bot {
   align-self:flex-start;
-  border-radius:11px 11px 11px 3px;
+  border-radius:14px 14px 14px 4px;
   background:var(--surface2); color:var(--ink);
 }
 .msg-bot a { color:var(--accent-ink); }
+
+@keyframes msg-in {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:none; }
+}
 
 .typing { align-self:flex-start; padding:10px 13px; border-radius:11px; background:var(--surface2); display:flex; gap:5px; }
 .typing span {
@@ -638,31 +1111,48 @@ a.project-title:hover { color:var(--accent-ink); text-decoration:underline; text
 .typing span:nth-child(3) { animation-delay:.4s; }
 @keyframes pfblink { 0%,100%{opacity:.25} 50%{opacity:1} }
 
-.chat-suggest { padding:0 15px 11px; display:flex; flex-wrap:wrap; gap:6px; }
+.chat-suggest { padding:0 15px 12px; display:flex; flex-wrap:wrap; gap:6px; }
 .chat-suggest button {
-  padding:5px 10px; border-radius:999px;
+  padding:6px 11px; border-radius:999px;
   border:1px solid var(--line); background:var(--surface);
   color:var(--muted); cursor:pointer;
   font:400 11.5px/1.3 var(--sans);
+  transition:border-color .16s ease, color .16s ease, transform .16s ease;
 }
-.chat-suggest button:hover { border-color:var(--accent); color:var(--ink); }
+.chat-suggest button:hover {
+  border-color:var(--accent); color:var(--ink);
+  transform:translateY(-1px);
+}
+.chat-suggest button:active { transform:none; }
 
 .chat-form {
   padding:11px 15px 14px; border-top:1px solid var(--line);
   display:flex; gap:8px; align-items:center;
 }
 .chat-form input {
-  flex:1; min-width:0; padding:9px 11px; border-radius:8px;
+  flex:1; min-width:0; padding:10px 14px; border-radius:999px;
   border:1px solid var(--line); background:var(--bg); color:var(--ink);
   font:400 13px/1.3 var(--sans); outline:none;
+  transition:border-color .16s ease, box-shadow .16s ease;
 }
+/* One ring, not two. The global :focus-visible outline would sit outside
+   this one at a 2px offset, and on a pill this small the pair reads as a
+   single heavy band of colour. The outline is dropped rather than the ring
+   because the accent border already marks the field, so focus stays
+   obvious without shouting. */
 .chat-form input:focus { border-color:var(--accent); }
+.chat-form input:focus-visible {
+  outline:none;
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
 .chat-form button {
-  flex:none; padding:9px 14px; border-radius:8px; border:none;
+  flex:none; padding:10px 16px; border-radius:999px; border:none;
   background:var(--invert-bg); color:var(--invert-ink);
   cursor:pointer; font:600 12.5px/1.3 var(--sans);
+  transition:opacity .16s ease, transform .16s ease;
 }
 .chat-form button:hover { opacity:.85; }
+.chat-form button:active { transform:scale(.96); }
 
 /* ══ Responsive ═══════════════════════════════════════════ */
 

@@ -1,0 +1,22 @@
+# Vercel serves the repo root, so only the site files themselves need to go up.
+
+# Keeps package.json out of the upload on purpose: its build script shells out
+# to PowerShell, and Vercel's builders are Linux. If Vercel sees the file it
+# tries to run that script and the deploy fails. There is no build step —
+# index.html, styles.css and script.js at the root *are* the site.
+package.json
+package-lock.json
+scripts
+
+# Local build output. Vercel serves from the root, so this is a duplicate copy.
+dist
+
+# Cloudflare Worker — not part of the static deploy.
+worker
+
+# Full-size originals; the site uses the resized copies.
+1st picture.png
+2nd picture.png
+
+README.md
+.gitignore

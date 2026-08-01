@@ -28,12 +28,254 @@
 
   applyTheme(readTheme());
 
+  /* Both palettes are cross-faded as whole-page snapshots, which is the only
+     way the background gradients blend too — CSS can't interpolate between
+     two gradient images. The fade itself lives in styles.css; all this does
+     is hand the swap to the browser so it has something to snapshot.
+
+     Deliberately not gated on prefers-reduced-motion: this is a cross-fade
+     with no movement, the thing reduced-motion users are spared is travel,
+     and an unannounced full-page colour flip is the harsher option. The
+     stylesheet shortens it under that setting instead. */
+  function revealTheme(theme) {
+    if (!document.startViewTransition) {
+      // Older browsers: the CSS colour transitions carry what they can, and
+      // the toggle's dot flips so the click still gets an answer.
+      if (toggle) {
+        toggle.classList.remove('is-switching');
+        void toggle.offsetWidth; // restart the animation on a rapid re-click
+        toggle.classList.add('is-switching');
+      }
+      applyTheme(theme);
+      return;
+    }
+
+    document.startViewTransition(function () { applyTheme(theme); });
+  }
+
   if (toggle) {
     toggle.addEventListener('click', function () {
       var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
+      revealTheme(next);
       try { localStorage.setItem('pf-theme', next); } catch (e) { /* ignore */ }
     });
+
+    toggle.addEventListener('animationend', function () {
+      toggle.classList.remove('is-switching');
+    });
+  }
+
+  /* ── Copy email ─────────────────────────────────────────── */
+  // One in the hero, one in the closing contact block; each keeps its own
+  // label and timer so confirming on one doesn't disturb the other.
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-copy-email]'),
+    function (btn) {
+      var label = btn.textContent;
+      var revert = null;
+
+      function flash(text) {
+        btn.textContent = text;
+        btn.classList.add('is-copied');
+        window.clearTimeout(revert);
+        revert = window.setTimeout(function () {
+          btn.textContent = label;
+          btn.classList.remove('is-copied');
+        }, 1600);
+      }
+
+      // Last resort for browsers without the clipboard API, or an insecure
+      // origin where it's blocked: select the address so Ctrl+C still works.
+      function selectInstead() {
+        try {
+          var range = document.createRange();
+          range.selectNodeContents(btn);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } catch (e) { /* nothing more to offer */ }
+      }
+
+      btn.addEventListener('click', function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(EMAIL).then(
+            function () { flash('Copied ✓'); },
+            function () { selectInstead(); flash('Press Ctrl+C'); }
+          );
+        } else {
+          selectInstead();
+          flash('Press Ctrl+C');
+        }
+      });
+    }
+  );
+
+  /* ── Nav highlight ──────────────────────────────────────── */
+  // Marks the section currently under the sticky bar. An observer rather than
+  // a scroll handler: the browser does the maths off the main thread, so this
+  // costs nothing while scrolling.
+  var navLinks = document.querySelectorAll('.navpill-links a');
+
+  if (navLinks.length && window.IntersectionObserver) {
+    var linkFor = {};
+    var targets = [];
+
+    Array.prototype.forEach.call(navLinks, function (a) {
+      var id = a.getAttribute('href').slice(1);
+      var section = document.getElementById(id);
+      if (section) {
+        linkFor[id] = a;
+        targets.push(section);
+      }
+    });
+
+    // Sections are taller than the viewport, so "is it visible" isn't the
+    // question — this narrows the observed band to a strip just under the bar
+    // and highlights whichever section is crossing it.
+    var spy = new IntersectionObserver(function (entries) {
+      Array.prototype.forEach.call(entries, function (entry) {
+        if (!entry.isIntersecting) return;
+        Array.prototype.forEach.call(navLinks, function (a) {
+          a.classList.remove('is-current');
+        });
+        var link = linkFor[entry.target.id];
+        if (link) link.classList.add('is-current');
+      });
+    }, { rootMargin: '-84px 0px -75% 0px', threshold: 0 });
+
+    Array.prototype.forEach.call(targets, function (s) { spy.observe(s); });
+  }
+
+  /* ── Scroll reveal ──────────────────────────────────────── */
+  // The .reveal class is added here rather than in the markup, so a browser
+  // without IntersectionObserver — or a visitor whose script never runs —
+  // simply sees the finished page instead of a blank one.
+  var reducedMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reducedMotion && window.IntersectionObserver) {
+    // The hero is skipped on purpose: it's above the fold, and fading in the
+    // first thing a visitor sees reads as the page loading slowly.
+    var rise = document.querySelectorAll('.block, .card, .project, .pass');
+
+    var riser = new IntersectionObserver(function (entries, obs) {
+      Array.prototype.forEach.call(entries, function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        obs.unobserve(entry.target);   // one-shot; it shouldn't replay on the way back up
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.06 });
+
+    Array.prototype.forEach.call(rise, function (el) {
+      el.classList.add('reveal');
+      riser.observe(el);
+    });
+
+    // Rows inside a list arrive one after another. The index is per list, so
+    // each project list starts its count again from zero rather than
+    // inheriting a growing delay from the section above it.
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.project-list, .card'),
+      function (list) {
+        Array.prototype.forEach.call(
+          list.querySelectorAll('.project, .feature-grid li, .stack-row li'),
+          function (item, i) {
+            // Capped: past about five the last row waits long enough that it
+            // reads as the page still loading.
+            item.style.setProperty('--i', Math.min(i, 5));
+          }
+        );
+      }
+    );
+  }
+
+  /* ── Screenshot viewer ──────────────────────────────────── */
+  // Each .project-shots strip is its own group, so the arrows walk that
+  // project's screenshots and don't wander into the next project's.
+  var lb = document.getElementById('lightbox');
+
+  if (lb && typeof lb.showModal === 'function') {
+    var lbImg = lb.querySelector('.lightbox-img');
+    var lbCap = lb.querySelector('.lightbox-cap');
+    var arrows = lb.querySelectorAll('.lightbox-arrow');
+    var group = [];
+    var index = 0;
+
+    function show(i, dir) {
+      // Wrap at both ends so the arrows never dead-end.
+      index = (i + group.length) % group.length;
+      var link = group[index];
+      var img = link.querySelector('img');
+
+      lbImg.src = link.getAttribute('href');
+      lbImg.alt = img ? img.getAttribute('alt') : '';
+      lbCap.textContent = group.length > 1
+        ? (index + 1) + ' / ' + group.length + ' — ' + lbImg.alt
+        : lbImg.alt;
+
+      Array.prototype.forEach.call(arrows, function (a) {
+        a.hidden = group.length < 2;
+      });
+
+      // Restart the slide. Removing the class isn't enough on its own —
+      // re-adding it in the same frame is a no-op unless the layout is read
+      // in between, which is what offsetWidth forces.
+      lbImg.classList.remove('is-next', 'is-prev');
+      lbCap.classList.remove('is-step');
+      if (dir) {
+        void lbImg.offsetWidth;
+        lbImg.classList.add(dir > 0 ? 'is-next' : 'is-prev');
+        lbCap.classList.add('is-step');
+      }
+    }
+
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.project-shots'),
+      function (strip) {
+        var links = strip.querySelectorAll('a');
+
+        Array.prototype.forEach.call(links, function (link, i) {
+          link.addEventListener('click', function (e) {
+            // Leave the modifier combinations to the browser — someone
+            // ctrl-clicking wants a background tab, not a dialog.
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+            e.preventDefault();
+            group = Array.prototype.slice.call(links);
+            show(i);
+            lb.showModal();
+          });
+        });
+      }
+    );
+
+    Array.prototype.forEach.call(
+      lb.querySelectorAll('[data-lb-step]'),
+      function (btn) {
+        btn.addEventListener('click', function () {
+          var step = Number(btn.getAttribute('data-lb-step'));
+          show(index + step, step);
+        });
+      }
+    );
+
+    Array.prototype.forEach.call(
+      lb.querySelectorAll('[data-lb-close]'),
+      function (btn) { btn.addEventListener('click', function () { lb.close(); }); }
+    );
+
+    // The dialog element fills the viewport, so a click landing on it rather
+    // than on the image means the backdrop was hit.
+    lb.addEventListener('click', function (e) {
+      if (e.target === lb) lb.close();
+    });
+
+    lb.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1, 1); }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); show(index - 1, -1); }
+    });
+
+    // Frees the memory once the viewer is dismissed.
+    lb.addEventListener('close', function () { lbImg.removeAttribute('src'); });
   }
 
   /* ── Footer year ────────────────────────────────────────── */
@@ -101,15 +343,16 @@
   // Scored by how many distinct keywords match.
   var KB = [
     {
-      k: ['panzi', 'pantry', 'current project', 'working on', 'right now', 'building'],
+      k: ['panzi', 'pantry', 'current project', 'working on', 'doing right now', 'building'],
       a: 'Panzi is the AI Smart Pantry System he\'s building with his team. You photograph what\'s on your shelf, and it recognises the items, tracks your inventory, estimates freshness, recommends recipes and generates shopping lists before anything spoils. It\'s built with React Native, Python and a vision API.'
     },
     {
-      k: ['stack', 'technolog', 'language', 'tools', 'skills', 'know', 'framework'],
+      k: ['stack', 'technolog', 'language', 'tools', 'skills', 'framework'],
       a: 'Web: HTML, CSS, JavaScript, TypeScript, PHP, React. Mobile: Kotlin, React Native, Android Studio. Backend & data: Supabase, PostgreSQL, Firebase, Python, MySQL. Design & motion: Photoshop, Illustrator, Canva, After Effects (plus some Figma and Lightroom). Video & AI media: CapCut, ElevenLabs, Google Flow.\n\nMost of the code side is public at github.com/luvdrk — Kotlin, React, Supabase and PostgreSQL all come from CarGO. The design work is at behance.net/derrickazaola1.'
     },
     {
-      k: ['build', 'built', 'project', 'portfolio', 'made', 'experience', 'repo', 'repos', 'github'],
+      k: ['build', 'built', 'project', 'portfolio', 'made', 'experience', 'repo', 'repos', 'github',
+          'you built', 'you build', 'you made', 'your work'],
       a: 'Four projects on github.com/luvdrk. CarGO is the big one — a ride-hailing and parcel platform split across two repos (a Kotlin Android app and a React operations console), roughly 2.9 MB of code. Then the Informative Panzi Website in TypeScript, a Registrar Queue Management System in PHP, and Clothe Cove, a clothing store front-end in HTML and CSS.'
     },
     {
@@ -178,23 +421,71 @@
     }
   ];
 
-  var FALLBACK = 'I only know what\'s on this page — CarGO and his other repos at github.com/luvdrk, the Panzi pantry system, his stack, his course at PHINMA UPang, and his freelance AI video work. For anything beyond that, email him at ' + EMAIL + '.';
+  var FALLBACK = 'That one\'s outside what I know. I can only speak to what\'s on this page — CarGO and his other repos at github.com/luvdrk, the Panzi pantry system, his stack, his design and AI video work, and his course at PHINMA UPang. Try a suggestion below, or email him at ' + EMAIL + '.';
 
   var GREETING = 'Hi — I answer questions about Derrick\'s work, projects and stack. Ask anything, or tap a suggestion below.';
 
+  /* Words common enough to appear in questions that have nothing to do with
+     him. On their own they aren't evidence of anything, so they can't reach
+     MIN_SCORE alone — "how do I build a birdhouse" shouldn't return his repo
+     list on the strength of one verb. */
+  var WEAK = ['build', 'built', 'made', 'best', 'where', 'data', 'social',
+              'who is', 'about him', 'about you', 'tell me about'];
+
+  // A topic word is worth answering on; a phrase is stronger still, since
+  // wording that specific is rarely accidental.
+  function weightOf(term) {
+    if (WEAK.indexOf(term) !== -1) return 1;
+    return term.indexOf(' ') !== -1 ? 3 : 2;
+  }
+
+  var MIN_SCORE = 2;
+
+  /* Matches at the start of a word, never mid-word. Plain indexOf found 'ts'
+     inside "sports" and 'know' inside "unknown", which is where most of the
+     wrong answers came from. Anchoring only the start still lets the stems
+     in the table ('technolog', 'repo') cover their own plurals. */
+  function hasTerm(q, term) {
+    var i = q.indexOf(term);
+    while (i !== -1) {
+      if (q.charAt(i - 1) === ' ') return true;
+      i = q.indexOf(term, i + 1);
+    }
+    return false;
+  }
+
   function answerFor(question) {
-    var q = ' ' + question.toLowerCase().replace(/[^a-z0-9à-ÿ\s]/g, ' ') + ' ';
+    var q = ' ' + question.toLowerCase()
+      .replace(/[^a-z0-9à-ÿ\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim() + ' ';
+
     var best = null;
     var bestScore = 0;
+    var bestTop = 0;   // strongest single term behind the winning score
 
     for (var i = 0; i < KB.length; i++) {
       var score = 0;
+      var top = 0;
+
       for (var j = 0; j < KB[i].k.length; j++) {
-        if (q.indexOf(KB[i].k[j]) !== -1) score++;
+        if (hasTerm(q, KB[i].k[j])) {
+          var w = weightOf(KB[i].k[j]);
+          score += w;
+          if (w > top) top = w;
+        }
       }
-      if (score > bestScore) { bestScore = score; best = KB[i]; }
+
+      // Ties used to fall to whichever entry came first in the array, which
+      // handed them all to Panzi. Prefer the more specific match instead.
+      if (score > bestScore || (score === bestScore && top > bestTop)) {
+        bestScore = score;
+        bestTop = top;
+        best = KB[i];
+      }
     }
-    return best ? best.a : FALLBACK;
+
+    return (best && bestScore >= MIN_SCORE) ? best.a : FALLBACK;
   }
 
   /* ── Assistant widget ───────────────────────────────────── */
@@ -268,9 +559,22 @@
     });
   }
 
+  /* `hidden` alone can't be animated — display:none takes effect instantly.
+     So opening unmounts nothing and closing waits for the animation to end
+     before hiding, with chatOpen (not the attribute) as the source of truth
+     so a click during the closing animation reopens cleanly. */
+  var chatOpen = false;
+  var closeFallback = null;
+
   function openChat() {
-    if (!panel) return;
+    if (!panel || chatOpen) return;
+    chatOpen = true;
+
+    window.clearTimeout(closeFallback);
+    panel.classList.remove('is-closing');
     panel.hidden = false;
+    panel.classList.add('is-open');
+
     if (fabLabel) fabLabel.textContent = 'Close';
     if (!started) {
       started = true;
@@ -281,15 +585,39 @@
     if (input) input.focus();
   }
 
-  function closeChat() {
-    if (!panel) return;
+  function finishClose() {
+    window.clearTimeout(closeFallback);
+    panel.classList.remove('is-closing');
     panel.hidden = true;
+  }
+
+  function closeChat() {
+    if (!panel || !chatOpen) return;
+    chatOpen = false;
+
+    panel.classList.remove('is-open');
+    panel.classList.add('is-closing');
     if (fabLabel) fabLabel.textContent = 'Ask about me';
+    // Focus would otherwise stay on a field inside a panel that's leaving.
+    if (fab) fab.focus();
+
+    // Nothing should be able to strand the panel on screen — if the
+    // animation is disabled, interrupted or never fires, hide it anyway.
+    window.clearTimeout(closeFallback);
+    closeFallback = window.setTimeout(finishClose, 400);
+  }
+
+  if (panel) {
+    panel.addEventListener('animationend', function (e) {
+      // The typing dots animate inside the panel and bubble up here too.
+      if (e.target !== panel || !panel.classList.contains('is-closing')) return;
+      finishClose();
+    });
   }
 
   if (fab) {
     fab.addEventListener('click', function () {
-      if (panel.hidden) openChat(); else closeChat();
+      if (chatOpen) closeChat(); else openChat();
     });
   }
   if (closeBtn) closeBtn.addEventListener('click', closeChat);
@@ -307,6 +635,6 @@
   }
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && panel && !panel.hidden) closeChat();
+    if (e.key === 'Escape' && chatOpen) closeChat();
   });
 })();

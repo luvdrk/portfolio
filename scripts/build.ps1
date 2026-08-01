@@ -18,6 +18,7 @@ $siteFiles = @(
   'script.js',
   'me-formal.jpg',
   'me-pose.jpg',
+  'og-cover.png',
   'design-cole-graphics.jpg',
   'design-cole-graphics-night.jpg'
 )
@@ -26,9 +27,18 @@ foreach ($file in $siteFiles) {
   Copy-Item -LiteralPath (Join-Path $projectRoot $file) -Destination $clientDir
 }
 
-$resumePath = Join-Path $projectRoot 'resume.pdf'
-if (Test-Path -LiteralPath $resumePath) {
-  Copy-Item -LiteralPath $resumePath -Destination $clientDir
+$shotsDir = Join-Path $projectRoot 'shots'
+if (Test-Path -LiteralPath $shotsDir) {
+  Copy-Item -LiteralPath $shotsDir -Destination $clientDir -Recurse
+}
+
+# resume.pdf is the designed one the site links; resume-ats.pdf is the plain
+# single-column copy for application portals that parse the file.
+foreach ($resume in @('resume.pdf', 'resume-ats.pdf')) {
+  $resumePath = Join-Path $projectRoot $resume
+  if (Test-Path -LiteralPath $resumePath) {
+    Copy-Item -LiteralPath $resumePath -Destination $clientDir
+  }
 }
 
 Copy-Item -LiteralPath (Join-Path $projectRoot 'worker/index.js') -Destination (Join-Path $serverDir 'index.js')
