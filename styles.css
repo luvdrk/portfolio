@@ -490,18 +490,25 @@ a:hover { color:var(--accent); }
 .reveal.is-in { animation:rise .55s cubic-bezier(.2,.7,.2,1) both; }
 
 /* ══ Theme switch ═════════════════════════════════════════ */
-/* The whole page cross-fades between palettes: the outgoing snapshot sits on
-   top and fades away, revealing the incoming one. Fading only one of the two
-   matters — cross-fading both dips through a washed-out middle. */
-::view-transition-old(root),
-::view-transition-new(root) { mix-blend-mode:normal; }
-::view-transition-new(root) { animation:none; z-index:0; }
-::view-transition-old(root) { animation:theme-fade 450ms cubic-bezier(.4,0,.3,1) both; z-index:1; }
-@keyframes theme-fade { to { opacity:0; } }
+/* The incoming palette is revealed by a circle growing out of the toggle
+   button — script.js animates the clip-path, because its origin and radius
+   depend on where the button happens to be.
 
-/* Fallback for browsers without view transitions. */
+   Two things here are load-bearing. The NEW snapshot must sit on top: it is
+   the one being clipped, so the old page shows through the part of the
+   circle it hasn't covered yet. And both need `animation:none` to cancel the
+   browser's default cross-fade, which would otherwise run underneath the
+   wipe and wash the whole thing out. */
+::view-transition-old(root),
+::view-transition-new(root) { animation:none; mix-blend-mode:normal; }
+::view-transition-old(root) { z-index:0; }
+::view-transition-new(root) { z-index:1; }
+
+/* Browsers without view transitions get a plain colour ramp instead — the
+   palette still moves rather than snapping. */
 html.theming, html.theming * {
-  transition:background-color .45s ease, color .45s ease, border-color .45s ease !important;
+  transition:background-color .5s ease, color .5s ease,
+             border-color .5s ease, box-shadow .5s ease !important;
 }
 
 /* ══ Responsive ═══════════════════════════════════════════ */

@@ -39,16 +39,45 @@
       var reduced = window.matchMedia &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // View transitions snapshot the page and cross-fade the two palettes.
-      // Without them the colour swap is instant, so a short CSS transition
-      // stands in — otherwise the flip reads as a glitch.
+      // No view transitions, or the visitor asked for less motion: ramp the
+      // colours with a plain CSS transition instead of snapping.
       if (!root.startViewTransition || reduced) {
         root.classList.add('theming');
         applyTheme(next);
-        window.setTimeout(function () { root.classList.remove('theming'); }, 500);
+        window.setTimeout(function () { root.classList.remove('theming'); }, 560);
         return;
       }
-      root.startViewTransition(function () { applyTheme(next); });
+
+      // The new palette is revealed by a circle growing out of the toggle.
+      // The radius is the distance to the furthest corner — anything smaller
+      // and the wipe finishes before it has covered the page.
+      var rect = toggle.getBoundingClientRect();
+      var x = rect.left + rect.width / 2;
+      var y = rect.top + rect.height / 2;
+      var far = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+
+      var vt = root.startViewTransition(function () { applyTheme(next); });
+
+      // Wait for `ready`: the snapshots don't exist until then, so animating
+      // the pseudo-element any earlier silently does nothing.
+      vt.ready.then(function () {
+        root.animate(
+          {
+            clipPath: [
+              'circle(0px at ' + x + 'px ' + y + 'px)',
+              'circle(' + far + 'px at ' + x + 'px ' + y + 'px)'
+            ]
+          },
+          {
+            duration: 620,
+            easing: 'cubic-bezier(.3,.7,.2,1)',
+            pseudoElement: '::view-transition-new(root)'
+          }
+        );
+      }).catch(function () { /* transition skipped; the theme still applied */ });
     });
   }
 
