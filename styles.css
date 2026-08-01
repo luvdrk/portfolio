@@ -385,21 +385,27 @@ a:hover { color:var(--accent); }
 .copyright { font:400 12px/1 var(--mono); letter-spacing:0.1em; color:#71757c; margin-top:var(--s7); }
 
 /* ══ Screenshot viewer ════════════════════════════════════ */
+/* `display` belongs on [open], NOT on .lb. A bare `display:grid` here beats
+   the browser's own `dialog:not([open]) { display:none }` — author styles win
+   over the UA sheet regardless of specificity — and the closed dialog then
+   renders as a full-viewport block at the foot of the page: invisible at
+   opacity 0, but a whole screen of scrollable nothing.
+
+   `display` and `overlay` still need allow-discrete in the transition, or the
+   dialog is removed the instant it closes and there's nothing left to fade. */
 .lb {
   width:100vw; max-width:100vw; height:100vh; max-height:100vh;
   padding:26px 34px 34px; border:none; background:none;
-  display:grid; grid-template-rows:auto 1fr auto; gap:22px;
   color:#f6f5f3;
-}
-.lb::backdrop { background:rgba(18,19,21,0); transition:background-color .24s ease; }
-.lb[open]::backdrop { background:rgba(18,19,21,0.9); }
-/* `display` and `overlay` need allow-discrete or the dialog vanishes the
-   instant it closes and there is nothing left to animate out. */
-.lb {
   opacity:0;
   transition:opacity .22s ease, overlay .24s allow-discrete, display .24s allow-discrete;
 }
-.lb[open] { opacity:1; }
+.lb[open] {
+  display:grid; grid-template-rows:auto 1fr auto; gap:22px;
+  opacity:1;
+}
+.lb::backdrop { background:rgba(18,19,21,0); transition:background-color .24s ease; }
+.lb[open]::backdrop { background:rgba(18,19,21,0.9); }
 @starting-style {
   .lb[open] { opacity:0; }
   .lb[open]::backdrop { background:rgba(18,19,21,0); }
