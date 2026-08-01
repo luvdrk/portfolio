@@ -408,6 +408,36 @@
     });
   }
 
+  /* ── Back to top ────────────────────────────────────────── */
+  // Shown once the contact block enters view — the bottom of the page. An
+  // observer on that section rather than a scroll handler, so nothing runs
+  // on every frame of a scroll.
+  var toTop = document.getElementById('toTop');
+  var contact = document.getElementById('contact');
+
+  if (toTop) {
+    if (contact && window.IntersectionObserver) {
+      var atBottom = new IntersectionObserver(function (entries) {
+        toTop.classList.toggle('is-on', entries[0].isIntersecting);
+      }, { rootMargin: '0px 0px -25% 0px', threshold: 0 });
+      atBottom.observe(contact);
+    } else {
+      // No observer: better a button that's always there than one that never
+      // appears, since it can't be reached any other way.
+      toTop.classList.add('is-on');
+    }
+
+    toTop.addEventListener('click', function () {
+      var reducedNow = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      try {
+        window.scrollTo({ top: 0, behavior: reducedNow ? 'auto' : 'smooth' });
+      } catch (e) {
+        window.scrollTo(0, 0);   // older browsers reject the options object
+      }
+    });
+  }
+
   /* ── Footer year ────────────────────────────────────────── */
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());

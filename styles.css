@@ -482,6 +482,34 @@ a:hover { color:var(--accent); }
 
 @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 
+/* ══ Back to top ══════════════════════════════════════════ */
+/* Bottom-left, opposite the assistant. On phones the chat panel sits at
+   bottom:80px and the fab at the right, so this stays clear of both without
+   needing a breakpoint of its own.
+
+   It stays in the layout when hidden and animates out rather than being
+   display:none, so appearing and disappearing don't jump. pointer-events is
+   what actually makes it unclickable while invisible. */
+.to-top {
+  position:fixed; left:24px; bottom:24px; z-index:70;
+  width:44px; height:44px;
+  display:grid; place-items:center;
+  font:400 18px/1 var(--mono);
+  background:var(--paper); color:var(--ink);
+  border:1px solid var(--hair); cursor:pointer;
+  box-shadow:0 8px 24px rgba(33,35,39,0.14);
+  opacity:0; transform:translateY(10px); pointer-events:none;
+  transition:opacity .22s ease, transform .22s ease,
+             border-color .16s ease, color .16s ease;
+}
+.to-top.is-on { opacity:1; transform:none; pointer-events:auto; }
+.to-top:hover { border-color:var(--accent); color:var(--accent); }
+.to-top:active { transform:scale(.92); }
+
+@media (max-width:640px) {
+  .to-top { left:12px; bottom:20px; width:40px; height:40px; }
+}
+
 /* ══ Scroll reveal ════════════════════════════════════════ */
 /* Both classes are applied by script.js, never in the markup. If the script
    fails or the browser has no IntersectionObserver, nothing is ever hidden —
