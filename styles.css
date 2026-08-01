@@ -1,58 +1,37 @@
 /* ══ Tokens ═══════════════════════════════════════════════ */
 :root {
-  --bg:#f7f7f6;
-  --surface:#ffffff;
-  --surface2:#f2f3f5;
-  --ink:#17181a;
-  --muted:#6c6e74;
-  --faint:#8b8d93;
-  --line:rgba(0,0,0,.09);
-  --stripe-a:#e6e7ea;
-  --stripe-b:#f1f2f4;
-  --accent:oklch(0.55 0.14 250);
-  --accent-soft:oklch(0.95 0.03 250);
-  --accent-ink:oklch(0.45 0.12 250);
-  --shadow:0 8px 24px rgba(0,0,0,.10);
-  --invert-bg:#17181a;
-  --invert-ink:#ffffff;
-  --invert-muted:#9a9ca2;
-
-  /* Background layers: dot grid, diagonal hairlines, two colour washes */
-  --dot:rgba(0,0,0,.07);
-  --dot-lg:oklch(0.55 0.14 250 / 0.11);   /* sparse accent grid over the fine one */
-  --rule:rgba(0,0,0,.035);
-  --ring:rgba(0,0,0,.055);                /* outlined circles */
-  --wash:oklch(0.55 0.14 250 / 0.13);
-  --wash2:oklch(0.62 0.11 205 / 0.13);
+  --paper:#f6f5f3;
+  --ink:#212327;
+  --body:#33363b;
+  --muted:#62666d;
+  --faint:#7c8087;
+  --rule:#212327;      /* the 2px structural rules */
+  --hair:#d9d7d3;      /* 1px dividers */
+  --field:#ecebe8;     /* image wells, chat bubbles */
+  --accent:#2f6fed;
 
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Public Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+
+  /* Spacing scale. Every gap and pad below is one of these — mixing arbitrary
+     values is what makes a layout's rhythm read as accidental. */
+  --s1:4px;  --s2:8px;  --s3:12px; --s4:16px;
+  --s5:24px; --s6:36px; --s7:56px; --s8:72px;
+
+  --gut:24px;          /* the 12-column gutter */
+  --shell:1180px;
+  --pad:40px;
 }
 
 [data-theme="dark"] {
-  --bg:#0f1113;
-  --surface:#16181b;
-  --surface2:#1d2024;
-  --ink:#ecedef;
-  --muted:#9a9ca2;
-  --faint:#6f727a;
-  --line:rgba(255,255,255,.10);
-  --stripe-a:#1c1f23;
-  --stripe-b:#23262b;
-  --accent:oklch(0.72 0.13 250);
-  --accent-soft:oklch(0.30 0.06 250);
-  --accent-ink:oklch(0.85 0.09 250);
-  --shadow:0 8px 24px rgba(0,0,0,.45);
-  --invert-bg:#ecedef;
-  --invert-ink:#0f1113;
-  --invert-muted:#4a4c52;
-
-  --dot:rgba(255,255,255,.075);
-  --dot-lg:oklch(0.72 0.13 250 / 0.14);
-  --rule:rgba(255,255,255,.035);
-  --ring:rgba(255,255,255,.06);
-  --wash:oklch(0.62 0.15 250 / 0.20);
-  --wash2:oklch(0.60 0.12 205 / 0.18);
+  --paper:#17181a;
+  --ink:#eceae7;
+  --body:#b9bcc1;
+  --muted:#9a9ea5;
+  --faint:#8b8f97;
+  --rule:#eceae7;
+  --hair:#33363b;
+  --field:#212327;
 }
 
 /* ══ Base ═════════════════════════════════════════════════ */
@@ -60,15 +39,9 @@
 
 html {
   scroll-behavior:smooth;
-  /* Giving <html> a background stops <body>'s from propagating to the
-     canvas, so body paints as a normal box and the gradient percentages
-     below resolve against the page — same as the wrapper div they came from. */
-  background-color:var(--bg);
-
-  /* iOS inflates text in landscape unless told not to. */
+  background:var(--paper);
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
-  /* Belt and braces against a stray wide element causing sideways scroll. */
   overflow-x:hidden;
 }
 
@@ -76,1178 +49,531 @@ body {
   margin:0;
   min-height:100vh;
   color:var(--ink);
-  font:400 15px/1.5 var(--sans);
+  font:400 16px/1.5 var(--sans);
   -webkit-font-smoothing:antialiased;
-
-  /* Eight stacked layers, front to back:
-       1–2  outlined rings — the only non-repeating shapes, drawn as radial
-            gradients with hard stops so they need no extra elements
-       3–5  colour washes, spread top / middle / lower so the page doesn't go
-            flat below the first screen — the old pair both sat in the top 30%
-       6    wide accent dots, 104px — a second, sparser grid over the fine one,
-            which is what stops the field reading as uniform noise
-       7    fine dot grid, 26px
-       8    diagonal hairlines at 115°
-
-     Percentages resolve against the body box, i.e. the whole document, so
-     "52%" really is halfway down the page rather than halfway down the fold. */
-  background-color:var(--bg);
+  /* Three soft washes rather than a flat fill, fixed so they don't scroll
+     away and leave the lower page bare. color-mix keeps them tied to the
+     accent, so changing --accent restains the whole page. */
+  background-color:var(--paper);
   background-image:
-    radial-gradient(circle at 90% 14%, transparent 0 217px, var(--ring) 217px 218px, transparent 219px),
-    radial-gradient(circle at 4% 63%,  transparent 0 145px, var(--ring) 145px 146px, transparent 147px),
-
-    radial-gradient(58% 26% at 88% 3%,  var(--wash2) 0%, transparent 66%),
-    radial-gradient(66% 22% at 6% 21%,  var(--wash)  0%, transparent 70%),
-    radial-gradient(54% 20% at 97% 58%, var(--wash)  0%, transparent 70%),
-
-    radial-gradient(var(--dot-lg) 1.7px, transparent 1.8px),
-    radial-gradient(var(--dot) 1.1px, transparent 1.2px),
-    repeating-linear-gradient(115deg, var(--rule) 0 1px, transparent 1px 9px);
-  background-size:
-    auto, auto,
-    auto, auto, auto,
-    104px 104px, 26px 26px, auto;
-  background-repeat:
-    no-repeat, no-repeat,
-    no-repeat, no-repeat, no-repeat,
-    repeat, repeat, repeat;
+    radial-gradient(1100px 620px at 82% -8%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 68%),
+    radial-gradient(820px 560px at -6% 34%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%),
+    radial-gradient(760px 520px at 60% 88%, color-mix(in srgb, var(--ink) 7%, transparent), transparent 72%);
+  background-attachment:fixed;
 }
 
-h1,h2,h3,p,ul,figure { margin:0; }
-ul { list-style:none; padding:0; }
-
-/* Long repo names and URLs shouldn't push the layout sideways. */
+h1,h2,h3,p,ul,ol,dl,dd,figure { margin:0; }
+ul,ol { list-style:none; padding:0; }
+img { max-width:100%; display:block; }
 h1,h2,h3,p,span,a,li { overflow-wrap:break-word; }
-img { max-width:100%; }
-
-a { color:var(--accent-ink); }
-a:hover { color:var(--accent); }
-
 button { font-family:inherit; }
 
-:focus-visible {
-  outline:2px solid var(--accent);
-  outline-offset:2px;
-  border-radius:4px;
-}
+a { color:var(--ink); text-underline-offset:3px; text-decoration-thickness:1px; }
+a:hover { color:var(--accent); }
+::selection { background:var(--accent); color:#fff; }
 
-/* Colour easing for browsers without view transitions — there the palette
-   swap is what the eye follows, so it gets a slightly longer ramp. */
-body, .card, .project, .btn, .chip, .theme-btn, input {
-  transition:background-color .32s ease, border-color .32s ease,
-             color .32s ease, box-shadow .32s ease;
-}
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
-/* ══ Theme switch ═════════════════════════════════════════ */
-/* The whole page is cross-faded between palettes: the outgoing snapshot sits
-   on top and fades to nothing, revealing the incoming one underneath. Fading
-   only one of the two matters — cross-fading both at once dips through a
-   washed-out middle, because each is fully opaque on its own.
-
-   Snapshots are what make this work at all. The body's dot grid, hairlines
-   and colour washes are gradient images, and no CSS transition can
-   interpolate between two of those; as flattened pictures they blend fine. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  mix-blend-mode:normal;
+.skip-link {
+  position:absolute; left:-9999px; top:0; z-index:200;
+  padding:10px 16px; background:var(--ink); color:var(--paper);
+  font:600 13px/1 var(--sans); text-decoration:none;
 }
-::view-transition-new(root) {
-  animation:none;
-  z-index:0;
-}
-::view-transition-old(root) {
-  animation:theme-fade 450ms cubic-bezier(.4,0,.3,1) both;
-  z-index:1;
-}
+.skip-link:focus { left:0; }
 
-@keyframes theme-fade {
-  to { opacity:0; }
+/* ══ Layout ═══════════════════════════════════════════════ */
+.wrap { max-width:var(--shell); margin:0 auto; padding-inline:var(--pad); }
+
+.g12 { display:grid; grid-template-columns:repeat(12,1fr); gap:var(--gut); }
+.col-3 { grid-column:span 3; }
+.col-4 { grid-column:span 4; }
+.col-5 { grid-column:span 5; }
+.col-6 { grid-column:span 6; }
+.col-8 { grid-column:span 8; }
+.col-9 { grid-column:span 9; }
+
+/* Every numbered section carries a huge ghost numeral. It's clipped by the
+   band rather than the page, so it can bleed past the shell without ever
+   causing sideways scroll. */
+.band { position:relative; overflow:hidden; }
+.band-in { padding-block:var(--s7); }
+
+.ghost {
+  position:absolute; z-index:0;
+  font:800 230px/1 var(--sans); letter-spacing:-0.07em;
+  color:color-mix(in srgb, var(--ink) 5%, transparent);
+  pointer-events:none; user-select:none;
 }
+.ghost-r { top:-26px; right:-14px; }
+.ghost-l { top:-30px; left:-18px; }
+.ghost-low { top:auto; bottom:-44px; }
+.band > .wrap { position:relative; z-index:1; }
 
-/* Fallback path only (see revealTheme in script.js): with no snapshots to
-   fade, the dot flips so the click still gets an answer. */
-.theme-btn.is-switching .dot { animation:dot-flip .45s cubic-bezier(.34,1.4,.5,1); }
-
-@keyframes dot-flip {
-  0%   { transform:rotateY(0) scale(1); }
-  50%  { transform:rotateY(90deg) scale(.55); }
-  100% { transform:rotateY(180deg) scale(1); }
+/* ══ Topbar ═══════════════════════════════════════════════ */
+.topbar {
+  position:sticky; top:0; z-index:50;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:2px solid var(--rule);
 }
+.topbar-in {
+  max-width:var(--shell); margin:0 auto;
+  padding:14px var(--pad);
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:28px;
+}
+.topnav {
+  grid-column:2;
+  display:flex; gap:22px;
+  font:400 12px/1 var(--mono); letter-spacing:0.06em;
+}
+.topnav a { color:var(--muted); text-decoration:none; transition:color .16s ease; }
+.topnav a:hover { color:var(--ink); }
+/* Set by the observer in script.js as each section passes under the bar. */
+.topnav a.is-current { color:var(--accent); }
 
-/* ══ Launch curtain ═══════════════════════════════════════ */
-/* A full-bleed panel in the page background colour, carrying the same >_ mark
-   as the favicon and the assistant. It lifts at 0.42s and is gone by 0.72s,
-   which is why the hero's own delays below all start from 0.42s — the two
-   halves are one movement, not a wait followed by a movement. */
-.boot {
-  position:fixed; inset:0; z-index:200;
+.mode-btn {
+  grid-column:3; justify-self:end;
+  font:400 12px/1 var(--mono); letter-spacing:0.06em;
+  padding:6px 11px; background:transparent; color:var(--ink);
+  border:1px solid var(--hair); cursor:pointer;
+  transition:border-color .16s ease;
+}
+.mode-btn:hover { border-color:var(--accent); }
+
+/* ══ Hero ═════════════════════════════════════════════════ */
+.hero { padding-block:var(--s8) var(--s7); }
+
+.status {
+  display:flex; align-items:center; gap:10px;
+  font:400 12px/1 var(--mono); letter-spacing:0.1em;
+  color:var(--muted); margin-bottom:28px;
+}
+.status .sep { color:var(--faint); }
+.blip {
+  width:7px; height:7px; border-radius:50%; background:var(--accent);
+  flex:none; animation:blip 2.4s ease-in-out infinite;
+}
+@keyframes blip { 0%,100% { opacity:.35; } 50% { opacity:1; } }
+
+.hero h1 {
+  font:800 86px/0.92 var(--sans); letter-spacing:-0.045em;
+  margin-bottom:26px;
+}
+.lede { font:400 21px/1.45 var(--sans); max-width:46ch; color:var(--body); }
+.hero .lede { margin-bottom:32px; }
+
+.actions { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+
+.btn {
+  display:inline-flex; align-items:center;
+  font:600 15px/1 var(--sans);
+  padding:13px 20px; text-decoration:none; cursor:pointer;
+  border:1px solid transparent;
+  transition:opacity .16s ease, border-color .16s ease, background-color .16s ease;
+}
+.btn-solid { background:var(--ink); color:var(--paper); }
+.btn-solid:hover { opacity:.85; color:var(--paper); }
+.btn-line { background:transparent; border-color:var(--ink); color:var(--ink); }
+.btn-line:hover { border-color:var(--accent); color:var(--accent); }
+
+.copy-btn {
+  font:400 12px/1 var(--mono); color:var(--muted);
+  background:transparent; border:0; cursor:pointer; padding:13px 4px;
+  transition:color .16s ease;
+}
+.copy-btn:hover { color:var(--ink); }
+.copy-btn.is-copied { color:var(--accent); }
+
+.ats { font:400 12px/1.5 var(--mono); color:var(--faint); margin-top:var(--s3); }
+
+.hero-side { display:flex; flex-direction:column; gap:var(--s4); }
+
+/* Two stacked photos. Only the top one fades — cross-fading both dips through
+   a transparent middle and shows the well behind them. */
+.portrait {
+  position:relative; isolation:isolate;
+  aspect-ratio:3/4; overflow:hidden;
+  background:var(--field); border:1px solid var(--hair);
+  cursor:pointer;
+}
+.portrait .ph {
+  position:absolute; inset:0;
+  width:100%; height:100%; object-fit:cover; object-position:center top;
+  transition:opacity .32s ease;
+}
+.portrait .ph-b { z-index:1; opacity:1; }
+.portrait .ph-a { z-index:2; opacity:1; }
+.portrait:hover .ph-a,
+.portrait:focus-visible .ph-a,
+.portrait.is-touched .ph-a { opacity:0; }
+.portrait .ph.missing { display:none; }
+
+.facts { display:grid; grid-template-columns:auto 1fr; gap:7px 16px; font-size:14px; }
+.facts dt { font:400 12px/1 var(--mono); letter-spacing:0.08em; color:var(--faint); align-self:center; }
+.facts dd { margin:0; }
+
+/* ══ Section furniture ════════════════════════════════════ */
+.kicker {
+  font:500 12px/1 var(--mono); letter-spacing:0.12em;
+  color:var(--muted); margin:0;
+}
+.big { font:400 18px/1.6 var(--sans); }
+.body { font:400 17px/1.6 var(--sans); color:var(--body); max-width:62ch; }
+.sub { font:400 17px/1.6 var(--sans); color:var(--body); max-width:52ch; margin-top:10px; }
+.h-lg { font:700 34px/1.05 var(--sans); letter-spacing:-0.035em; }
+.h-md { font:700 30px/1.1 var(--sans); letter-spacing:-0.035em; margin-bottom:var(--s4); }
+.label { display:block; font:400 12px/1 var(--mono); letter-spacing:0.1em; color:var(--faint); margin-bottom:var(--s3); }
+.label-gap { margin-top:var(--s6); }
+.mono-link { font:400 12px/1 var(--mono); }
+
+/* ══ Work ═════════════════════════════════════════════════ */
+.work-head { padding-top:var(--s7); margin-bottom:var(--s6); }
+.work-head .mono-link { display:block; margin-top:10px; }
+
+.proj { padding-block:var(--s6); border-top:2px solid var(--rule); }
+.proj:first-of-type { border-top:0; padding-top:var(--s2); }
+.wip { border-bottom:2px solid var(--rule); }
+
+.proj h3 { font:700 36px/1.05 var(--sans); letter-spacing:-0.035em; margin-bottom:var(--s4); }
+.proj-sm h3 { font-size:32px; }
+.proj h3 a { color:inherit; text-decoration:none; }
+.proj h3 a:hover { color:var(--accent); }
+.proj .body { margin-bottom:22px; }
+
+.proj-meta { display:flex; flex-direction:column; align-items:flex-start; }
+.tag { font:400 12px/1 var(--mono); letter-spacing:0.12em; color:var(--accent); margin-bottom:14px; }
+.mono-tile {
+  width:34px; height:34px; flex:none;
   display:grid; place-items:center;
-  background:var(--bg);
-  animation:boot-out .72s cubic-bezier(.5,0,.2,1) forwards;
+  background:var(--lang,#888); color:#fff;
+  font:600 13px/1 var(--mono); margin-bottom:14px;
 }
-.boot-mark {
-  font:600 30px/1 var(--mono); color:var(--accent-ink);
-  animation:boot-mark .5s cubic-bezier(.2,.8,.3,1) backwards;
+.stack { font:400 12px/1.9 var(--mono); color:var(--muted); }
+.when { font:400 12px/1.6 var(--mono); color:var(--faint); margin-top:12px; }
+.repos { display:flex; flex-direction:column; gap:3px; margin-top:14px; font:400 12px/1.6 var(--mono); }
+
+.feats {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:0 var(--gut);
+  font-size:14px; padding-block:10px; margin-bottom:var(--s5);
+  border-top:1px solid var(--hair); border-bottom:1px solid var(--hair);
+}
+.feats li { padding-block:4px; }
+
+/* ── Screenshots ──────────────────────────────────────────
+   Six columns, and every span is chosen so each row fills exactly: three
+   phone captures at 2 columns each, or two landscape ones at 3. A row that
+   comes up short leaves empty cells, which is a tall band of nothing you can
+   still scroll through — the thing this replaced.
+
+   object-fit is contain, not cover. The shots range from a 374×749 phone to
+   a 243×703 receipt to a 1200×604 console; cover would crop each one
+   differently and cut the tops off the wide ones. */
+.shots { display:grid; grid-template-columns:repeat(6,1fr); gap:var(--s4); }
+
+.shot {
+  grid-column:span 3; aspect-ratio:2/1;
+  padding:0; border:1px solid var(--hair); background:var(--field);
+  cursor:pointer; overflow:hidden; line-height:0;
+  transition:border-color .16s ease, transform .16s ease;
+}
+.shot:hover { border-color:var(--accent); transform:translateY(-2px); }
+.shot img { width:100%; height:100%; object-fit:contain; }
+
+/* Portrait captures: 2 columns, at their own ratio so they fit exactly. */
+.shot-phone { grid-column:span 2; aspect-ratio:374/749; }
+
+/* A lone screenshot shouldn't sit in a six-column grid with five cells of
+   nothing beside it. */
+.shots-solo { grid-template-columns:1fr; }
+.shots-solo .shot { grid-column:span 1; }
+
+/* ── In progress ────────────────────────────────────────── */
+.wip-head { display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
+.wip-name { font:700 24px/1.15 var(--sans); letter-spacing:-0.03em; }
+.wip-name a { color:inherit; text-decoration:none; }
+.wip-name a:hover { color:var(--accent); }
+.pill {
+  font:400 11px/1 var(--mono); letter-spacing:0.1em;
+  padding:4px 7px; background:var(--accent); color:#fff;
+}
+.wip .body { font-size:16px; margin-bottom:var(--s4); }
+
+.steps { display:grid; font-size:15px; margin-bottom:14px; }
+.steps li { display:grid; grid-template-columns:30px 1fr; padding-block:7px; border-top:1px solid var(--hair); }
+.steps li:first-child { border-top:0; padding-top:4px; }
+.steps span { font:400 12px/1.6 var(--mono); color:var(--accent); }
+.stack-row { font:400 12px/1 var(--mono); color:var(--muted); }
+
+/* ══ Design ═══════════════════════════════════════════════ */
+.two-up {
+  display:grid; grid-template-columns:1fr 1fr; gap:0 20px;
+  font-size:15px; margin-block:var(--s4) 22px;
+}
+.two-up li { padding-block:4px; }
+
+.compare-fig { margin:0; }
+.compare {
+  position:relative; aspect-ratio:16/9; overflow:hidden;
+  border:1px solid var(--hair); background:var(--field);
+  cursor:ew-resize; touch-action:pan-y;
+}
+.compare .cmp { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+/* The top image is clipped to --pos, so the left slice is DAY and the right
+   slice is the NIGHT image underneath. */
+.cmp-over { clip-path:inset(0 calc(100% - var(--pos)) 0 0); }
+.cmp-tag {
+  position:absolute; top:10px;
+  font:400 11px/1 var(--mono); letter-spacing:0.1em;
+  padding:4px 6px; background:var(--paper); color:var(--ink);
+}
+.cmp-l { left:10px; }
+.cmp-r { right:10px; }
+.cmp-line { position:absolute; top:0; bottom:0; width:2px; background:var(--accent); left:var(--pos); }
+.cmp-range {
+  position:absolute; inset:0; width:100%; height:100%;
+  opacity:0; margin:0; cursor:ew-resize;
+  -webkit-appearance:none; appearance:none; background:transparent;
+}
+.compare-fig figcaption {
+  font:400 12px/1.5 var(--mono); letter-spacing:0.06em;
+  color:var(--faint); margin-top:10px;
 }
 
-@keyframes boot-mark {
-  from { opacity:0; transform:translateY(7px); }
-  to   { opacity:1; transform:none; }
+/* ══ Background ═══════════════════════════════════════════ */
+.entries { display:grid; }
+.entry { padding-block:20px 24px; border-top:1px solid var(--hair); }
+.entry:first-child { border-top:0; padding-top:0; }
+.e-title { display:block; font:700 18px/1.3 var(--sans); letter-spacing:-0.02em; }
+.e-desc { display:block; font:400 15px/1.55 var(--sans); color:var(--body); margin-block:5px; }
+.e-when { font:400 12px/1 var(--mono); color:var(--faint); }
+
+.stack-list { display:grid; }
+.stack-list dt {
+  font:400 12px/1.5 var(--mono); letter-spacing:0.06em; color:var(--muted);
+  grid-column:1; padding-block:9px;
 }
-@keyframes boot-out {
-  0%,58%  { opacity:1; }
-  /* Off the compositor's hands entirely once it's clear, so it can never
-     sit invisibly over the page swallowing clicks. */
-  99%     { opacity:0; visibility:visible; pointer-events:none; }
-  100%    { opacity:0; visibility:hidden;  pointer-events:none; }
+.stack-list dd {
+  font:400 15px/1.5 var(--sans); grid-column:2; padding-block:9px; margin:0;
+}
+.stack-list dt, .stack-list dd { border-top:1px solid var(--hair); }
+.stack-list { grid-template-columns:92px 1fr; column-gap:14px; }
+.stack-list dt:first-of-type, .stack-list dd:first-of-type { border-top:0; padding-top:5px; }
+
+/* ══ Contact ══════════════════════════════════════════════ */
+/* Fixed ink-on-paper rather than themed: this block is the page's full stop,
+   and it should read the same in both themes. */
+.contact { background:#212327; color:#f6f5f3; }
+.contact .ghost { color:rgba(246,245,243,0.05); }
+.contact-in { padding-block:var(--s8); position:relative; z-index:1; }
+.contact .kicker { display:block; color:#8f939a; margin-bottom:26px; }
+.contact h2 {
+  font:800 64px/0.98 var(--sans); letter-spacing:-0.045em;
+  max-width:16ch; margin-bottom:20px;
+}
+.contact .lede { font-size:18px; line-height:1.5; color:#c3c5c9; margin-bottom:32px; }
+.contact .actions { margin-bottom:var(--s7); }
+.btn-invert { background:#f6f5f3; color:#212327; }
+.btn-invert:hover { opacity:.85; color:#212327; }
+.btn-ghost { background:transparent; color:#f6f5f3; border-color:#4a4d53; }
+.btn-ghost:hover { border-color:#f6f5f3; color:#f6f5f3; }
+
+.elsewhere { display:grid; grid-template-columns:repeat(5,1fr); gap:20px; }
+.elsewhere a { display:block; text-decoration:none; color:#f6f5f3; border-top:1px solid #3a3d43; padding-top:10px; }
+.elsewhere a:hover { color:#fff; border-top-color:var(--accent); }
+.l-name { display:block; font:700 16px/1.3 var(--sans); }
+.l-sub { font:400 12px/1.6 var(--mono); color:#8f939a; }
+.copyright { font:400 12px/1 var(--mono); letter-spacing:0.1em; color:#71757c; margin-top:var(--s7); }
+
+/* ══ Screenshot viewer ════════════════════════════════════ */
+.lb {
+  width:100vw; max-width:100vw; height:100vh; max-height:100vh;
+  padding:26px 34px 34px; border:none; background:none;
+  display:grid; grid-template-rows:auto 1fr auto; gap:22px;
+  color:#f6f5f3;
+}
+.lb::backdrop { background:rgba(18,19,21,0); transition:background-color .24s ease; }
+.lb[open]::backdrop { background:rgba(18,19,21,0.9); }
+/* `display` and `overlay` need allow-discrete or the dialog vanishes the
+   instant it closes and there is nothing left to animate out. */
+.lb {
+  opacity:0;
+  transition:opacity .22s ease, overlay .24s allow-discrete, display .24s allow-discrete;
+}
+.lb[open] { opacity:1; }
+@starting-style {
+  .lb[open] { opacity:0; }
+  .lb[open]::backdrop { background:rgba(18,19,21,0); }
 }
 
-/* Already seen this tab — attribute set by the inline script in <head>. */
-[data-booted] .boot { display:none; }
-
-/* ══ Intro ════════════════════════════════════════════════ */
-/* Runs once on load, for the part of the page that's already on screen — the
-   scroll reveal below can't cover it, since it's visible before any scrolling
-   happens. `backwards` matters: without it each element would flash at full
-   opacity during its delay and then jump back to the start of the animation. */
-@keyframes intro-up {
-  from { opacity:0; transform:translateY(13px); }
-  to   { opacity:1; transform:none; }
+.lb-head { display:flex; align-items:baseline; gap:16px; }
+.lb-project { font:400 12px/1 var(--mono); letter-spacing:0.1em; color:var(--accent); }
+.lb-cap { font:600 16px/1.3 var(--sans); }
+.lb-count { font:400 12px/1 var(--mono); letter-spacing:0.1em; color:#9a9ea5; margin-left:auto; }
+.lb-x {
+  font-size:22px; line-height:1; background:transparent; border:0;
+  color:#f6f5f3; cursor:pointer; padding:0 4px;
 }
 
-.navpill,
-.hero-photo,
-.hero-nameline,
-.hero-loc,
-.hero .chip-row,
-.hero-actions,
-.hero .hero-email,
-.hero-aside {
-  animation:intro-up .58s cubic-bezier(.2,.8,.3,1) backwards;
+.lb-body { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:26px; min-height:0; }
+.lb-arrow {
+  width:46px; height:46px; flex:none;
+  background:transparent; border:1px solid #4a4d53; color:#f6f5f3;
+  font-size:18px; cursor:pointer;
+  transition:border-color .16s ease, transform .16s ease;
 }
+.lb-arrow:hover { border-color:#f6f5f3; }
+.lb-arrow:active { transform:scale(.9); }
+.lb-arrow[hidden] { display:none; }
 
-/* Staggered in reading order: the bar, then the portrait, then down the
-   left column, with the right-hand links alongside.
+.lb-stage { height:100%; display:grid; place-items:center; min-height:0; }
+.lb-img { max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border:1px solid #3a3d43; }
+/* The class is set in the direction of travel, so the incoming shot enters
+   from the side you came from. */
+.lb-img.is-next { animation:lb-right .3s cubic-bezier(.2,.7,.2,1); }
+.lb-img.is-prev { animation:lb-left  .3s cubic-bezier(.2,.7,.2,1); }
+@keyframes lb-right { from { opacity:0; transform:translateX(46px) scale(.97); } to { opacity:1; transform:none; } }
+@keyframes lb-left  { from { opacity:0; transform:translateX(-46px) scale(.97); } to { opacity:1; transform:none; } }
 
-   --intro-base is when the curtain starts lifting. Everything below is
-   expressed relative to it, so retiming the whole opening is one number.
-   On a revisit the curtain is skipped and the base drops to zero. */
-:root { --intro-base:.42s; }
-[data-booted] { --intro-base:0s; }
+.lb-thumbs { display:flex; gap:10px; justify-content:center; }
+.lb-thumbs button {
+  width:52px; height:34px; padding:0;
+  background:#26282c; border:1px solid #3a3d43; opacity:.5;
+  color:#8f939a; font:400 11px/1 var(--mono); cursor:pointer;
+  transition:opacity .16s ease, border-color .16s ease;
+}
+.lb-thumbs button.is-on { opacity:1; border-color:var(--accent); }
 
-.navpill          { animation-duration:.42s; animation-delay:var(--intro-base); }
-.hero-photo       { animation-delay:calc(var(--intro-base) + .05s); }
-.hero-nameline    { animation-delay:calc(var(--intro-base) + .11s); }
-.hero-loc         { animation-delay:calc(var(--intro-base) + .16s); }
-.hero .chip-row   { animation-delay:calc(var(--intro-base) + .21s); }
-.hero-actions     { animation-delay:calc(var(--intro-base) + .27s); }
-.hero .hero-email { animation-delay:calc(var(--intro-base) + .32s); }
-.hero-aside       { animation-delay:calc(var(--intro-base) + .24s); }
+/* ══ Assistant ════════════════════════════════════════════ */
+.chat {
+  position:fixed; right:24px; bottom:80px; z-index:70;
+  width:344px; max-height:62vh;
+  display:flex; flex-direction:column;
+  background:var(--paper); border:2px solid var(--rule);
+  box-shadow:0 18px 50px rgba(33,35,39,0.22);
+  animation:rise .2s ease both;
+}
+.chat[hidden] { display:none; }
+.chat-head { display:flex; align-items:center; gap:9px; padding:12px 14px; border-bottom:2px solid var(--rule); }
+.chat-mark { font:600 13px/1 var(--mono); color:var(--accent); }
+.chat-title { font:400 12px/1 var(--mono); letter-spacing:0.08em; flex:1; }
+.chat-x { font-size:18px; line-height:1; background:transparent; border:0; cursor:pointer; color:var(--ink); padding:0 4px; }
+.chat-log { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+.msg { font:400 14px/1.55 var(--sans); padding:9px 11px; max-width:92%; animation:rise .18s ease both; }
+.msg-a { background:var(--field); color:var(--ink); align-self:flex-start; }
+.msg-u { background:var(--ink); color:var(--paper); align-self:flex-end; }
+.chat-suggest { padding:12px 14px; display:flex; flex-wrap:wrap; gap:6px; border-top:1px solid var(--hair); }
+.chat-suggest button {
+  font:400 12px/1.4 var(--mono); padding:5px 9px;
+  background:transparent; border:1px solid var(--hair); color:var(--ink); cursor:pointer;
+  transition:border-color .16s ease;
+}
+.chat-suggest button:hover { border-color:var(--accent); }
+
+.chat-fab {
+  position:fixed; right:24px; bottom:24px; z-index:70;
+  display:flex; align-items:center; gap:8px;
+  font:600 15px/1 var(--sans);
+  padding:12px 18px; border-radius:18px;
+  background:var(--ink); color:var(--paper); border:0; cursor:pointer;
+  box-shadow:0 10px 28px rgba(33,35,39,0.25);
+  transition:opacity .16s ease;
+}
+.chat-fab:hover { opacity:.9; }
+
+@keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 
 /* ══ Scroll reveal ════════════════════════════════════════ */
 /* Both classes are applied by script.js, never in the markup. If the script
    fails or the browser has no IntersectionObserver, nothing is ever hidden —
-   the page just renders. Hiding in CSS and revealing in JS would risk a blank
-   page, which is a bad trade for a fade. */
-.reveal {
-  opacity:0; transform:translateY(14px);
-  transition:opacity .5s ease, transform .5s cubic-bezier(.2,.8,.3,1);
-  /* --i is set by script.js on list items so a row of projects arrives one
-     after another rather than all at once. Unset elsewhere, so the fallback
-     of 0 means no delay. */
-  transition-delay:calc(var(--i, 0) * 65ms);
-}
-.reveal.is-in { opacity:1; transform:none; }
+   the page just renders. */
+.reveal { opacity:0; transform:translateY(10px); }
+.reveal.is-in { animation:rise .55s cubic-bezier(.2,.7,.2,1) both; }
 
-/* The pass is drawn as a physical object, so it arrives like one — tilted
-   slightly and pivoting on its lower edge, as though set down rather than
-   slid up. Longer than the standard reveal to give it some weight. */
-.pass.reveal {
-  transform:translateY(20px) scale(.965) rotate(-1.4deg);
-  transform-origin:50% 100%;
-  transition-duration:.62s;
-}
-.pass.reveal.is-in { transform:none; }
+/* ══ Theme switch ═════════════════════════════════════════ */
+/* The whole page cross-fades between palettes: the outgoing snapshot sits on
+   top and fades away, revealing the incoming one. Fading only one of the two
+   matters — cross-fading both dips through a washed-out middle. */
+::view-transition-old(root),
+::view-transition-new(root) { mix-blend-mode:normal; }
+::view-transition-new(root) { animation:none; z-index:0; }
+::view-transition-old(root) { animation:theme-fade 450ms cubic-bezier(.4,0,.3,1) both; z-index:1; }
+@keyframes theme-fade { to { opacity:0; } }
 
+/* Fallback for browsers without view transitions. */
+html.theming, html.theming * {
+  transition:background-color .45s ease, color .45s ease, border-color .45s ease !important;
+}
+
+/* ══ Responsive ═══════════════════════════════════════════ */
+@media (max-width:1080px) {
+  .hero h1 { font-size:70px; }
+  .contact h2 { font-size:52px; }
+  .ghost { font-size:180px; }
+}
+
+@media (max-width:900px) {
+  :root { --pad:28px; --gut:20px; }
+  .col-8, .col-9 { grid-column:span 12; }
+  .col-3, .col-4, .col-5, .col-6 { grid-column:span 6; }
+  .hero .col-4 { grid-column:span 12; }
+  .hero-side { flex-direction:row; align-items:flex-start; gap:var(--s5); }
+  .portrait { flex:0 0 200px; }
+  .facts { flex:1; }
+  .work-head .col-9 { margin-top:var(--s4); }
+  .elsewhere { grid-template-columns:repeat(3,1fr); }
+}
+
+@media (max-width:640px) {
+  :root { --pad:20px; }
+  .topbar-in { grid-template-columns:1fr auto; gap:14px; }
+  .topnav { grid-column:1; overflow-x:auto; scrollbar-width:none; gap:16px; }
+  .topnav::-webkit-scrollbar { display:none; }
+  .mode-btn { grid-column:2; }
+
+  .hero { padding-block:var(--s6) var(--s5); }
+  .hero h1 { font-size:48px; letter-spacing:-0.04em; }
+  .lede { font-size:18px; }
+  .col-3, .col-4, .col-5, .col-6 { grid-column:span 12; }
+  .actions .btn { flex:1 1 100%; justify-content:center; }
+  .hero-side { flex-direction:column; }
+  .portrait { flex:none; max-width:260px; }
+
+  .proj h3, .proj-sm h3 { font-size:26px; }
+  .feats { grid-template-columns:1fr; }
+  .two-up { grid-template-columns:1fr; }
+  /* Two columns of six: a landscape shot takes the row, two phones share it,
+     so the rows still fill exactly. */
+  .shots { grid-template-columns:repeat(2,1fr); }
+  .shot { grid-column:span 2; }
+  .shot-phone { grid-column:span 1; }
+  .contact h2 { font-size:38px; max-width:none; }
+  .elsewhere { grid-template-columns:1fr 1fr; }
+  .ghost { font-size:120px; }
+
+  .chat { right:12px; left:12px; width:auto; }
+  .chat-fab { right:12px; }
+  .lb { padding:16px 14px 22px; gap:14px; }
+  .lb-body { gap:10px; }
+  .lb-arrow { width:38px; height:38px; }
+}
+
+/* ══ Reduced motion ═══════════════════════════════════════ */
 @media (prefers-reduced-motion:reduce) {
   html { scroll-behavior:auto; }
   *,*::before,*::after { transition:none !important; animation:none !important; }
-
-  /* The blanket rule above kills the transition but not the start state, so
-     say it plainly — otherwise a reduced-motion visitor gets a blank page.
-     Same reasoning for the intro: `animation:none` with a `backwards` fill
-     would otherwise leave the hero frozen at opacity 0. */
+  /* The rule above removes the animation but not its start state, so these
+     have to be reset explicitly or the page renders blank. */
   .reveal { opacity:1 !important; transform:none !important; }
-  .navpill, .hero-photo, .hero-nameline, .hero-loc,
-  .hero .chip-row, .hero-actions, .hero .hero-email, .hero-aside {
-    opacity:1 !important; transform:none !important;
-  }
-
-  /* Critical: the blanket `animation:none` above would strand the curtain at
-     full opacity forever, leaving an opaque panel over the whole site. It has
-     no animation to remove here, so it must not exist at all. */
-  .boot { display:none !important; }
-
-  /* The theme cross-fade survives this block on purpose. Nothing travels or
-     scales in it, so it isn't the kind of motion this setting exists to
-     suppress, and a bare colour flip is the more jarring alternative. It is
-     shortened rather than removed. The universal selector above doesn't
-     reach view-transition pseudo-elements, so this is a re-declaration, not
-     an override. */
-  ::view-transition-old(root) { animation-duration:280ms; }
-
-  /* The assistant panel keeps a fade for the same reason, minus the rise and
-     the scale — those are the actual motion. This has to be !important: the
-     panel is a real element, so the blanket rule above does reach it, and
-     closeChat() waits on animationend to unmount the panel. Kill the
-     animation outright and it never fires. (script.js also carries a timeout
-     for that, but the panel shouldn't depend on the safety net.) */
-  .chat.is-open    { animation:chat-fade-in 140ms ease both !important; }
-  .chat.is-closing { animation:chat-fade-out 140ms ease both !important; }
-  .msg             { animation:none !important; }
-}
-
-@keyframes chat-fade-in  { from { opacity:0; } to { opacity:1; } }
-@keyframes chat-fade-out { from { opacity:1; } to { opacity:0; } }
-
-.skip-link {
-  position:absolute; left:-9999px; top:0; z-index:100;
-  padding:10px 16px; background:var(--invert-bg); color:var(--invert-ink);
-  border-radius:0 0 8px 0; font:600 13px/1 var(--sans); text-decoration:none;
-}
-.skip-link:focus { left:0; }
-
-.dot { width:8px; height:8px; border-radius:50%; background:var(--accent); display:block; flex:none; }
-.dot-sm { width:5px; height:5px; border-radius:50%; background:var(--faint); display:block; flex:none; }
-
-/* ══ Topbar ═══════════════════════════════════════════════ */
-/* The strip the pill sticks inside. Transparent and pointer-transparent, so
-   only the pill itself is sticky-looking and only the pill takes clicks —
-   otherwise this invisible full-width band would swallow them. */
-.topbar {
-  position:sticky; top:12px; z-index:50;
-  display:flex; justify-content:center;
-  padding:12px 0 0;
-  pointer-events:none;
-}
-
-.navpill {
-  pointer-events:auto;
-  display:flex; align-items:center; gap:4px;
-  max-width:100%; padding:6px;
-  border-radius:999px;
-  background:var(--surface); border:1px solid var(--line);
-  box-shadow:var(--shadow);
-}
-
-/* Links scroll rather than wrap — a pill that grows to two rows stops
-   reading as a pill. The bar is hidden; the fade below hints at the overflow. */
-.navpill-links {
-  display:flex; gap:2px; min-width:0;
-  overflow-x:auto; scrollbar-width:none;
-}
-.navpill-links::-webkit-scrollbar { display:none; }
-.navpill-links a {
-  flex:none; padding:7px 12px; border-radius:999px;
-  font:500 11.5px/1 var(--mono); color:var(--muted);
-  text-decoration:none; letter-spacing:.02em;
-  transition:color .16s ease, background-color .16s ease;
-}
-.navpill-links a:hover { color:var(--ink); background:var(--surface2); }
-/* Set by the observer in script.js as each section passes under the pill. */
-.navpill-links a.is-current { color:var(--ink); background:var(--surface2); }
-
-.navpill-sep {
-  flex:none; width:1px; height:18px; margin:0 4px;
-  background:var(--line);
-}
-
-/* The toggle loses its own border and card background inside the pill —
-   two nested outlines at this size just looks like a mistake. */
-.navpill .theme-btn {
-  flex:none; border:none; background:none;
-  padding:7px 10px; border-radius:999px;
-  color:var(--faint);
-}
-.navpill .theme-btn:hover { color:var(--ink); background:var(--surface2); }
-
-/* Phones: the theme label goes, leaving just its dot. Losing ~44px is the
-   difference between the section links fitting and having to be scrolled. */
-@media (max-width:560px) {
-  .navpill { gap:2px; }
-  .navpill .theme-btn { padding:7px 8px; }
-  .navpill #themeLabel { display:none; }
-}
-
-.theme-btn {
-  display:flex; align-items:center; gap:7px;
-  padding:6px 11px; border-radius:7px;
-  border:1px solid var(--line); background:var(--surface);
-  color:var(--ink); cursor:pointer;
-  font:500 11px/1 var(--mono);
-}
-.theme-btn:hover { border-color:var(--accent); }
-.theme-btn .dot { width:9px; height:9px; }
-
-/* ══ Shell ════════════════════════════════════════════════ */
-.shell { max-width:1080px; margin:0 auto; padding:0 28px 64px; }
-
-/* ══ Hero ═════════════════════════════════════════════════ */
-.hero {
-  display:flex; gap:28px;
-  padding:22px 0 32px;
-  border-bottom:1px solid var(--line);
-}
-/* Two stacked photos; the second fades in on hover, focus or tap.
-   The striped background shows through only while both images are missing. */
-.hero-photo {
-  position:relative; isolation:isolate;
-  width:124px; height:152px; flex:none;
-  border-radius:12px; overflow:hidden; cursor:pointer;
-  background:repeating-linear-gradient(135deg,var(--stripe-a) 0 7px,var(--stripe-b) 7px 14px);
-  display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px;
-}
-.hero-photo .photo {
-  position:absolute; inset:0; z-index:1;
-  width:100%; height:100%; object-fit:cover; object-position:center top;
-  transition:opacity .32s ease;
-}
-/* A missing file leaves a broken-image glyph — hide it and let the
-   placeholder show instead. JS adds this class on the error event. */
-.hero-photo .photo.missing { display:none; }
-
-/* Only the top image fades. Cross-fading both dips through a transparent
-   middle — two stacked layers at 50% leave the stack 25% see-through, which
-   is why the placeholder behind them flashed mid-hover. The second photo sits
-   underneath at full opacity instead, so there is never a gap to see through. */
-.hero-photo .photo-b { z-index:1; opacity:1; }
-.hero-photo .photo-a { z-index:2; opacity:1; }
-
-.hero-photo:hover .photo-a,
-.hero-photo:focus-visible .photo-a,
-.hero-photo.is-touched .photo-a { opacity:0; }
-
-/* Hidden unless both files actually failed — script.js sets .no-photos on the
-   container once every image has fired an error. */
-.photo-fallback {
-  display:none;
-  font:500 9px/1 var(--mono); color:var(--faint); letter-spacing:.08em;
-}
-.hero-photo.no-photos .photo-fallback { display:block; }
-
-.hero-body { flex:1; min-width:0; display:flex; flex-direction:column; }
-.hero-top { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
-/* flex:1 with min-width:0 so this column shrinks and wraps its own text.
-   Without it the column is sized to its longest line, and one long sentence
-   is enough to push .hero-aside off the row entirely. */
-.hero-ident { flex:1 1 340px; min-width:0; display:flex; flex-direction:column; gap:8px; }
-.hero-nameline { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.hero-nameline h1 { font:600 36px/1.05 var(--sans); letter-spacing:-.025em; }
-
-.badge-open {
-  display:flex; align-items:center; gap:6px;
-  padding:4px 9px; border-radius:999px;
-  background:var(--accent-soft); color:var(--accent-ink);
-  font:500 11px/1 var(--mono);
-}
-.badge-open .dot { width:6px; height:6px; }
-
-.hero-loc { display:flex; align-items:center; gap:7px; font:400 13.5px/1 var(--sans); color:var(--muted); }
-
-.chip-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; }
-.chip {
-  padding:5px 11px; border-radius:6px; background:var(--surface2);
-  font:500 12.5px/1 var(--sans); color:var(--ink);
-}
-
-/* Right-hand column of the hero: school badge, then profile links. */
-.hero-aside {
-  display:flex; flex-direction:column; align-items:flex-end; gap:12px;
-  min-width:0;
-}
-.hero-school {
-  padding:7px 12px; border-radius:8px;
-  background:var(--accent-soft); border:1px solid var(--accent);
-  font:500 11px/1.3 var(--mono); color:var(--accent-ink);
-  display:flex; align-items:center; flex:none;
-}
-
-/* Two-line link cards: platform on top, what's there underneath. */
-.hero-links {
-  display:flex; flex-wrap:wrap; gap:8px;
-  justify-content:flex-end; max-width:360px;
-  margin-top:14px;              /* sits clear of the school badge */
-}
-.hero-links a {
-  display:flex; flex-direction:column; gap:3px;
-  padding:7px 11px 8px; border-radius:8px;
-  border:1px solid var(--line); background:var(--surface);
-  text-decoration:none;
-  position:relative; overflow:hidden;
-}
-/* Accent edge that fills in on hover */
-.hero-links a::before {
-  content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
-  background:var(--accent); opacity:0; transition:opacity .18s ease;
-}
-.hero-links a:hover { border-color:var(--accent); }
-.hero-links a:hover::before { opacity:1; }
-
-.hl-top {
-  display:flex; align-items:center; gap:5px;
-  font:600 11.5px/1 var(--mono); color:var(--ink);
-}
-.hl-out { font-size:10px; color:var(--faint); }
-.hero-links a:hover .hl-out { color:var(--accent); }
-
-.hl-sub {
-  font:500 9px/1.1 var(--mono); color:var(--faint);
-  letter-spacing:.07em; text-transform:uppercase;
-}
-.hero-links a:hover .hl-sub { color:var(--accent-ink); }
-
-/* Claims a full row so it can't be pulled up beside the others. */
-.hl-own-row { flex:1 0 100%; display:flex; justify-content:flex-end; }
-
-.hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
-
-.hero-email { margin-top:10px; font:400 12px/1.4 var(--mono); color:var(--faint); }
-
-/* A button rather than styled text: clicking it does something, so it needs
-   to be reachable by keyboard and announced as an action. */
-.hero-email-addr {
-  padding:0; border:none; background:none;
-  border-bottom:1px dashed var(--line);
-  font:inherit; color:var(--muted); cursor:pointer;
-  transition:color .16s ease, border-color .16s ease;
-}
-.hero-email-addr:hover { color:var(--ink); border-bottom-color:var(--accent); }
-.hero-email-addr.is-copied {
-  color:var(--accent-ink); border-bottom-color:transparent;
-  animation:copied-in 220ms cubic-bezier(.2,.8,.3,1);
-}
-
-@keyframes copied-in {
-  from { opacity:0; transform:translateY(-3px); }
-  to   { opacity:1; transform:none; }
-}
-.btn {
-  display:inline-flex; align-items:center; gap:9px;
-  padding:11px 18px; border-radius:8px;
-  text-decoration:none; cursor:pointer;
-  font:500 13.5px/1 var(--sans);
-  border:1px solid transparent;
-}
-.btn-solid { background:var(--invert-bg); color:var(--invert-ink); font-weight:600; }
-.btn-solid:hover { opacity:.85; color:var(--invert-ink); }
-.btn-ghost { background:var(--surface); border-color:var(--line); color:var(--ink); }
-.btn-ghost:hover { border-color:var(--accent); color:var(--ink); }
-.btn-dashed { background:var(--surface); border:1px dashed var(--accent); color:var(--accent-ink); }
-.btn-dashed:hover { background:var(--accent-soft); }
-
-/* ══ Grid ═════════════════════════════════════════════════ */
-.grid {
-  display:grid; grid-template-columns:minmax(0,1fr) 330px;
-  gap:36px; padding-top:34px; align-items:start;
-}
-.col-main { display:flex; flex-direction:column; gap:34px; min-width:0; }
-.col-side { display:flex; flex-direction:column; gap:28px; min-width:0; }
-
-/* Clears the floating pill (12px offset + ~46px tall) plus breathing room,
-   so an anchor jump doesn't land the heading underneath it. */
-.block { display:flex; flex-direction:column; gap:12px; scroll-margin-top:84px; }
-.block h2 { font:600 17px/1 var(--sans); letter-spacing:-.01em; }
-.block p { font:400 14.5px/1.65 var(--sans); color:var(--muted); text-wrap:pretty; }
-.block p strong { color:var(--ink); font-weight:600; }
-.education-block { border-top:1px solid var(--line); padding-top:28px; }
-
-/* Closing call to action. Sits below the grid, full width, so it reads as
-   the end of the page rather than another column item. */
-.contact { margin-top:44px; padding-top:30px; border-top:1px solid var(--line); }
-.contact p { max-width:62ch; }
-.contact-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
-.contact .hero-email { margin-top:4px; }
-
-.block-head { display:flex; align-items:center; gap:10px; }
-.block-head.baseline { align-items:baseline; justify-content:space-between; }
-
-.tag-accent {
-  padding:3px 8px; border-radius:5px;
-  background:var(--accent-soft); color:var(--accent-ink);
-  font:500 10.5px/1.3 var(--mono);
-}
-.muted-sm { font:400 12px/1 var(--sans); color:var(--faint); }
-
-/* ══ Panzi card ═══════════════════════════════════════════ */
-.card {
-  border:1px solid var(--line); border-radius:12px;
-  background:var(--surface); padding:22px;
-  display:flex; flex-direction:column; gap:16px;
-}
-.card-head { display:flex; flex-direction:column; gap:6px; }
-.card-head h3 { font:600 20px/1.2 var(--sans); letter-spacing:-.01em; }
-.card-head h3 a { color:var(--ink); text-decoration:none; }
-.card-head h3 a:hover { color:var(--accent-ink); text-decoration:underline; text-underline-offset:3px; }
-.card-head p { font:400 13.5px/1.6 var(--sans); color:var(--muted); text-wrap:pretty; }
-
-.card-title-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-
-/* Secondary ongoing item — same card, dialled down a step. */
-.card-sub { padding:18px; }
-.card-sub .card-head h3 { font-size:16px; }
-.card-sub .card-head p { font-size:13px; }
-
-.shot-sm { height:104px; }
-
-/* ══ Design section ═══════════════════════════════════════ */
-.design-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-.design-grid li {
-  display:flex; gap:9px; align-items:baseline;
-  font:400 13px/1.45 var(--sans); color:var(--muted);
-}
-.design-grid .num { font:500 10px/1.4 var(--mono); color:var(--accent); flex:none; }
-
-.design-figure { margin:0; display:flex; flex-direction:column; gap:8px; }
-.design-figure figcaption {
-  font:400 11.5px/1.4 var(--mono); color:var(--faint);
-}
-
-/* ══ Before / after comparison ════════════════════════════ */
-.compare {
-  position:relative; isolation:isolate;
-  border-radius:10px; overflow:hidden;
-  border:1px solid var(--line); background:var(--surface2);
-  line-height:0;               /* kill the inline-image gap */
-  touch-action:pan-y;          /* let the page still scroll vertically */
-}
-.compare-img {
-  display:block; width:100%; height:auto;
-}
-/* The second image sits exactly on top of the first and is clipped
-   to --pos, so the left slice is DAY and the right slice is NIGHT. */
-.compare-top {
-  position:absolute; inset:0; z-index:1;
-  clip-path:inset(0 calc(100% - var(--pos)) 0 0);
-}
-
-/* Hairline divider — thin and accent-tinted rather than a heavy white bar. */
-.compare-line {
-  position:absolute; top:0; bottom:0; z-index:3;
-  left:var(--pos); width:1px; margin-left:-0.5px;
-  background:rgba(255,255,255,.9);
-  box-shadow:0 0 12px rgba(0,0,0,.45);
-  pointer-events:none;
-}
-
-/* Vertical pill handle: glassy, mono grip lines, accent hairline. */
-.compare-grip {
-  position:absolute; top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  width:26px; height:52px; border-radius:999px;
-  background:rgba(20,22,25,.62);
-  backdrop-filter:blur(8px) saturate(160%);
-  -webkit-backdrop-filter:blur(8px) saturate(160%);
-  border:1px solid rgba(255,255,255,.42);
-  box-shadow:0 4px 18px rgba(0,0,0,.45);
-  display:flex; align-items:center; justify-content:center; gap:3px;
-}
-/* Three grip lines, echoing the mono type used everywhere else. */
-.compare-grip::before, .compare-grip::after {
-  content:''; width:1.5px; height:14px; border-radius:1px;
-  background:rgba(255,255,255,.75);
-}
-.compare-grip::before { box-shadow:4.5px 0 0 rgba(255,255,255,.75); }
-.compare-grip::after  { margin-left:4.5px; }
-
-.compare:hover .compare-grip { border-color:var(--accent); }
-
-.compare-tag {
-  position:absolute; bottom:10px; z-index:2;
-  padding:4px 9px; border-radius:999px;
-  background:rgba(20,22,25,.58);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  border:1px solid rgba(255,255,255,.18);
-  color:rgba(255,255,255,.92);
-  font:500 9px/1 var(--mono); letter-spacing:.14em;
-  pointer-events:none;
-}
-.compare-tag.tag-l { left:10px; }
-.compare-tag.tag-r { right:10px; }
-
-/* The real control: invisible, full-bleed, keyboard-operable. */
-.compare-range {
-  position:absolute; inset:0; z-index:4;
-  width:100%; height:100%; margin:0; padding:0;
-  -webkit-appearance:none; appearance:none;
-  background:transparent; border:none; outline:none;
-  cursor:ew-resize;
-}
-.compare-range::-webkit-slider-thumb {
-  -webkit-appearance:none; appearance:none;
-  width:44px; height:600px; cursor:ew-resize;
-  background:transparent; border:none;
-}
-.compare-range::-moz-range-thumb {
-  width:44px; height:600px; cursor:ew-resize;
-  background:transparent; border:none; border-radius:0;
-}
-.compare-range::-moz-range-track { background:transparent; border:none; }
-
-.compare-range:focus-visible ~ .compare-line { background:var(--accent); }
-.compare-range:focus-visible ~ .compare-line .compare-grip {
-  border-color:var(--accent);
-  box-shadow:0 0 0 3px var(--accent-soft), 0 4px 18px rgba(0,0,0,.45);
-}
-
-.feature-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.feature-grid li {
-  display:flex; gap:9px; align-items:baseline;
-  font:400 13px/1.45 var(--sans); color:var(--muted);
-}
-.feature-grid .num { font:500 10px/1.4 var(--mono); color:var(--accent); flex:none; }
-
-.shot {
-  height:150px; border-radius:9px;
-  background:repeating-linear-gradient(135deg,var(--stripe-a) 0 7px,var(--stripe-b) 7px 14px);
-  display:flex; align-items:center; justify-content:center;
-}
-.shot span { font:500 10px/1 var(--mono); color:var(--faint); letter-spacing:.08em; }
-
-.stack-row { display:flex; flex-wrap:wrap; gap:7px; }
-.stack-row li {
-  padding:4px 9px; border-radius:5px; border:1px solid var(--line);
-  font:500 11.5px/1.3 var(--mono); color:var(--muted);
-}
-
-/* ══ Projects ═════════════════════════════════════════════ */
-.project-list { display:flex; flex-direction:column; gap:10px; }
-.project {
-  display:flex; gap:16px; align-items:center;
-  padding:15px 16px; border:1px solid var(--line);
-  border-radius:10px; background:var(--surface);
-}
-.project:hover { border-color:var(--accent); }
-/* Monogram tile tinted with the repo's main GitHub language colour.
-   Set --lang and data-mono inline. Replacing the <div> with an <img class="thumb">
-   works as-is: the sizing and radius carry over, ::after just won't render. */
-.thumb {
-  width:56px; height:56px; flex:none; border-radius:8px;
-  object-fit:cover;
-  background:
-    linear-gradient(150deg,
-      color-mix(in srgb, var(--lang, var(--stripe-a)) 26%, var(--surface2)) 0%,
-      color-mix(in srgb, var(--lang, var(--stripe-b)) 8%,  var(--surface2)) 100%);
-  border:1px solid color-mix(in srgb, var(--lang, var(--line)) 22%, transparent);
-  display:flex; align-items:center; justify-content:center;
-  position:relative;
-}
-.thumb::after {
-  content:attr(data-mono);
-  font:600 15px/1 var(--mono); letter-spacing:-.02em;
-  color:color-mix(in srgb, var(--lang, var(--faint)) 78%, var(--ink));
-}
-/* No colour set → keep the original stripes. */
-.thumb:not([style*="--lang"]) {
-  background:repeating-linear-gradient(135deg,var(--stripe-a) 0 6px,var(--stripe-b) 6px 12px);
-  border:none;
-}
-.project-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
-.project-title {
-  font:600 15px/1.2 var(--sans); color:var(--ink);
-  text-decoration:none; width:fit-content;
-}
-a.project-title:hover { color:var(--accent-ink); text-decoration:underline; text-underline-offset:2px; }
-.project-desc { font:400 13px/1.5 var(--sans); color:var(--muted); }
-.project-meta { font:400 10.5px/1 var(--mono); color:var(--faint); margin-top:2px; }
-.project-tech { flex:none; font:500 11.5px/1.3 var(--mono); color:var(--faint); }
-
-.link-out { text-decoration:none; color:var(--faint); font-family:var(--mono); }
-.link-out:hover { color:var(--accent); }
-
-/* Flagship entry — taller, aligned to the top rather than centred. */
-.project-lead { align-items:flex-start; }
-.project-lead .thumb { height:96px; }
-.project-lead .project-title { font-size:16px; }
-.project-lead .project-desc { font-size:13.5px; }
-
-/* A filmstrip makes the row a few hundred pixels tall, and .project centres its
-   children — which strands the monogram and the language list halfway down all
-   that empty space. Top-align the rows that have one so both sit level with the
-   title, the way they do on rows without screenshots. */
-.project:has(.project-shots) { align-items:flex-start; }
-.project:has(.project-shots) .thumb { margin-top:2px; }
-.project:has(.project-shots) .project-tech { padding-top:3px; }
-
-/* Screenshot filmstrip. Fixed height with automatic width lets portrait phone
-   captures and landscape console ones share a row at their own aspect ratios;
-   anything that doesn't fit scrolls sideways rather than shrinking. */
-.project-shots {
-  display:flex; gap:8px; margin-top:10px;
-  overflow-x:auto; padding-bottom:10px;
-  overscroll-behavior-x:contain;
-  /* Firefox. --line is barely a tenth of an alpha, so a scrollbar drawn in it
-     is invisible against the card — --faint on a --surface2 track is the
-     faintest pairing that still reads as a control. */
-  scrollbar-width:thin; scrollbar-color:var(--faint) var(--surface2);
-}
-/* Chrome, Edge and Safari. Declaring these also opts out of overlay scrollbars,
-   so the bar stays on screen instead of fading once scrolling stops. */
-.project-shots::-webkit-scrollbar { height:10px; }
-.project-shots::-webkit-scrollbar-track {
-  background:var(--surface2); border-radius:999px;
-}
-.project-shots::-webkit-scrollbar-thumb {
-  background:var(--faint); border-radius:999px;
-  border:2px solid var(--surface2);   /* insets the thumb inside the track */
-}
-.project-shots::-webkit-scrollbar-thumb:hover { background:var(--muted); }
-.project-shots a {
-  flex:none; display:block; line-height:0;
-  border:1px solid var(--line); border-radius:8px; overflow:hidden;
-  transition:border-color .16s ease, transform .16s ease;
-}
-.project-shots a:hover { border-color:var(--accent); transform:translateY(-2px); }
-.project-shots img { height:186px; width:auto; display:block; }
-
-@media (max-width:640px) {
-  .project-shots img { height:150px; }
-}
-
-/* ══ Screenshot viewer ════════════════════════════════════ */
-.lightbox {
-  /* The <dialog> default is a small centred white box with a border. Strip all
-     of that: the image is the content, the backdrop is the surface. */
-  max-width:min(1200px, 94vw); max-height:94vh;
-  padding:0; border:none; background:none; overflow:visible;
-  color:var(--invert-muted);
-}
-/* Open and close.
-   `display` and `overlay` need `allow-discrete` or the dialog would vanish the
-   instant it's closed and there'd be nothing left to animate out. The
-   @starting-style block supplies the "before it existed" values, since the
-   element has no previous state to transition from on first paint. */
-.lightbox {
-  opacity:0; transform:scale(.97) translateY(6px);
-  transition:
-    opacity .2s ease,
-    transform .24s cubic-bezier(.2,.8,.3,1),
-    overlay .24s allow-discrete,
-    display .24s allow-discrete;
-}
-.lightbox[open] { opacity:1; transform:none; }
-@starting-style {
-  .lightbox[open] { opacity:0; transform:scale(.97) translateY(6px); }
-}
-
-.lightbox::backdrop {
-  background:rgba(0,0,0,0);
-  transition:
-    background-color .24s ease,
-    overlay .24s allow-discrete,
-    display .24s allow-discrete;
-}
-.lightbox[open]::backdrop { background:rgba(0,0,0,.82); }
-@starting-style {
-  .lightbox[open]::backdrop { background:rgba(0,0,0,0); }
-}
-
-/* Stepping between shots. The class is set by script.js in the direction of
-   travel, so the new image enters from the side you came from. */
-.lightbox-img.is-next { animation:lb-from-right .26s cubic-bezier(.2,.8,.3,1); }
-.lightbox-img.is-prev { animation:lb-from-left  .26s cubic-bezier(.2,.8,.3,1); }
-
-@keyframes lb-from-right {
-  from { opacity:0; transform:translateX(44px) scale(.985); }
-  to   { opacity:1; transform:none; }
-}
-@keyframes lb-from-left {
-  from { opacity:0; transform:translateX(-44px) scale(.985); }
-  to   { opacity:1; transform:none; }
-}
-
-/* The arrow acknowledges the press, so a held key still feels responsive
-   even when the images are identical in size. */
-.lightbox-arrow:active { transform:translateY(-50%) scale(.9); }
-
-/* The caption changes with the image, so it shouldn't sit still while the
-   image moves — a shorter, quieter version of the same fade. */
-.lightbox-cap.is-step { animation:lb-cap .26s ease; }
-@keyframes lb-cap {
-  from { opacity:0; }
-  to   { opacity:1; }
-}
-
-.lightbox-img {
-  display:block; margin:0 auto;
-  max-width:100%; max-height:82vh; width:auto; height:auto;
-  border-radius:10px; background:var(--surface);
-  box-shadow:0 24px 60px rgba(0,0,0,.5);
-}
-
-.lightbox-cap {
-  margin-top:12px; text-align:center;
-  font:400 12px/1.5 var(--mono); color:#c8cad0;
-  max-width:70ch; margin-inline:auto;
-}
-
-/* Controls sit on the backdrop, so they're keyed to it rather than to the
-   theme — a light-theme visitor still has a dark surface behind them. */
-.lightbox-x, .lightbox-arrow {
-  position:fixed; z-index:1;
-  display:flex; align-items:center; justify-content:center;
-  border:1px solid rgba(255,255,255,.18); border-radius:999px;
-  background:rgba(20,20,22,.72); color:#f2f3f5;
-  cursor:pointer; line-height:1;
-  transition:background-color .16s ease, border-color .16s ease;
-}
-.lightbox-x:hover, .lightbox-arrow:hover {
-  background:rgba(40,40,44,.92); border-color:rgba(255,255,255,.4);
-}
-.lightbox-x { top:18px; right:18px; width:38px; height:38px; font-size:22px; }
-.lightbox-arrow {
-  top:50%; transform:translateY(-50%);
-  width:44px; height:44px; font-size:26px; padding-bottom:3px;
-}
-.lightbox-prev { left:18px; }
-.lightbox-next { right:18px; }
-/* Hidden by script when a strip holds only one image. */
-.lightbox-arrow[hidden] { display:none; }
-
-@media (max-width:560px) {
-  .lightbox-arrow { width:38px; height:38px; font-size:22px; }
-  .lightbox-prev { left:8px; }
-  .lightbox-next { right:8px; }
-}
-
-/* Plain pointer, not zoom-in. The magnifier is the conventional cue for a
-   lightbox, but it reads as a browser zoom control to most people — and the
-   thumbnails already look clickable without it. */
-.project-shots a { cursor:pointer; }
-
-.repo-links { display:flex; flex-wrap:wrap; gap:12px; margin-top:4px; }
-.repo-links a {
-  font:500 11.5px/1.3 var(--mono); color:var(--accent-ink); text-decoration:none;
-}
-.repo-links a:hover { color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
-
-/* ══ Builder pass ═════════════════════════════════════════ */
-.pass {
-  border-radius:14px; padding:20px;
-  background:linear-gradient(160deg,#212327 0%,#131417 100%);
-  display:flex; flex-direction:column; gap:16px;
-  box-shadow:var(--shadow);
-}
-.pass-top { display:flex; align-items:center; justify-content:space-between; }
-.pass-mark { font:600 13px/1 var(--mono); color:#f4f5f6; }
-.pass-kicker { font:400 9.5px/1 var(--mono); color:#6c6e74; letter-spacing:.1em; }
-.pass-title { display:flex; flex-direction:column; gap:3px; margin-top:26px; }
-.pass-h { font:600 17px/1.2 var(--mono); color:#f4f5f6; letter-spacing:-.01em; }
-.pass-sub { font:400 9.5px/1 var(--mono); color:#6c6e74; letter-spacing:.14em; }
-.pass-foot { display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; gap:12px; }
-.pass-holder { display:flex; flex-direction:column; gap:4px; min-width:0; }
-.pass-label { font:400 9px/1 var(--mono); color:#5c5e64; letter-spacing:.12em; }
-.pass-name { font:500 11.5px/1.3 var(--mono); color:#e4e5e8; }
-.pass-chip {
-  width:52px; height:52px; flex:none; border-radius:5px;
-  background:repeating-linear-gradient(45deg,#2b2d31 0 3px,#3a3d42 3px 6px);
-}
-.pass-strip {
-  margin:6px -20px -20px; padding:11px 20px;
-  background:var(--accent); border-radius:0 0 14px 14px;
-  display:flex; align-items:center; justify-content:space-between;
-}
-.pass-strip span:first-child { font:600 12px/1 var(--mono); color:#fff; }
-.pass-strip span:last-child { font:400 10px/1 var(--mono); color:rgba(255,255,255,.72); }
-
-/* ══ Side lists ═══════════════════════════════════════════ */
-.stack-groups { display:flex; flex-direction:column; gap:12px; }
-.stack-group { display:flex; flex-direction:column; gap:7px; }
-.stack-label { font:500 11px/1 var(--mono); color:var(--faint); letter-spacing:.08em; }
-.stack-group ul { display:flex; flex-wrap:wrap; gap:6px; }
-.stack-group li {
-  padding:4px 9px; border-radius:5px; background:var(--surface2);
-  font:400 12px/1.3 var(--sans); color:var(--ink);
-}
-/* Languages actually present in the public repos */
-.stack-group li.ghv {
-  display:inline-flex; align-items:center; gap:6px;
-}
-.stack-group li.ghv::before {
-  content:''; width:5px; height:5px; border-radius:50%;
-  background:var(--accent); flex:none;
-}
-
-/* Tools with real but occasional use — named, not claimed as core. */
-.stack-aside {
-  font:400 11px/1.4 var(--sans); color:var(--faint); margin-top:1px;
-}
-
-.stack-legend {
-  display:flex; align-items:center; gap:6px; margin-top:2px;
-  font:400 11px/1.3 var(--sans) !important; color:var(--faint) !important;
-}
-.dot-accent {
-  width:5px; height:5px; border-radius:50%;
-  background:var(--accent); display:block; flex:none;
-}
-
-.entry { display:flex; flex-direction:column; gap:4px; }
-.entry + .entry { margin-top:16px; }
-.entry-title { font:600 14px/1.3 var(--sans); }
-.entry-desc { font:400 12.5px/1.55 var(--sans); color:var(--muted); }
-.entry-meta { font:400 11.5px/1 var(--mono); color:var(--faint); margin-top:4px; }
-
-/* ══ CTA ══════════════════════════════════════════════════ */
-/* ══ Footer ═══════════════════════════════════════════════ */
-.foot {
-  margin-top:52px; padding-top:20px; border-top:1px solid var(--line);
-  display:flex; align-items:center; justify-content:space-between;
-  gap:20px; flex-wrap:wrap;
-}
-.foot span { font:400 11.5px/1 var(--mono); color:var(--faint); }
-
-/* ══ Assistant ════════════════════════════════════════════ */
-.chat-fab {
-  position:fixed; right:24px; bottom:24px; z-index:60;
-  display:flex; align-items:center; gap:10px;
-  padding:13px 18px; border-radius:999px; border:none;
-  background:var(--invert-bg); color:var(--invert-ink);
-  cursor:pointer; font:600 13px/1 var(--sans);
-  box-shadow:0 10px 28px rgba(0,0,0,.25);
-  transition:opacity .16s ease, transform .16s ease, box-shadow .16s ease;
-}
-.chat-fab:hover {
-  opacity:.9; transform:translateY(-2px);
-  box-shadow:0 14px 32px rgba(0,0,0,.28);
-}
-.chat-fab:active { transform:translateY(0) scale(.97); }
-
-.chat {
-  position:fixed; right:24px; bottom:92px; z-index:60;
-  width:360px; max-width:calc(100vw - 32px);
-  border-radius:16px; background:var(--surface);
-  border:1px solid var(--line);
-  box-shadow:0 2px 6px rgba(0,0,0,.05), 0 20px 52px rgba(0,0,0,.24);
-  display:flex; flex-direction:column; overflow:hidden;
-  /* The corner nearest the button, so the panel grows out of what was
-     clicked rather than out of its own middle. */
-  transform-origin:100% 100%;
-}
-.chat[hidden] { display:none; }
-
-/* Opening is given more time than closing: arriving wants to be seen,
-   leaving just needs to get out of the way. */
-.chat.is-open    { animation:chat-in 220ms cubic-bezier(.2,.85,.3,1) both; }
-.chat.is-closing { animation:chat-out 160ms cubic-bezier(.4,0,.9,.6) both; }
-
-@keyframes chat-in {
-  from { opacity:0; transform:translateY(8px) scale(.92); }
-  to   { opacity:1; transform:none; }
-}
-@keyframes chat-out {
-  from { opacity:1; transform:none; }
-  to   { opacity:0; transform:translateY(8px) scale(.92); }
-}
-
-.chat-head {
-  padding:13px 15px; border-bottom:1px solid var(--line);
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-}
-.chat-id { display:flex; align-items:center; gap:9px; }
-.chat-id > div { display:flex; flex-direction:column; gap:2px; }
-.chat-mark {
-  width:26px; height:26px; flex:none; border-radius:7px;
-  background:var(--accent); color:#fff;
-  display:flex; align-items:center; justify-content:center;
-  font:600 11px/1 var(--mono);
-}
-.chat-title { font:600 13px/1 var(--sans); }
-.chat-sub { font:400 10.5px/1 var(--mono); color:var(--faint); }
-.chat-x {
-  border:none; background:transparent; color:var(--faint);
-  cursor:pointer; font:400 18px/1 var(--sans);
-  width:28px; height:28px; flex:none; border-radius:8px;
-  display:flex; align-items:center; justify-content:center;
-  transition:color .16s ease, background-color .16s ease;
-}
-.chat-x:hover { color:var(--ink); background:var(--surface2); }
-
-.chat-log {
-  padding:16px 15px; display:flex; flex-direction:column; gap:10px;
-  height:308px; overflow-y:auto; overscroll-behavior:contain;
-  scrollbar-width:thin; scrollbar-color:var(--line) transparent;
-}
-.msg {
-  max-width:88%; padding:10px 13px;
-  font:400 13px/1.55 var(--sans); white-space:pre-wrap;
-  /* Each message lands rather than appearing, which reads as a reply
-     arriving instead of the log redrawing. */
-  animation:msg-in 240ms cubic-bezier(.2,.8,.3,1) both;
-}
-.msg-user {
-  align-self:flex-end; max-width:82%;
-  border-radius:14px 14px 4px 14px;
-  background:var(--accent); color:#fff;
-}
-.msg-bot {
-  align-self:flex-start;
-  border-radius:14px 14px 14px 4px;
-  background:var(--surface2); color:var(--ink);
-}
-.msg-bot a { color:var(--accent-ink); }
-
-@keyframes msg-in {
-  from { opacity:0; transform:translateY(6px); }
-  to   { opacity:1; transform:none; }
-}
-
-.typing { align-self:flex-start; padding:10px 13px; border-radius:11px; background:var(--surface2); display:flex; gap:5px; }
-.typing span {
-  width:5px; height:5px; border-radius:50%; background:var(--faint);
-  display:block; animation:pfblink 1s infinite;
-}
-.typing span:nth-child(2) { animation-delay:.2s; }
-.typing span:nth-child(3) { animation-delay:.4s; }
-@keyframes pfblink { 0%,100%{opacity:.25} 50%{opacity:1} }
-
-.chat-suggest { padding:0 15px 12px; display:flex; flex-wrap:wrap; gap:6px; }
-.chat-suggest button {
-  padding:6px 11px; border-radius:999px;
-  border:1px solid var(--line); background:var(--surface);
-  color:var(--muted); cursor:pointer;
-  font:400 11.5px/1.3 var(--sans);
-  transition:border-color .16s ease, color .16s ease, transform .16s ease;
-}
-.chat-suggest button:hover {
-  border-color:var(--accent); color:var(--ink);
-  transform:translateY(-1px);
-}
-.chat-suggest button:active { transform:none; }
-
-.chat-form {
-  padding:11px 15px 14px; border-top:1px solid var(--line);
-  display:flex; gap:8px; align-items:center;
-}
-.chat-form input {
-  flex:1; min-width:0; padding:10px 14px; border-radius:999px;
-  border:1px solid var(--line); background:var(--bg); color:var(--ink);
-  font:400 13px/1.3 var(--sans); outline:none;
-  transition:border-color .16s ease, box-shadow .16s ease;
-}
-/* One ring, not two. The global :focus-visible outline would sit outside
-   this one at a 2px offset, and on a pill this small the pair reads as a
-   single heavy band of colour. The outline is dropped rather than the ring
-   because the accent border already marks the field, so focus stays
-   obvious without shouting. */
-.chat-form input:focus { border-color:var(--accent); }
-.chat-form input:focus-visible {
-  outline:none;
-  box-shadow:0 0 0 3px var(--accent-soft);
-}
-.chat-form button {
-  flex:none; padding:10px 16px; border-radius:999px; border:none;
-  background:var(--invert-bg); color:var(--invert-ink);
-  cursor:pointer; font:600 12.5px/1.3 var(--sans);
-  transition:opacity .16s ease, transform .16s ease;
-}
-.chat-form button:hover { opacity:.85; }
-.chat-form button:active { transform:scale(.96); }
-
-/* ══ Responsive ═══════════════════════════════════════════ */
-
-/* ── Tablet: side column drops below the main one ────────── */
-@media (max-width:900px) {
-  .grid { grid-template-columns:minmax(0,1fr); gap:34px; }
-  .col-side { order:2; }
-
-  /* The links column no longer has a narrow slot to fit — let it breathe. */
-  .hero-links { max-width:none; }
-}
-
-/* ── Large phones / small tablets ─────────────────────────── */
-@media (max-width:760px) {
-  .hero-top { gap:16px; }
-  .hero-aside { align-items:flex-start; width:100%; }
-  .hero-links { justify-content:flex-start; margin-top:10px; }
-  .hl-own-row { justify-content:flex-start; }
-}
-
-/* ── Phones ───────────────────────────────────────────────── */
-@media (max-width:640px) {
-  .shell { padding:0 16px 72px; }   /* extra bottom room for the chat button */
-
-  .hero { flex-direction:column; gap:18px; padding:12px 0 24px; }
-
-  /* Portrait crop rather than a full-width letterbox band. */
-  .hero-photo { width:132px; height:164px; align-self:flex-start; }
-
-  .hero-nameline h1 { font-size:27px; }
-  .hero-nameline { gap:8px; }
-  .hero-loc { font-size:13px; }
-
-  /* Full-width buttons are easier to hit than side-by-side ones. */
-  .hero-actions { gap:8px; }
-  .hero-actions .btn { flex:1 1 100%; justify-content:center; padding:13px 18px; }
-
-  /* Two per row beats a ragged wrap on a narrow screen. */
-  .hero-links { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .hero-links a { min-height:44px; width:100%; justify-content:center; }
-  .hl-own-row { grid-column:1 / -1; }
-
-  .block h2 { font-size:16px; }
-  .block p { font-size:14px; }
-
-  .card { padding:18px; }
-  .card-head h3 { font-size:18px; }
-  .card-sub { padding:16px; }
-
-  .feature-grid { grid-template-columns:1fr; }
-  .design-grid { grid-template-columns:1fr 1fr; }
-
-  .shot { height:120px; }
-  .shot-sm { height:92px; }
-
-  /* Thumbnail + title on one line, description below, tech last. */
-  .project { flex-wrap:wrap; gap:12px; padding:14px; }
-  .project-body { flex:1 1 60%; }
-  .project-tech { width:100%; }
-  .project-lead .thumb { width:48px; height:48px; }
-  .thumb { width:48px; height:48px; }
-
-  .repo-links { gap:10px; }
-
-  .pass { padding:18px; }
-  .pass-strip { margin:6px -18px -18px; padding:10px 18px; }
-  .pass-h { font-size:15px; }
-
-  .foot { flex-direction:column; align-items:flex-start; gap:8px; }
-
-  .chat { right:10px; left:10px; bottom:80px; width:auto; }
-  .chat-log { height:min(44vh,308px); }
-  .chat-fab { right:14px; bottom:14px; padding:12px 16px; }
-}
-
-/* ── Small phones ─────────────────────────────────────────── */
-@media (max-width:400px) {
-  .shell { padding:0 13px 72px; }
-  .hero-nameline h1 { font-size:24px; }
-  .hero-links { grid-template-columns:1fr; }
-  .design-grid { grid-template-columns:1fr; }
-  .hero-school { font-size:10px; padding:6px 10px; }
-  .chip { font-size:11.5px; padding:4px 9px; }
-}
-
-/* ── Coarse pointers: bigger hit areas, no hover-only states ── */
-@media (hover:none) {
-  .hero-links a { min-height:44px; }
-  .project-title, .repo-links a, .link-out { padding-block:3px; }
+  .chat, .msg { opacity:1 !important; transform:none !important; }
+  .lb { opacity:1; }
 }
 
 /* ══ Print ════════════════════════════════════════════════ */
 @media print {
-  .topbar, .chat, .chat-fab, .skip-link { display:none !important; }
-  body { background:#fff; }
-  .shell { max-width:none; padding:0; }
-  .grid { grid-template-columns:1fr; }
+  .topbar, .chat, .chat-fab, .skip-link, .lb, .ghost { display:none !important; }
+  body { background:#fff; background-image:none; color:#000; }
+  .wrap { max-width:none; padding:0; }
+  .contact { background:none; color:#000; }
+  .contact h2, .contact .lede, .copyright, .l-name, .l-sub { color:#000; }
+  .reveal { opacity:1 !important; transform:none !important; }
 }

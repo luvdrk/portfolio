@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f7f7f6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1113" media="(prefers-color-scheme: dark)">
-<title>Derrick John F. Azaola — IT Student &amp; Developer</title>
+<meta name="theme-color" content="#f6f5f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
+<title>Derrick John F. Azaola — IT student &amp; developer</title>
 <meta name="description" content="Derrick John F. Azaola — third-year BS Information Technology student at PHINMA University of Pangasinan. System development, mobile apps, and AI video work.">
 
 <meta property="og:title" content="Derrick John F. Azaola">
@@ -30,557 +30,403 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- ?v= is bumped whenever styles.css changes. Without it a browser that has
      already cached the old file will happily keep using it, which looks
      exactly like a broken layout. -->
-<link rel="stylesheet" href="styles.css?v=15">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23212327'/%3E%3Ctext y='68' x='50' text-anchor='middle' font-size='52' font-family='monospace' font-weight='600' fill='%23f4f5f6'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css?v=21">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23212327'/%3E%3Ctext y='66' x='50' text-anchor='middle' font-size='42' font-family='sans-serif' font-weight='800' fill='%23f6f5f3'%3EDA%3C/text%3E%3C/svg%3E">
 
 <script>
-/* Set the theme before first paint so dark mode never flashes white. */
+/* Set the theme before first paint so dark mode never flashes light. */
 (function(){try{var t=localStorage.getItem('pf-theme');
 if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
 document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
-
-/* Mark the intro as already played, so it runs on arrival but not on every
-   reload within the same tab. Runs here rather than in script.js so the
-   attribute is set before first paint and the curtain never flashes. */
-(function(){try{if(sessionStorage.getItem('pf-booted')){
-document.documentElement.setAttribute('data-booted','');}
-else{sessionStorage.setItem('pf-booted','1');}}catch(e){}})();
 </script>
 </head>
 <body>
 
-<!-- Launch curtain. Hides itself with a CSS animation and `forwards`, so it
-     clears even if script.js never loads — an opaque overlay that depends on
-     JavaScript to go away is a blank site waiting to happen. -->
-<div class="boot" aria-hidden="true"><span class="boot-mark">&gt;_</span></div>
-
 <a href="#main" class="skip-link">Skip to content</a>
 
-<main id="main" class="shell">
-
-  <!--
-    Floating command pill. Detached and centred rather than a full-width bar,
-    so it reads as an object over the page instead of a page edge.
-
-    Navigation and the theme toggle, nothing else. No name mark and no call
-    to action: the hero carries the name, both résumé links and the email
-    button, and the closing block repeats the email. Anything put here would
-    be the third copy of something already on the page.
-  -->
-  <div class="topbar">
-    <div class="navpill">
-      <nav class="navpill-links" aria-label="Sections">
-        <a href="#about">About</a>
-        <a href="#now">Active</a>
-        <a href="#work">Built</a>
-        <a href="#design">Design</a>
-        <a href="#contact">Contact</a>
-      </nav>
-
-      <span class="navpill-sep" aria-hidden="true"></span>
-
-      <button id="themeToggle" class="theme-btn" type="button" aria-label="Toggle colour theme">
-        <span class="dot" aria-hidden="true"></span>
-        <span id="themeLabel">DARK</span>
-      </button>
-    </div>
+<!-- Sticky, translucent, one hairline rule under it. The nav is centred in its
+     own grid column so it stays centred regardless of the toggle's width. -->
+<div class="topbar">
+  <div class="topbar-in">
+    <nav class="topnav" aria-label="Sections">
+      <a href="#about">01 about</a>
+      <a href="#work">02 work</a>
+      <a href="#design">03 design</a>
+      <a href="#background">04 background</a>
+      <a href="#contact">05 contact</a>
+    </nav>
+    <button id="themeToggle" class="mode-btn" type="button" aria-label="Toggle colour theme">
+      <span id="themeLabel">LIGHT</span>
+    </button>
   </div>
+</div>
+
+<main id="main">
 
   <!-- ── Hero ───────────────────────────────────────────── -->
-  <section class="hero">
-    <!--
-      Two photos, crossfading on hover.
-        me-formal.jpg  ← resized from "1st picture.png"  (shown by default)
-        me-pose.jpg    ← resized from "2nd picture.png"  (shown on hover/tap)
-      The originals are untouched; these are 500px-wide copies so the page
-      loads in 52 KB instead of 3.5 MB. Re-run the resize if you swap them.
-    -->
-    <div class="hero-photo" tabindex="0" role="img"
-         aria-label="Portrait of Derrick John F. Azaola. Hover or focus to see a second photo.">
-      <img class="photo photo-a" src="me-formal.jpg" alt="" loading="eager" decoding="async">
-      <img class="photo photo-b" src="me-pose.jpg" alt="" loading="eager" decoding="async">
-      <span class="photo-fallback">ADD PHOTO</span>
+  <header id="top" class="wrap hero">
+    <div class="g12">
+      <div class="col-8">
+        <p class="status">
+          <span class="blip" aria-hidden="true"></span>
+          <span>OPEN TO WORK</span><span class="sep">/</span><span>PANGASINAN, PH</span>
+        </p>
+        <h1>Derrick John F.<br>Azaola</h1>
+        <p class="lede">IT student on the System Development track. I build systems end to end — a ride-hailing platform, a registrar queueing system, an AI pantry app — and stay with them past the demo, until they hold up in real use.</p>
+        <div class="actions">
+          <!-- Gmail's web compose rather than mailto:, which on Windows hands
+               off to Outlook. -->
+          <a class="btn btn-solid" target="_blank" rel="noopener noreferrer"
+             href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=djazaola24@gmail.com&amp;su=Hello%20Derrick">Email me →</a>
+          <!-- No `download` attribute: that forces a save dialog. Without it
+               the PDF opens in the browser's own viewer. -->
+          <a class="btn btn-line" href="resume.pdf" target="_blank" rel="noopener">Résumé (PDF) ↗</a>
+          <button class="copy-btn" type="button" data-copy-email aria-live="polite">or copy djazaola24@gmail.com</button>
+        </div>
+        <p class="ats">also as <a href="resume-ats.pdf" target="_blank" rel="noopener">plain text</a>, for application systems</p>
+      </div>
+
+      <div class="col-4 hero-side">
+        <!-- Two photos, the second fading in on hover, focus or tap. Only the
+             top one animates: cross-fading both dips through a transparent
+             middle and shows the frame behind them. -->
+        <div class="portrait" tabindex="0" role="img"
+             aria-label="Portrait of Derrick John F. Azaola. Hover or focus to see a second photo.">
+          <img class="ph ph-b" src="me-pose.jpg" alt="" loading="eager" decoding="async" width="500" height="750">
+          <img class="ph ph-a" src="me-formal.jpg" alt="" loading="eager" decoding="async" width="500" height="751">
+        </div>
+        <dl class="facts">
+          <dt>SCHOOL</dt><dd>PHINMA UPang</dd>
+          <dt>COURSE</dt><dd>BSIT · 3rd year</dd>
+          <dt>TRACK</dt><dd>System Development</dd>
+          <dt>GRAD</dt><dd>2027</dd>
+        </dl>
+      </div>
     </div>
+  </header>
 
-    <div class="hero-body">
-      <div class="hero-top">
-        <div class="hero-ident">
-          <div class="hero-nameline">
-            <h1>Derrick John F. Azaola</h1>
-            <span class="badge-open"><span class="dot" aria-hidden="true"></span>OPEN TO WORK</span>
-          </div>
-
-          <p class="hero-loc"><span class="dot-sm" aria-hidden="true"></span>Pangasinan, Philippines</p>
-
-          <ul class="chip-row" aria-label="Roles">
-            <li class="chip">IT Student</li>
-            <li class="chip">System Development</li>
-            <li class="chip">Graphic Designer</li>
-            <li class="chip">AI Video Editor</li>
-          </ul>
-
-          <!-- Inside the left column so these follow the chips directly.
-               Outside it, they'd be pushed below the taller links column.
-               No assistant button: the floating one in the corner covers it. -->
-          <div class="hero-actions">
-            <!-- Gmail's web compose rather than mailto:, which on Windows
-                 hands off to Outlook. Opens in a new tab so the portfolio
-                 stays put behind it. -->
-            <a class="btn btn-solid" target="_blank" rel="noopener noreferrer"
-               href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=djazaola24@gmail.com&amp;su=Hello%20Derrick">Email me <span aria-hidden="true">→</span></a>
-            <!-- No `download` attribute: that forces a save dialog. Without it
-                 the PDF opens in the browser's own viewer, so a recruiter can
-                 read it in one click and decide whether to keep a copy. -->
-            <a class="btn btn-ghost" href="resume.pdf" target="_blank" rel="noopener">Résumé (PDF) <span aria-hidden="true">↗</span></a>
-          </div>
-
-          <!-- The button assumes a Google account. This is the way out for
-               anyone who'd rather use their own client. -->
-          <p class="hero-email">or copy
-            <button class="hero-email-addr" type="button" data-copy-email aria-live="polite">djazaola24@gmail.com</button></p>
-
-          <!-- Sits with the résumé button rather than at the foot of the page.
-               Whoever needs this version needs it at the moment they reach for
-               the résumé, not after reading everything else. -->
-          <p class="hero-email">résumé also as
-            <a href="resume-ats.pdf" target="_blank" rel="noopener">plain text</a></p>
-        </div>
-
-        <div class="hero-aside">
-          <div class="hero-school">PHINMA UPang · BSIT 3rd Year</div>
-
-          <!-- Each link carries a one-word label saying what's actually there. -->
-          <ul class="hero-links" aria-label="Profiles elsewhere">
-            <li>
-              <a href="https://www.behance.net/derrickazaola1" target="_blank" rel="noopener">
-                <span class="hl-top">Behance<span class="hl-out" aria-hidden="true">↗</span></span>
-                <span class="hl-sub">Design portfolio</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://www.facebook.com/ColeDesigns123" target="_blank" rel="noopener">
-                <span class="hl-top">Facebook<span class="hl-out" aria-hidden="true">↗</span></span>
-                <span class="hl-sub">Graphic design page</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://www.tiktok.com/@coleeditsae" target="_blank" rel="noopener">
-                <span class="hl-top">TikTok<span class="hl-out" aria-hidden="true">↗</span></span>
-                <span class="hl-sub">Anime edits</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://v2.onlinejobs.ph/jobseekers/info/3135638" target="_blank" rel="noopener">
-                <span class="hl-top">OnlineJobs.ph<span class="hl-out" aria-hidden="true">↗</span></span>
-                <span class="hl-sub">Hire me</span>
-              </a>
-            </li>
-            <!-- Forced onto its own final row by .hl-own-row -->
-            <li class="hl-own-row">
-              <a href="https://github.com/luvdrk" target="_blank" rel="noopener">
-                <span class="hl-top">GitHub<span class="hl-out" aria-hidden="true">↗</span></span>
-                <span class="hl-sub">Code</span>
-              </a>
-            </li>
-          </ul>
-        </div>
+  <!-- ── 01 About ───────────────────────────────────────── -->
+  <section id="about" class="band" data-reveal>
+    <span class="ghost ghost-r" aria-hidden="true">01</span>
+    <div class="wrap">
+      <div class="g12 band-in">
+        <h2 class="kicker col-3">01 / ABOUT</h2>
+        <p class="col-5 big">I'm a third-year BS Information Technology student at PHINMA University of Pangasinan. Android apps, web systems, AI-assisted tools — I like the part where a thing stops being a mockup and starts working.</p>
+        <p class="col-4 big">Most of my time now goes to <strong>Panzi</strong>, an AI pantry system I'm building with a team, and to freelance AI video work. I'm open to internships, junior roles and freelance projects.</p>
       </div>
     </div>
   </section>
 
-  <!-- ── Two-column body ────────────────────────────────── -->
-  <div class="grid">
+  <!-- ── 02 Work ────────────────────────────────────────── -->
+  <section id="work" class="band">
+    <span class="ghost ghost-l" aria-hidden="true">02</span>
+    <div class="wrap">
 
-    <div class="col-main">
-
-      <section id="about" class="block">
-        <h2>About</h2>
-        <p>I'm a third-year IT student at PHINMA University of Pangasinan, taking System Development. I build small, working things end to end — mobile apps, web systems and AI-assisted tools — and I keep at them until they actually run, not just until the demo works.</p>
-        <p>Right now most of my time goes to <strong>Panzi</strong>, an AI pantry system my team is building, and to freelance AI video work. I'm looking for internships, junior roles and freelance projects.</p>
-      </section>
-
-      <section id="now" class="block">
-        <div class="block-head">
-          <h2>Active Projects</h2>
+      <div class="g12 work-head">
+        <div class="col-3">
+          <h2 class="kicker">02 / WORK</h2>
+          <a class="mono-link" href="https://github.com/luvdrk" target="_blank" rel="noopener">github.com/luvdrk ↗</a>
         </div>
+        <div class="col-9">
+          <p class="h-lg">Systems I've built</p>
+          <p class="sub">Three shipped, two in progress. Each one ran past the demo — real users, real edge cases, real fixes.</p>
+        </div>
+      </div>
 
-        <article class="card">
-          <div class="card-head">
-            <div class="card-title-row">
-              <h3>Panzi — AI Smart Pantry System</h3>
-              <span class="tag-accent">IN PROGRESS</span>
-            </div>
-            <p>Photograph what's on your shelf; Panzi recognises the items, tracks the inventory, estimates freshness and tells you what to cook before anything spoils.</p>
+      <article class="proj g12" data-reveal>
+        <div class="col-3 proj-meta">
+          <span class="tag">PROJECT 01</span>
+          <span class="mono-tile" style="--lang:#A97BFF">CG</span>
+          <span class="stack">Kotlin<br>React<br>Supabase<br>Firebase</span>
+          <span class="when">UPDATED MAR 2026</span>
+          <span class="repos">
+            <a href="https://github.com/luvdrk/cargo-app" target="_blank" rel="noopener">cargo-app ↗</a>
+            <a href="https://github.com/luvdrk/cargo-admin" target="_blank" rel="noopener">cargo-admin ↗</a>
+          </span>
+        </div>
+        <div class="col-9">
+          <h3>CarGO — ride-hailing &amp; parcel platform</h3>
+          <p class="body">A complete ride-hailing system in two halves: a native Android app for riders and drivers, and a web console for operations. Driver onboarding with document review, trip and parcel booking, route management, GCash payouts and remittance, SOS alerts, reports and audit logs — backed by 33 Supabase edge functions with push through Firebase.</p>
+          <ul class="feats">
+            <li>Driver onboarding &amp; document review</li>
+            <li>Trip + parcel booking</li>
+            <li>Route management</li>
+            <li>GCash payouts &amp; remittance</li>
+            <li>SOS alerts</li>
+            <li>Reports &amp; audit logs</li>
+          </ul>
+          <!-- Three phone captures (2 columns each) then two console ones (3
+               each), so both rows fill the six-column grid exactly. Each
+               button is a lightbox trigger; script.js groups by data-group. -->
+          <div class="shots">
+            <button class="shot shot-phone" type="button" data-group="cargo" data-cap="TRIP IN PROGRESS">
+              <img src="shots/cargo-trip.png" width="374" height="749" loading="lazy"
+                   alt="CarGO passenger app: a trip in progress, route drawn on the map with the assigned driver and vehicle below it.">
+            </button>
+            <button class="shot shot-phone" type="button" data-group="cargo" data-cap="DRIVER ONBOARDING">
+              <img src="shots/cargo-onboarding.png" width="376" height="773" loading="lazy"
+                   alt="Driver verification screen: nine of nine documents uploaded, each ID approved, with a Start Driving action.">
+            </button>
+            <button class="shot shot-phone" type="button" data-group="cargo" data-cap="DRIVER HOME">
+              <img src="shots/cargo-driver.png" width="372" height="752" loading="lazy"
+                   alt="Driver home screen showing the wallet balance, the amount due for remittance and a Remit Now action.">
+            </button>
+            <button class="shot" type="button" data-group="cargo" data-cap="ADMIN DASHBOARD">
+              <img src="shots/cargo-dashboard.png" width="1200" height="604" loading="lazy"
+                   alt="CarGO web console dashboard: driver and passenger counts, revenue and recent trips.">
+            </button>
+            <button class="shot" type="button" data-group="cargo" data-cap="SOS QUEUE">
+              <img src="shots/cargo-sos.png" width="1200" height="599" loading="lazy"
+                   alt="SOS alert queue in the web console, listing active emergency reports with their routes.">
+            </button>
           </div>
+        </div>
+      </article>
 
-          <ul class="feature-grid">
-            <li><span class="num">01</span>Image recognition of food items</li>
-            <li><span class="num">02</span>Freshness &amp; spoilage alerts</li>
-            <li><span class="num">03</span>Recipe recommendations</li>
-            <li><span class="num">04</span>Auto shopping lists &amp; low-stock</li>
-          </ul>
-
-          <div class="shot" aria-label="Screenshot placeholder"><span>IN PROGRESS</span></div>
-
-          <ul class="stack-row" aria-label="Technologies">
-            <li>React Native</li>
-            <li>Python</li>
-            <li>Vision API</li>
-          </ul>
-        </article>
-
-        <!-- Second ongoing piece: the public-facing site for the same project. -->
-        <article class="card card-sub">
-          <div class="card-head">
-            <div class="card-title-row">
-              <h3><a href="https://github.com/luvdrk/Informative-Pantry-Website" target="_blank" rel="noopener">Informative Panzi Website</a></h3>
-              <span class="tag-accent">IN PROGRESS</span>
-            </div>
-            <p>The public face of the same project — explaining what Panzi does, who it's for, and where the build is up to. Written in TypeScript, and the repo I've pushed to most recently.</p>
+      <article class="proj g12" data-reveal>
+        <div class="col-3 proj-meta">
+          <span class="tag">PROJECT 02</span>
+          <span class="mono-tile" style="--lang:#4F5D95">RQ</span>
+          <span class="stack">PHP<br>JavaScript<br>MySQL</span>
+          <span class="when">UPDATED OCT 2025<br>TEAM OF 5 — I LED IT</span>
+        </div>
+        <div class="col-9">
+          <h3><a href="https://github.com/luvdrk/Website-RQMS" target="_blank" rel="noopener">Registrar Queue Management System ↗</a></h3>
+          <p class="body">Led a five-person team building a queueing system for a university registrar's office: a public display board, a staff console with priority handling and no-show tracking, and printable tickets with QR receipts. PHP and MySQL, around 290&nbsp;KB of application code.</p>
+          <!-- Four landscape captures at 3 columns each: two rows, both full. -->
+          <div class="shots">
+            <button class="shot" type="button" data-group="rqms" data-cap="QUEUE BOARD">
+              <img src="shots/rqms-display.png" width="1200" height="599" loading="lazy"
+                   alt="Public queue board: three service cards showing the numbers currently being served, with the count still waiting under each.">
+            </button>
+            <button class="shot" type="button" data-group="rqms" data-cap="STAFF CONSOLE">
+              <img src="shots/rqms-staff.png" width="1200" height="604" loading="lazy"
+                   alt="Staff dashboard: counts for waiting, priority, called, completed and missed tickets above the queue table.">
+            </button>
+            <button class="shot" type="button" data-group="rqms" data-cap="TICKET">
+              <img src="shots/rqms-ticket.png" width="1200" height="605" loading="lazy"
+                   alt="Generated queue ticket showing the number E-018 and the holder's position in the regular line.">
+            </button>
+            <button class="shot" type="button" data-group="rqms" data-cap="QR RECEIPT">
+              <img src="shots/rqms-receipt.png" width="243" height="703" loading="lazy"
+                   alt="Printable ticket stub with the queue number, requested document, position and a QR code linking to the digital receipt.">
+            </button>
           </div>
+        </div>
+      </article>
 
-          <div class="shot shot-sm" aria-label="Screenshot placeholder"><span>IN PROGRESS</span></div>
+      <article class="proj proj-sm g12" data-reveal>
+        <div class="col-3 proj-meta">
+          <span class="tag">PROJECT 03</span>
+          <span class="mono-tile" style="--lang:#E34C26">CC</span>
+          <span class="stack">HTML<br>CSS</span>
+          <span class="when">UPDATED MAR 2025</span>
+        </div>
+        <div class="col-6">
+          <h3><a href="https://github.com/luvdrk/Website" target="_blank" rel="noopener">Clothe Cove ↗</a></h3>
+          <p class="body">A multi-page storefront for a clothing brand — landing page, collections and services — hand-written in HTML and CSS with no framework.</p>
+        </div>
+        <div class="col-3">
+          <div class="shots shots-solo">
+            <button class="shot" type="button" data-group="clothe" data-cap="LANDING PAGE">
+              <img src="shots/clothecove-home.png" width="1200" height="569" loading="lazy"
+                   alt="Clothe Cove landing page: the wordmark above three product shots, with an Explore Now button.">
+            </button>
+          </div>
+        </div>
+      </article>
 
-          <ul class="stack-row" aria-label="Technologies">
-            <li>TypeScript</li>
-            <li>CSS</li>
+      <div class="proj wip g12" data-reveal>
+        <h3 class="kicker col-3">IN PROGRESS</h3>
+        <div class="col-5">
+          <div class="wip-head">
+            <span class="wip-name">Panzi — AI smart pantry</span>
+            <span class="pill">BUILDING</span>
+          </div>
+          <p class="body">Photograph what's on your shelf. Panzi recognises the items, tracks inventory, estimates freshness, and tells you what to cook before anything spoils.</p>
+          <ol class="steps">
+            <li><span>01</span>Image recognition of food items</li>
+            <li><span>02</span>Freshness &amp; spoilage alerts</li>
+            <li><span>03</span>Recipe recommendations</li>
+            <li><span>04</span>Auto shopping lists &amp; low-stock</li>
+          </ol>
+          <span class="stack-row">React Native · Python · Vision API</span>
+        </div>
+        <div class="col-4">
+          <div class="wip-head">
+            <span class="wip-name"><a href="https://github.com/luvdrk/Informative-Pantry-Website" target="_blank" rel="noopener">Panzi website ↗</a></span>
+            <span class="pill">BUILDING</span>
+          </div>
+          <p class="body">The public face of the same project — what Panzi does, who it's for, and where the build is up to. My most recently pushed repo.</p>
+          <span class="stack-row">TypeScript · CSS</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── 03 Design ──────────────────────────────────────── -->
+  <section id="design" class="band" data-reveal>
+    <span class="ghost ghost-l" aria-hidden="true">03</span>
+    <div class="wrap">
+      <div class="g12 band-in">
+        <h2 class="kicker col-3">03 / DESIGN</h2>
+        <div class="col-4">
+          <p class="h-md">Cole Grphx —<br>since 2018</p>
+          <p class="body">Graphic design is the work I do for myself. Team and gaming branding: jerseys, rosters, stream overlays, logos, banners, posters. Nobody commissions it — it's what I make when nobody's asked. The same habit runs into motion, in After Effects edits I post as <strong>coleeditsae</strong>.</p>
+          <ul class="two-up">
+            <li>Jersey design</li>
+            <li>Roster graphics</li>
+            <li>Stream overlays</li>
+            <li>Logo design</li>
+            <li>Banners</li>
+            <li>Posters</li>
           </ul>
-        </article>
-      </section>
-
-      <section id="work" class="block">
-        <div class="block-head baseline">
-          <h2>Things I've built</h2>
-          <a class="muted-sm link-out" href="https://github.com/luvdrk" target="_blank" rel="noopener">github.com/luvdrk ↗</a>
+          <a class="btn btn-line" href="https://www.behance.net/derrickazaola1" target="_blank" rel="noopener">Full portfolio on Behance ↗</a>
         </div>
-
-        <!--
-          Mirrors the public repos on github.com/luvdrk, newest first.
-          No repo carries a GitHub description, so each line below was
-          written from the actual code — reword them in your own voice.
-        -->
-        <ul class="project-list">
-
-          <li class="project project-lead">
-            <!-- Swap for: <img class="thumb" src="shots/cargo.png" alt=""> -->
-            <div class="thumb" data-mono="CG" style="--lang:#A97BFF" aria-hidden="true"></div>
-            <div class="project-body">
-              <span class="project-title">CarGO — ride-hailing &amp; parcel platform</span>
-              <span class="project-desc">A full ride-hailing system in two parts: a native Android app for riders and drivers, and a web console for operations. Driver onboarding with document review, trip and parcel booking, route management, GCash payouts and remittance, SOS alerts, reports and audit logs. Backed by 33 Supabase edge functions with push notifications through Firebase.</span>
-              <span class="repo-links">
-                <a href="https://github.com/luvdrk/cargo-app" target="_blank" rel="noopener">cargo-app ↗</a>
-                <a href="https://github.com/luvdrk/cargo-admin" target="_blank" rel="noopener">cargo-admin ↗</a>
-              </span>
-              <span class="project-meta">Updated Mar 2026 · ~2.9 MB of code across both repos</span>
-
-              <!-- Uniform height, natural widths, so the tall phone captures
-                   and the wide console ones sit in one row without cropping.
-                   Each links to the full-size file. -->
-              <span class="project-shots">
-                <a href="shots/cargo-trip.png" target="_blank" rel="noopener">
-                  <img src="shots/cargo-trip.png" width="374" height="749" loading="lazy"
-                       alt="CarGO passenger app: a trip in progress, route drawn on the map with the assigned driver and vehicle below it."></a>
-                <a href="shots/cargo-onboarding.png" target="_blank" rel="noopener">
-                  <img src="shots/cargo-onboarding.png" width="376" height="773" loading="lazy"
-                       alt="Driver verification screen: nine of nine documents uploaded, each ID approved, with a Start Driving action."></a>
-                <a href="shots/cargo-driver.png" target="_blank" rel="noopener">
-                  <img src="shots/cargo-driver.png" width="372" height="752" loading="lazy"
-                       alt="Driver home screen: online status, trips and earnings for the day, and a wallet showing the amount due for remittance."></a>
-                <a href="shots/cargo-dashboard.png" target="_blank" rel="noopener">
-                  <img src="shots/cargo-dashboard.png" width="1200" height="604" loading="lazy"
-                       alt="Admin dashboard: driver and passenger counts, revenue by day, week and month, a payment method breakdown and the company/driver earnings split."></a>
-                <a href="shots/cargo-sos.png" target="_blank" rel="noopener">
-                  <img src="shots/cargo-sos.png" width="1200" height="599" loading="lazy"
-                       alt="SOS alerts queue in the admin console: an active emergency alert with its route and the driver and passenger involved, with acknowledge and resolve actions."></a>
-              </span>
-            </div>
-            <span class="project-tech">Kotlin · React · Supabase</span>
-          </li>
-
-          <li class="project">
-            <div class="thumb" data-mono="RQ" style="--lang:#4F5D95" aria-hidden="true"></div>
-            <div class="project-body">
-              <a class="project-title" href="https://github.com/luvdrk/Website-RQMS" target="_blank" rel="noopener">Registrar Queue Management System</a>
-              <span class="project-desc">Led a five-person team building a queueing system for a university registrar's office: a public display board, a staff console with priority handling and no-show tracking, and printable tickets with QR receipts. Built in PHP and MySQL — around 290 KB of application code.</span>
-              <span class="project-meta">Updated Oct 2025</span>
-
-              <span class="project-shots">
-                <a href="shots/rqms-display.png" target="_blank" rel="noopener">
-                  <img src="shots/rqms-display.png" width="1200" height="599" loading="lazy"
-                       alt="Public queue board: three service cards showing the numbers currently being served, with the count still waiting under each."></a>
-                <a href="shots/rqms-staff.png" target="_blank" rel="noopener">
-                  <img src="shots/rqms-staff.png" width="1200" height="604" loading="lazy"
-                       alt="Staff dashboard: counts for waiting, priority, called, completed and missed tickets above the queue table, with call and complete controls on each row."></a>
-                <a href="shots/rqms-ticket.png" target="_blank" rel="noopener">
-                  <img src="shots/rqms-ticket.png" width="1200" height="605" loading="lazy"
-                       alt="Generated queue ticket showing the number E-018 and the holder's position in the regular line."></a>
-                <a href="shots/rqms-receipt.png" target="_blank" rel="noopener">
-                  <img src="shots/rqms-receipt.png" width="243" height="703" loading="lazy"
-                       alt="Printable ticket stub with the queue number, requested document, position and a QR code linking to the digital receipt."></a>
-              </span>
-            </div>
-            <span class="project-tech">PHP · JS · CSS</span>
-          </li>
-
-          <li class="project">
-            <div class="thumb" data-mono="CC" style="--lang:#E34C26" aria-hidden="true"></div>
-            <div class="project-body">
-              <a class="project-title" href="https://github.com/luvdrk/Website" target="_blank" rel="noopener">Clothe Cove</a>
-              <span class="project-desc">A multi-page storefront for a clothing brand — landing page, brand collections and services, hand-written in HTML and CSS with no framework.</span>
-              <span class="project-meta">Updated Mar 2025</span>
-
-              <!-- Same filmstrip as CarGO: uniform height, natural width,
-                   scrolls sideways if more shots get added. -->
-              <span class="project-shots">
-                <a href="shots/clothecove-home.png" target="_blank" rel="noopener">
-                  <img src="shots/clothecove-home.png" width="1200" height="569" loading="lazy"
-                       alt="Clothe Cove landing page: the wordmark above three product shots, with an Explore Now button and a Trending Now section beginning below."></a>
-              </span>
-            </div>
-            <span class="project-tech">HTML · CSS</span>
-          </li>
-
-        </ul>
-      </section>
-
-      <!-- ── Design ─────────────────────────────────────── -->
-      <section id="design" class="block">
-        <div class="block-head baseline">
-          <h2>Design</h2>
-          <span class="muted-sm">Cole Grphx · since 2018</span>
-        </div>
-
-        <p>Graphic design is the thing I do for myself. I've run a page under <strong>Cole Grphx</strong> since 2018 — mostly team and gaming branding: jerseys, rosters, stream overlays, logos, banners and posters. Nobody commissions it. It's the work I make when nobody's asked me to.</p>
-
-        <ul class="design-grid" aria-label="Design work">
-          <li><span class="num">01</span>Jersey design</li>
-          <li><span class="num">02</span>Roster graphics</li>
-          <li><span class="num">03</span>Stream overlays</li>
-          <li><span class="num">04</span>Logo design</li>
-          <li><span class="num">05</span>Banners</li>
-          <li><span class="num">06</span>Posters</li>
-        </ul>
-
-        <!--
-          Before/after slider. The range input is the real control — it sits
-          invisibly over the frame, so dragging, clicking, tapping and the
-          arrow keys all work, and screen readers announce it as a slider.
-        -->
-        <figure class="design-figure">
+        <figure class="col-5 compare-fig">
+          <!-- The range input is the real control, laid invisibly over the
+               frame, so dragging, clicking, tapping and the arrow keys all
+               work and screen readers announce it as a slider. -->
           <div class="compare" style="--pos:50%">
-            <img class="compare-img"
-                 src="design-cole-graphics-night.jpg"
-                 alt="The same signage at night, the logo lit against a dark sky."
-                 loading="lazy" decoding="async" width="1200" height="676">
-            <img class="compare-img compare-top"
-                 src="design-cole-graphics.jpg"
-                 alt="Cole Graphics logo — a blue C monogram with a pen nib — on exterior signage in daylight."
-                 loading="lazy" decoding="async" width="1200" height="676">
-
-            <span class="compare-tag tag-l">DAY</span>
-            <span class="compare-tag tag-r">NIGHT</span>
-
-            <div class="compare-line" aria-hidden="true"><span class="compare-grip"></span></div>
-
-            <input class="compare-range" type="range" min="0" max="100" value="50" step="0.1"
+            <img class="cmp cmp-under" src="design-cole-graphics-night.jpg" width="1200" height="676" loading="lazy"
+                 alt="The same signage at night, the logo lit against a dark sky.">
+            <img class="cmp cmp-over" src="design-cole-graphics.jpg" width="1200" height="676" loading="lazy"
+                 alt="Cole Graphics logo — a blue C monogram with a pen nib — on exterior signage in daylight.">
+            <span class="cmp-tag cmp-l">DAY</span>
+            <span class="cmp-tag cmp-r">NIGHT</span>
+            <span class="cmp-line" aria-hidden="true"></span>
+            <input class="cmp-range" type="range" min="0" max="100" value="50" step="0.1"
                    aria-label="Compare the daytime and night-time versions of the signage">
           </div>
-          <figcaption>Cole Graphics Logo</figcaption>
+          <figcaption>COLE GRAPHICS LOGO — SIGNAGE, DAY AND NIGHT. DRAG TO COMPARE.</figcaption>
         </figure>
-
-        <p>The same habit runs into motion work — After Effects for animated edits, which I post as anime edits under <strong>coleeditsae</strong>.</p>
-      </section>
-
-    </div>
-
-    <aside class="col-side">
-
-      <div class="pass">
-        <div class="pass-top">
-          <span class="pass-mark">&gt;_</span>
-          <span class="pass-kicker">BUILDER PASS</span>
-        </div>
-        <div class="pass-title">
-          <span class="pass-h">SYSTEM DEVELOPMENT</span>
-          <span class="pass-sub">STUDENT · BATCH 2027</span>
-        </div>
-        <div class="pass-foot">
-          <div class="pass-holder">
-            <span class="pass-label">HOLDER</span>
-            <span class="pass-name">DERRICK JOHN F. AZAOLA</span>
-          </div>
-          <div class="pass-chip" aria-hidden="true"></div>
-        </div>
-        <div class="pass-strip"><span>PANZI · TEAM BUILD</span><span>2026</span></div>
       </div>
-
-            <section class="block">
-        <h2>Tech stack</h2>
-        <div class="stack-groups">
-          <div class="stack-group">
-            <span class="stack-label">WEB</span>
-            <ul>
-              <li class="ghv">HTML</li>
-              <li class="ghv">CSS</li>
-              <li class="ghv">JavaScript</li>
-              <li class="ghv">TypeScript</li>
-              <li class="ghv">PHP</li>
-              <li class="ghv">React</li>
-            </ul>
-          </div>
-          <div class="stack-group">
-            <span class="stack-label">MOBILE</span>
-            <ul><li class="ghv">Kotlin</li><li class="ghv">React Native</li><li class="ghv">Android Studio</li></ul>
-          </div>
-          <div class="stack-group">
-            <span class="stack-label">BACKEND &amp; DATA</span>
-            <ul>
-              <li class="ghv">Supabase</li>
-              <li class="ghv">PostgreSQL</li>
-              <li class="ghv">Firebase</li>
-              <li>Python</li>
-              <li>MySQL</li>
-            </ul>
-          </div>
-          <div class="stack-group">
-            <span class="stack-label">DESIGN &amp; MOTION</span>
-            <ul>
-              <li>Photoshop</li>
-              <li>Illustrator</li>
-              <li>Canva</li>
-              <li>After Effects</li>
-            </ul>
-            <span class="stack-aside">Also worked in Figma and Lightroom</span>
-          </div>
-          <div class="stack-group">
-            <span class="stack-label">VIDEO &amp; AI MEDIA</span>
-            <ul><li>CapCut</li><li>ElevenLabs</li><li>Google Flow</li></ul>
-          </div>
-        </div>
-        <p class="stack-legend"><span class="dot-accent" aria-hidden="true"></span>Used in the projects above</p>
-      </section>
-
-      <!-- Was "Freelance", which hid the one entry that isn't self-directed.
-           Cole Grphx is described at length in the Design section, but a
-           skimmer reading the sidebar never saw it counted as experience. -->
-      <section class="block">
-        <h2>Experience</h2>
-        <div class="entry">
-          <span class="entry-title">AI video content creation</span>
-          <span class="entry-desc">Freelance. Scripting, generation and editing for short-form content — Google Flow, ElevenLabs, CapCut. Projects run directly with clients, brief to delivery.</span>
-          <span class="entry-meta">2025 — present</span>
-        </div>
-        <div class="entry">
-          <span class="entry-title">Graphic designer — Cole Grphx</span>
-          <span class="entry-desc">Self-employed. Logos, jerseys, roster graphics, stream overlays, banners and posters for esports teams and small clients.</span>
-          <span class="entry-meta">2018 — present</span>
-        </div>
-        <div class="entry">
-          <span class="entry-title">Graphic designer — PIXELS Club</span>
-          <span class="entry-desc">PHINMA University of Pangasinan. Posters, social media graphics and event materials for club campaigns, plus a branding refresh that tightened the club's visual consistency.</span>
-          <span class="entry-meta">2023 — 2024</span>
-        </div>
-      </section>
-
-      <section class="block education-block">
-        <h2>Education</h2>
-        <div class="entry">
-          <span class="entry-title">Senior High School — TVL</span>
-          <span class="entry-desc">PHINMA University of Pangasinan</span>
-          <span class="entry-meta">Grades 11–12 · graduated</span>
-        </div>
-        <div class="entry">
-          <span class="entry-title">BS Information Technology</span>
-          <span class="entry-desc">PHINMA University of Pangasinan — System Development track</span>
-          <span class="entry-meta">1st year–present · currently 3rd year · expected 2027</span>
-        </div>
-      </section>
-
-      <!-- Reuses the tech-stack chip markup so it reads as one component with
-           the block above it. No proficiency levels: three languages stated
-           plainly is honest, and a made-up scale would be worse than none. -->
-      <section class="block">
-        <h2>Languages</h2>
-        <div class="stack-groups">
-          <div class="stack-group">
-            <ul><li>English</li><li>Filipino</li><li>Pangasinan</li></ul>
-          </div>
-        </div>
-      </section>
-
-    </aside>
-  </div>
-
-  <!-- The page is long, and the only other way to act on it is back up in
-       the hero. Someone who reads to the end shouldn't have to scroll. -->
-  <section id="contact" class="block contact">
-    <h2>Get in touch</h2>
-    <p>Open to internships, junior developer roles and freelance work — development or AI video. Email is the fastest way to reach me; I answer everything.</p>
-
-    <div class="contact-actions">
-      <a class="btn btn-solid" target="_blank" rel="noopener noreferrer"
-         href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=djazaola24@gmail.com&amp;su=Hello%20Derrick">Email me <span aria-hidden="true">→</span></a>
-      <button class="btn btn-ghost" type="button" data-open-chat>Ask about me</button>
     </div>
-
-    <p class="hero-email">or copy
-      <button class="hero-email-addr" type="button" data-copy-email aria-live="polite">djazaola24@gmail.com</button></p>
   </section>
 
-  <footer class="foot">
-    <span>© <span id="year">2026</span> Derrick John F. Azaola · Pangasinan, PH</span>
-  </footer>
+  <!-- ── 04 Background ──────────────────────────────────── -->
+  <section id="background" class="band" data-reveal>
+    <span class="ghost ghost-r ghost-low" aria-hidden="true">04</span>
+    <div class="wrap">
+      <div class="g12 band-in">
+        <h2 class="kicker col-3">04 / BACKGROUND</h2>
+
+        <div class="col-5">
+          <span class="label">EXPERIENCE</span>
+          <div class="entries">
+            <div class="entry">
+              <span class="e-title">AI video content creation — freelance</span>
+              <span class="e-desc">Scripting, generation and editing for short-form content in Google Flow, ElevenLabs and CapCut. Run directly with clients, brief to delivery.</span>
+              <span class="e-when">2025 — PRESENT</span>
+            </div>
+            <div class="entry">
+              <span class="e-title">Graphic designer — Cole Grphx</span>
+              <span class="e-desc">Self-employed. Logos, jerseys, roster graphics, stream overlays, banners and posters for esports teams and small clients.</span>
+              <span class="e-when">2018 — PRESENT</span>
+            </div>
+            <div class="entry">
+              <span class="e-title">Graphic designer — PIXELS Club</span>
+              <span class="e-desc">PHINMA UPang. Posters, social graphics and event materials, plus a branding refresh that tightened the club's visual consistency.</span>
+              <span class="e-when">2023 — 2024</span>
+            </div>
+          </div>
+
+          <span class="label label-gap">EDUCATION</span>
+          <div class="entries">
+            <div class="entry">
+              <span class="e-title">BS Information Technology</span>
+              <span class="e-desc">PHINMA University of Pangasinan — System Development track</span>
+              <span class="e-when">3RD YEAR · EXPECTED 2027</span>
+            </div>
+            <div class="entry">
+              <span class="e-title">Senior High School — TVL</span>
+              <span class="e-desc">PHINMA University of Pangasinan</span>
+              <span class="e-when">GRADES 11–12 · GRADUATED</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <span class="label">STACK</span>
+          <dl class="stack-list">
+            <dt>WEB</dt><dd>HTML, CSS, JavaScript, TypeScript, PHP, React</dd>
+            <dt>MOBILE</dt><dd>Kotlin, React Native, Android Studio</dd>
+            <dt>BACKEND</dt><dd>Supabase, PostgreSQL, Firebase, Python, MySQL</dd>
+            <dt>DESIGN</dt><dd>Photoshop, Illustrator, After Effects, Canva, Figma</dd>
+            <dt>AI MEDIA</dt><dd>CapCut, ElevenLabs, Google Flow</dd>
+            <dt>LANGUAGES</dt><dd>English, Filipino, Pangasinan</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 05 Contact ─────────────────────────────────────── -->
+  <section id="contact" class="band contact">
+    <span class="ghost ghost-l" aria-hidden="true">05</span>
+    <div class="wrap contact-in">
+      <span class="kicker">05 / CONTACT</span>
+      <h2>Open to internships, junior roles and freelance work.</h2>
+      <p class="lede">Development or AI video. Email is the fastest way to reach me — I answer everything.</p>
+      <div class="actions">
+        <a class="btn btn-invert" target="_blank" rel="noopener noreferrer"
+           href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=djazaola24@gmail.com&amp;su=Hello%20Derrick">djazaola24@gmail.com →</a>
+        <button class="btn btn-ghost" type="button" data-open-chat>Ask about me</button>
+      </div>
+      <ul class="elsewhere">
+        <li><a href="https://www.behance.net/derrickazaola1" target="_blank" rel="noopener"><span class="l-name">Behance ↗</span><span class="l-sub">DESIGN PORTFOLIO</span></a></li>
+        <li><a href="https://github.com/luvdrk" target="_blank" rel="noopener"><span class="l-name">GitHub ↗</span><span class="l-sub">CODE</span></a></li>
+        <li><a href="https://www.tiktok.com/@coleeditsae" target="_blank" rel="noopener"><span class="l-name">TikTok ↗</span><span class="l-sub">ANIME EDITS</span></a></li>
+        <li><a href="https://www.facebook.com/ColeDesigns123" target="_blank" rel="noopener"><span class="l-name">Facebook ↗</span><span class="l-sub">COLE GRPHX PAGE</span></a></li>
+        <li><a href="https://v2.onlinejobs.ph/jobseekers/info/3135638" target="_blank" rel="noopener"><span class="l-name">OnlineJobs.ph ↗</span><span class="l-sub">HIRE ME</span></a></li>
+      </ul>
+      <p class="copyright">© <span id="year">2026</span> DERRICK JOHN F. AZAOLA · PANGASINAN, PH</p>
+    </div>
+  </section>
 
 </main>
 
 <!-- ── Screenshot viewer ────────────────────────────────────
   A <dialog> rather than a hand-rolled overlay: the browser supplies the
-  backdrop, the focus trap, Escape-to-close and the inert page behind it,
-  none of which is worth reimplementing. The links stay real hrefs, so
-  middle-click, ctrl-click and a missing-JS visit all still open the file.
+  backdrop, the focus trap, Escape-to-close and the inert page behind it.
+  The triggers stay real buttons, so nothing here is required to see the
+  images at their in-page size.
 -->
-<dialog id="lightbox" class="lightbox" aria-label="Screenshot viewer">
-  <button class="lightbox-x" type="button" data-lb-close aria-label="Close">×</button>
-
-  <button class="lightbox-arrow lightbox-prev" type="button" data-lb-step="-1" aria-label="Previous screenshot">‹</button>
-  <img class="lightbox-img" alt="">
-  <button class="lightbox-arrow lightbox-next" type="button" data-lb-step="1" aria-label="Next screenshot">›</button>
-
-  <p class="lightbox-cap"></p>
+<dialog id="lightbox" class="lb" aria-label="Screenshot viewer">
+  <div class="lb-head">
+    <span class="lb-project"></span>
+    <span class="lb-cap"></span>
+    <span class="lb-count"></span>
+    <button class="lb-x" type="button" data-lb-close aria-label="Close">×</button>
+  </div>
+  <div class="lb-body">
+    <button class="lb-arrow" type="button" data-lb-step="-1" aria-label="Previous screenshot">‹</button>
+    <div class="lb-stage"><img class="lb-img" alt=""></div>
+    <button class="lb-arrow" type="button" data-lb-step="1" aria-label="Next screenshot">›</button>
+  </div>
+  <div class="lb-thumbs"></div>
 </dialog>
 
 <!-- ── Assistant ────────────────────────────────────────── -->
 <div id="chatPanel" class="chat" hidden>
   <div class="chat-head">
-    <div class="chat-id">
-      <span class="chat-mark">&gt;_</span>
-      <div>
-        <span class="chat-title">Ask about me</span>
-        <span class="chat-sub">Assistant</span>
-      </div>
-    </div>
+    <span class="chat-mark">&gt;_</span>
+    <span class="chat-title">ASK ABOUT ME</span>
     <button id="chatClose" class="chat-x" type="button" aria-label="Close assistant">×</button>
   </div>
-
   <div id="chatLog" class="chat-log" role="log" aria-live="polite"></div>
-
   <div id="chatSuggest" class="chat-suggest"></div>
-
-  <form id="chatForm" class="chat-form">
-    <input id="chatInput" type="text" autocomplete="off" placeholder="Ask about my projects, stack, school…" aria-label="Your question">
-    <button type="submit">Send</button>
-  </form>
 </div>
 
 <button id="chatToggle" class="chat-fab" type="button">
-  <span class="dot" aria-hidden="true"></span>
-  <span id="chatFabLabel">Ask about me</span>
+  <span class="blip" aria-hidden="true"></span>Ask about me
 </button>
 
-<script src="script.js?v=14"></script>
+<script src="script.js?v=20"></script>
 </body>
 </html>
