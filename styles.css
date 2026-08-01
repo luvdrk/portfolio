@@ -305,11 +305,30 @@ a:hover { color:var(--accent); }
 .stack-row { font:400 12px/1 var(--mono); color:var(--muted); }
 
 /* ══ Design ═══════════════════════════════════════════════ */
+/* Six links to the Behance galleries. Given a hairline each and a hover
+   state so they read as somewhere to go — as plain text in two columns they
+   looked like a list of words, and nobody clicks a word. */
 .two-up {
   display:grid; grid-template-columns:1fr 1fr; gap:0 20px;
   font-size:15px; margin-block:var(--s4) 22px;
 }
-.two-up li { padding-block:4px; }
+.two-up li { border-top:1px solid var(--hair); }
+/* The first item of each column, so neither starts with a stray rule. */
+.two-up li:nth-child(1), .two-up li:nth-child(2) { border-top:0; }
+.two-up a {
+  display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+  padding-block:8px; text-decoration:none; color:var(--ink);
+  transition:color .16s ease, padding-inline-start .16s ease;
+}
+.two-up a span { font-size:12px; color:var(--faint); transition:color .16s ease; }
+.two-up a:hover { color:var(--accent); padding-inline-start:4px; }
+.two-up a:hover span { color:var(--accent); }
+
+@media (max-width:640px) {
+  /* One column: every row after the first needs its rule back. */
+  .two-up { grid-template-columns:1fr; }
+  .two-up li:nth-child(2) { border-top:1px solid var(--hair); }
+}
 
 .compare-fig { margin:0; }
 .compare {
