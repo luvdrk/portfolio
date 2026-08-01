@@ -112,5 +112,9 @@ Asset URLs carry a `?v=` query string. Bump it in `index.html` whenever
 
 ## Licence
 
-Code is free to learn from. The photographs, résumé, project screenshots and
-design work are not — please don't reuse those.
+Code is free to learn from. The photographs, project screenshots and design
+work are not — please don't reuse those.
+
+The résumé is deliberately not in this repository or on the site. It carries
+a phone number, and anything on a live URL is scraped indefinitely. Ask by
+email and it gets sent directly.

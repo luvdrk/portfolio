@@ -32,14 +32,9 @@ if (Test-Path -LiteralPath $shotsDir) {
   Copy-Item -LiteralPath $shotsDir -Destination $clientDir -Recurse
 }
 
-# resume.pdf is the designed one the site links; resume-ats.pdf is the plain
-# single-column copy for application portals that parse the file.
-foreach ($resume in @('resume.pdf', 'resume-ats.pdf')) {
-  $resumePath = Join-Path $projectRoot $resume
-  if (Test-Path -LiteralPath $resumePath) {
-    Copy-Item -LiteralPath $resumePath -Destination $clientDir
-  }
-}
+# The résumé is not published. It carries a phone number and a home region,
+# and a file on a live URL is scraped indefinitely — it goes out by email, to
+# whoever actually asked for it. Keep it out of this folder.
 
 Copy-Item -LiteralPath (Join-Path $projectRoot 'worker/index.js') -Destination (Join-Path $serverDir 'index.js')
 
