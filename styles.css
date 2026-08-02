@@ -426,6 +426,13 @@ a:hover { color:var(--accent); }
 /* They're grid children now, not siblings in a stack, so the divider and
    top padding .entry carries would draw above each one. */
 .edu-a, .edu-b { border-top:0; padding-top:0; }
+
+/* Both entries stretch to the row's height, so pushing the date line down
+   with an auto margin lands it on the same baseline in each. Without it the
+   dates sit at different heights, because the degree's description wraps to
+   two lines and the school's doesn't. */
+.edu-a, .edu-b { display:flex; flex-direction:column; }
+.edu-a .e-when, .edu-b .e-when { margin-top:auto; padding-top:6px; }
 .e-title { display:block; font:700 18px/1.3 var(--sans); letter-spacing:-0.02em; }
 .e-desc { display:block; font:400 15px/1.55 var(--sans); color:var(--body); margin-block:5px; }
 .e-when { font:400 12px/1 var(--mono); color:var(--faint); }
@@ -676,6 +683,11 @@ html.theming, html.theming * {
     border-top:1px solid var(--hair);
   }
   .topnav a:first-child { border-top:0; }
+
+  /* The 01–05 numbering is wayfinding for a page you can see at once. On a
+     phone you only ever see one section, so it's just noise in front of
+     every label. The big ghost numerals still mark the sections. */
+  .kicker .n, .topnav .n { display:none; }
 
   /* ── The assistant goes ─────────────────────────────────
      A floating panel over a 360px screen covers the page it is meant to
