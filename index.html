@@ -34,7 +34,7 @@
 <!-- ?v= is bumped whenever styles.css changes. Without it a browser that has
      already cached the old file will happily keep using it, which looks
      exactly like a broken layout. -->
-<link rel="stylesheet" href="styles.css?v=34">
+<link rel="stylesheet" href="styles.css?v=35">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23212327'/%3E%3Ctext y='66' x='50' text-anchor='middle' font-size='42' font-family='sans-serif' font-weight='800' fill='%23f6f5f3'%3EDA%3C/text%3E%3C/svg%3E">
 
 <script>
@@ -323,8 +323,10 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
     <span class="ghost ghost-r ghost-low" aria-hidden="true">04</span>
     <div class="wrap">
       <div class="g12 band-in">
-        <!-- The section label sits on the right with Stack, not in a column
-             of its own on the left. Experience takes the freed width. -->
+        <!-- Spans the row and hugs the right edge, above both columns, so it
+             sits over the ghost numeral rather than in a column of its own. -->
+        <h2 class="kicker kicker-right"><span class="n">04 / </span>BACKGROUND</h2>
+
         <div class="col-8">
           <span class="label">EXPERIENCE</span>
           <div class="entries">
@@ -348,7 +350,6 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
         </div>
 
         <div class="col-4">
-          <h2 class="kicker kicker-right"><span class="n">04 / </span>BACKGROUND</h2>
           <span class="label">STACK</span>
           <dl class="stack-list">
             <dt>WEB</dt><dd>HTML, CSS, JavaScript, TypeScript, PHP, React</dd>
@@ -447,6 +448,6 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
   <span class="blip" aria-hidden="true"></span>Ask about me
 </button>
 
-<script src="script.js?v=34"></script>
+<script src="script.js?v=35"></script>
 </body>
 </html>

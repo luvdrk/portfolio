@@ -235,10 +235,13 @@ a:hover { color:var(--accent); }
   font:500 12px/1 var(--mono); letter-spacing:0.12em;
   color:var(--muted); margin:0;
 }
-/* Section 04's label lives in the right-hand column above STACK rather than
-   in a column of its own, so it needs the gap the sibling labels get from
-   sitting at the top of theirs. */
-.kicker-right { margin-bottom:var(--s5); }
+/* Section 04's label spans the row and sits against the right edge, over the
+   ghost numeral, rather than occupying a column of its own on the left. */
+.kicker-right {
+  grid-column:1 / -1;
+  text-align:right;
+  margin-bottom:var(--s5);
+}
 .big { font:400 18px/1.6 var(--sans); }
 .body { font:400 17px/1.6 var(--sans); color:var(--body); max-width:62ch; }
 .sub { font:400 17px/1.6 var(--sans); color:var(--body); max-width:52ch; margin-top:10px; }
