@@ -235,6 +235,10 @@ a:hover { color:var(--accent); }
   font:500 12px/1 var(--mono); letter-spacing:0.12em;
   color:var(--muted); margin:0;
 }
+/* Section 04's label lives in the right-hand column above STACK rather than
+   in a column of its own, so it needs the gap the sibling labels get from
+   sitting at the top of theirs. */
+.kicker-right { margin-bottom:var(--s5); }
 .big { font:400 18px/1.6 var(--sans); }
 .body { font:400 17px/1.6 var(--sans); color:var(--body); max-width:62ch; }
 .sub { font:400 17px/1.6 var(--sans); color:var(--body); max-width:52ch; margin-top:10px; }
@@ -411,17 +415,17 @@ a:hover { color:var(--accent); }
 
 /* ── Education row ────────────────────────────────────────
    Placed by explicit column rather than span, so it lands on the same lines
-   as the two blocks above it: the Background section is kicker(3) +
-   experience(5) + stack(4), so Senior High starts at 4 and the degree at 9.
-   Inside the narrower Experience column the two entries had half the width
-   and every line wrapped. */
+   as the two blocks above it. The Background section is experience(8) +
+   stack(4), so Senior High starts at 1 under Experience and the degree at 9
+   under Stack. Inside the narrower Experience column the two entries had
+   half the width and every line wrapped. */
 .edu-rule {
-  grid-column:4 / -1;
+  grid-column:1 / -1;
   border-top:1px solid var(--hair);
   margin-top:var(--s6);
 }
-.edu-label { grid-column:4 / -1; margin-top:var(--s5); margin-bottom:0; }
-.edu-a { grid-column:4 / span 5; }
+.edu-label { grid-column:1 / -1; margin-top:var(--s5); margin-bottom:0; }
+.edu-a { grid-column:1 / span 8; }
 .edu-b { grid-column:9 / span 4; }
 /* They're grid children now, not siblings in a stack, so the divider and
    top padding .entry carries would draw above each one. */
@@ -653,8 +657,7 @@ html.theming, html.theming * {
   .work-head .col-9 { margin-top:var(--s4); }
   .elsewhere { grid-template-columns:repeat(3,1fr); }
 
-  /* The kicker column is gone at this width, so education starts at 1. */
-  .edu-rule, .edu-label { grid-column:1 / -1; }
+  /* Experience and Stack are half-and-half here, so education follows. */
   .edu-a { grid-column:1 / span 6; }
   .edu-b { grid-column:7 / span 6; }
 }
