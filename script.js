@@ -41,7 +41,10 @@
 
       // No view transitions, or the visitor asked for less motion: ramp the
       // colours with a plain CSS transition instead of snapping.
-      if (!root.startViewTransition || reduced) {
+      // startViewTransition lives on `document`, NOT on documentElement —
+      // checking it on `root` is always undefined, which silently sends every
+      // switch down this fallback and the wipe never runs.
+      if (!document.startViewTransition || reduced) {
         root.classList.add('theming');
         applyTheme(next);
         window.setTimeout(function () { root.classList.remove('theming'); }, 560);
@@ -59,7 +62,9 @@
         Math.max(y, window.innerHeight - y)
       );
 
-      var vt = root.startViewTransition(function () { applyTheme(next); });
+      // `document` starts the transition; `root` is what carries the
+      // pseudo-elements the clip-path below animates.
+      var vt = document.startViewTransition(function () { applyTheme(next); });
 
       // Wait for `ready`: the snapshots don't exist until then, so animating
       // the pseudo-element any earlier silently does nothing.
