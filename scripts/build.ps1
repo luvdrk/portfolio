@@ -27,9 +27,11 @@ foreach ($file in $siteFiles) {
   Copy-Item -LiteralPath (Join-Path $projectRoot $file) -Destination $clientDir
 }
 
-$shotsDir = Join-Path $projectRoot 'shots'
-if (Test-Path -LiteralPath $shotsDir) {
-  Copy-Item -LiteralPath $shotsDir -Destination $clientDir -Recurse
+foreach ($dir in @('shots', 'fonts')) {
+  $source = Join-Path $projectRoot $dir
+  if (Test-Path -LiteralPath $source) {
+    Copy-Item -LiteralPath $source -Destination $clientDir -Recurse
+  }
 }
 
 # The résumé is not published. It carries a phone number and a home region,

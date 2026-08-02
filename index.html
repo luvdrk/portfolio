@@ -28,14 +28,67 @@
 <meta name="twitter:description" content="IT student, system development. Building Panzi, an AI smart pantry system.">
 <meta name="twitter:image" content="https://derrickazaola.vercel.app/og-cover.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- The fonts live in fonts/ and are declared at the top of styles.css. Two
+     files cover every weight on the page — both are variable. Without a
+     preload the browser can't discover them until the stylesheet has parsed,
+     which delays the swap by a whole round trip. -->
+<link rel="preload" as="font" type="font/woff2" href="fonts/public-sans.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/jetbrains-mono.woff2" crossorigin>
 <!-- ?v= is bumped whenever styles.css changes. Without it a browser that has
      already cached the old file will happily keep using it, which looks
      exactly like a broken layout. -->
-<link rel="stylesheet" href="styles.css?v=38">
+<link rel="stylesheet" href="styles.css?v=39">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23212327'/%3E%3Ctext y='66' x='50' text-anchor='middle' font-size='42' font-family='sans-serif' font-weight='800' fill='%23f6f5f3'%3EDA%3C/text%3E%3C/svg%3E">
+
+<!-- Structured data. This is what lets a search engine treat the page as a
+     person rather than as prose, so a search for the name can show the role,
+     the school and the profiles instead of a stray sentence.
+
+     Deliberately no phone number: everything in here is machine-readable and
+     gets scraped, and the number is not on the page for exactly that reason.
+     The email is already visible above, so it costs nothing extra. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Derrick John F. Azaola",
+  "url": "https://derrickazaola.vercel.app/",
+  "image": "https://derrickazaola.vercel.app/me-formal.jpg",
+  "jobTitle": "Information Technology Student",
+  "description": "Third-year BS Information Technology student at PHINMA University of Pangasinan. System development, mobile apps, and AI video work.",
+  "email": "mailto:djazaola24@gmail.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressRegion": "Pangasinan",
+    "addressCountry": "PH"
+  },
+  "alumniOf": {
+    "@type": "CollegeOrUniversity",
+    "name": "PHINMA University of Pangasinan",
+    "url": "https://www.phinma.edu.ph/upang/"
+  },
+  "knowsLanguage": ["English", "Filipino", "Pangasinan"],
+  "knowsAbout": [
+    "Web development",
+    "Android development",
+    "PHP",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Kotlin",
+    "MySQL",
+    "Supabase",
+    "Graphic design",
+    "Video editing"
+  ],
+  "sameAs": [
+    "https://github.com/luvdrk",
+    "https://www.tiktok.com/@coleeditsae",
+    "https://www.facebook.com/ColeDesigns123",
+    "https://v2.onlinejobs.ph/jobseekers/info/3135638"
+  ]
+}
+</script>
 
 <script>
 /* Set the theme before first paint so dark mode never flashes light. */
@@ -447,5 +500,11 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 </button>
 
 <script src="script.js?v=38"></script>
+
+<!-- Vercel Web Analytics. Served from this same domain, so no third-party
+     request and nothing for a tracker blocker to catch. It counts page views
+     and referrers only — no cookies, no cross-site identifier. The path 404s
+     on localhost, which is expected; it only resolves once deployed. -->
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
