@@ -369,19 +369,29 @@ a:hover { color:var(--accent); }
 }
 .cmp-l { left:10px; }
 .cmp-r { right:10px; }
-/* The line alone gave no sign it could be dragged — it just read as a blue
-   rule across the photo. The grip is the affordance. */
+/* A white hairline rather than an accent bar: it reads against both the lit
+   and the dark half of the photo, where a coloured line only reads against
+   one. The shadow is what keeps it visible on the pale side. */
 .cmp-line {
   position:absolute; top:0; bottom:0; width:2px;
-  background:var(--accent); left:var(--pos);
-  display:grid; place-items:center;
+  left:var(--pos);
+  background:rgba(255,255,255,.92);
+  box-shadow:0 0 6px rgba(0,0,0,.25);
 }
+
+/* Centred by absolute offset, not by grid. place-items on a 2px-wide track
+   doesn't reliably centre a 36px child — it hangs off one edge, which is
+   why the handle sat to the right of the line. */
 .cmp-grip {
-  width:40px; height:40px; border-radius:50%;
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:36px; height:36px; border-radius:50%;
   display:grid; place-items:center;
-  background:var(--accent); color:#fff;
-  font:600 13px/1 var(--mono); letter-spacing:.06em;
-  box-shadow:0 2px 10px rgba(0,0,0,.28);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(4px);
+  border:1px solid rgba(0,0,0,.10);
+  box-shadow:0 4px 14px rgba(0,0,0,.18);
+  font:500 13px/1 var(--mono); letter-spacing:.1em; color:#212327;
   pointer-events:none;   /* the range input underneath does the dragging */
 }
 .cmp-range {
@@ -709,6 +719,8 @@ html.theming, html.theming * {
     scroll-snap-align:center;
   }
   .shot:hover { transform:none; }   /* no hover on touch; the lift just sticks */
+  /* The dialog is disabled here (see script.js), so don't offer a tap. */
+  .shot { cursor:default; }
 
   /* Injected by script.js, so a group with one image gets no controls. */
   .shots-nav {

@@ -386,15 +386,27 @@
       paintThumbs();
     }
 
+    // On phones the carousel already shows one screenshot at a time, so a
+    // full-screen dialog on top of it is a second viewer over the first.
+    // Checked per click rather than once, so rotating the device is handled.
+    var phone = window.matchMedia('(max-width:640px)');
+
     Object.keys(groups).forEach(function (g) {
       groups[g].forEach(function (btn, i) {
         btn.addEventListener('click', function () {
+          if (phone.matches) return;
           groupKey = g;
           current = groups[g];
           show(i);
           lb.showModal();
         });
       });
+    });
+
+    // If the viewport narrows while it's open — rotation, or a resized
+    // window — close it rather than leaving a modal that can't be reached.
+    phone.addEventListener('change', function (e) {
+      if (e.matches && lb.open) lb.close();
     });
 
     Array.prototype.forEach.call(
