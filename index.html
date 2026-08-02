@@ -34,7 +34,7 @@
 <!-- ?v= is bumped whenever styles.css changes. Without it a browser that has
      already cached the old file will happily keep using it, which looks
      exactly like a broken layout. -->
-<link rel="stylesheet" href="styles.css?v=30">
+<link rel="stylesheet" href="styles.css?v=31">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23212327'/%3E%3Ctext y='66' x='50' text-anchor='middle' font-size='42' font-family='sans-serif' font-weight='800' fill='%23f6f5f3'%3EDA%3C/text%3E%3C/svg%3E">
 
 <script>
@@ -345,21 +345,6 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
             </div>
           </div>
 
-          <span class="label label-gap">EDUCATION</span>
-          <!-- Side by side and in order, oldest first, so it reads as a
-               progression rather than two stacked entries. -->
-          <div class="entries entries-2up">
-            <div class="entry">
-              <span class="e-title">Senior High School — TVL</span>
-              <span class="e-desc">PHINMA University of Pangasinan</span>
-              <span class="e-when">GRADES 11–12 · GRADUATED</span>
-            </div>
-            <div class="entry">
-              <span class="e-title">BS Information Technology</span>
-              <span class="e-desc">PHINMA University of Pangasinan — System Development track</span>
-              <span class="e-when">3RD YEAR · EXPECTED 2027</span>
-            </div>
-          </div>
         </div>
 
         <div class="col-4">
@@ -372,6 +357,23 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
             <dt>AI MEDIA</dt><dd>CapCut, ElevenLabs, Google Flow</dd>
             <dt>LANGUAGES</dt><dd>English, Filipino, Pangasinan</dd>
           </dl>
+        </div>
+
+        <!-- Education sits on its own row spanning both columns above, rather
+             than squeezed inside the narrower Experience one. Senior High
+             lines up with Experience, the degree with Stack, and the rule
+             separates it from what's above. -->
+        <span class="edu-rule" aria-hidden="true"></span>
+        <span class="label edu-label">EDUCATION</span>
+        <div class="entry edu-a">
+          <span class="e-title">Senior High School — TVL</span>
+          <span class="e-desc">PHINMA University of Pangasinan</span>
+          <span class="e-when">GRADES 11–12 · GRADUATED</span>
+        </div>
+        <div class="entry edu-b">
+          <span class="e-title">BS Information Technology</span>
+          <span class="e-desc">PHINMA University of Pangasinan — System Development track</span>
+          <span class="e-when">3RD YEAR · EXPECTED 2027</span>
         </div>
       </div>
     </div>
@@ -444,6 +446,6 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
   <span class="blip" aria-hidden="true"></span>Ask about me
 </button>
 
-<script src="script.js?v=30"></script>
+<script src="script.js?v=31"></script>
 </body>
 </html>

@@ -409,10 +409,23 @@ a:hover { color:var(--accent); }
 .entry { padding-block:20px 24px; border-top:1px solid var(--hair); }
 .entry:first-child { border-top:0; padding-top:0; }
 
-/* Education reads as a progression, so the two sit side by side rather than
-   stacked — school on the left, degree on the right. */
-.entries-2up { grid-template-columns:1fr 1fr; column-gap:var(--gut); }
-.entries-2up .entry { border-top:0; padding-top:0; }
+/* ── Education row ────────────────────────────────────────
+   Placed by explicit column rather than span, so it lands on the same lines
+   as the two blocks above it: the Background section is kicker(3) +
+   experience(5) + stack(4), so Senior High starts at 4 and the degree at 9.
+   Inside the narrower Experience column the two entries had half the width
+   and every line wrapped. */
+.edu-rule {
+  grid-column:4 / -1;
+  border-top:1px solid var(--hair);
+  margin-top:var(--s6);
+}
+.edu-label { grid-column:4 / -1; margin-top:var(--s5); margin-bottom:0; }
+.edu-a { grid-column:4 / span 5; }
+.edu-b { grid-column:9 / span 4; }
+/* They're grid children now, not siblings in a stack, so the divider and
+   top padding .entry carries would draw above each one. */
+.edu-a, .edu-b { border-top:0; padding-top:0; }
 .e-title { display:block; font:700 18px/1.3 var(--sans); letter-spacing:-0.02em; }
 .e-desc { display:block; font:400 15px/1.55 var(--sans); color:var(--body); margin-block:5px; }
 .e-when { font:400 12px/1 var(--mono); color:var(--faint); }
@@ -632,6 +645,11 @@ html.theming, html.theming * {
   .facts { flex:1; }
   .work-head .col-9 { margin-top:var(--s4); }
   .elsewhere { grid-template-columns:repeat(3,1fr); }
+
+  /* The kicker column is gone at this width, so education starts at 1. */
+  .edu-rule, .edu-label { grid-column:1 / -1; }
+  .edu-a { grid-column:1 / span 6; }
+  .edu-b { grid-column:7 / span 6; }
 }
 
 @media (max-width:640px) {
@@ -697,6 +715,10 @@ html.theming, html.theming * {
   .proj { padding-block:var(--s5); }
   .feats { grid-template-columns:1fr; }
   .two-up { grid-template-columns:1fr; }
+
+  /* One column: the degree drops below the school with its own divider. */
+  .edu-a, .edu-b { grid-column:1 / -1; }
+  .edu-b { border-top:1px solid var(--hair); padding-top:20px; margin-top:4px; }
 
   /* ── Screenshots become a carousel ──────────────────────
      One at a time, swipe or use the arrows. A grid of thumbnails at this
@@ -793,8 +815,6 @@ html.theming, html.theming * {
   .feats, .two-up { font-size:14px; }
   .facts { font-size:13px; gap:6px 12px; }
   .proj h3, .proj-sm h3 { font-size:23px; }
-  .entries-2up { grid-template-columns:1fr; }
-  .entries-2up .entry + .entry { border-top:1px solid var(--hair); padding-top:20px; }
   .shot, .shot-phone { height:220px; }
 
   /* Both corners are occupied down here; keep them from meeting. 42px rather
