@@ -131,6 +131,24 @@ a:hover { color:var(--accent); }
 /* Set by the observer in script.js as each section passes under the bar. */
 .topnav a.is-current { color:var(--accent); }
 
+/* Hidden until the phone breakpoint, where the links become a dropdown. */
+.nav-toggle {
+  display:none; grid-column:1; justify-self:start;
+  width:38px; height:38px; padding:0;
+  place-items:center; gap:5px;
+  background:transparent; border:1px solid var(--hair); cursor:pointer;
+  transition:border-color .16s ease;
+}
+.nav-toggle:hover { border-color:var(--accent); }
+.nav-toggle span {
+  display:block; width:16px; height:1.5px; background:var(--ink);
+  transition:transform .22s ease, opacity .18s ease;
+}
+/* Middle bar fades, outer two cross into an X. */
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity:0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
+
 .mode-btn {
   grid-column:3; justify-self:end;
   font:400 12px/1 var(--mono); letter-spacing:0.06em;
@@ -287,6 +305,10 @@ a:hover { color:var(--accent); }
 .shots-solo { grid-template-columns:1fr; }
 .shots-solo .shot { grid-column:span 1; }
 
+/* script.js injects these for every multi-shot group, but they only mean
+   anything once the grid becomes a scroller at the phone breakpoint. */
+.shots-nav { display:none; }
+
 /* ── In progress ────────────────────────────────────────── */
 .wip-head { display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
 .wip-name { font:700 24px/1.15 var(--sans); letter-spacing:-0.03em; }
@@ -347,7 +369,21 @@ a:hover { color:var(--accent); }
 }
 .cmp-l { left:10px; }
 .cmp-r { right:10px; }
-.cmp-line { position:absolute; top:0; bottom:0; width:2px; background:var(--accent); left:var(--pos); }
+/* The line alone gave no sign it could be dragged — it just read as a blue
+   rule across the photo. The grip is the affordance. */
+.cmp-line {
+  position:absolute; top:0; bottom:0; width:2px;
+  background:var(--accent); left:var(--pos);
+  display:grid; place-items:center;
+}
+.cmp-grip {
+  width:40px; height:40px; border-radius:50%;
+  display:grid; place-items:center;
+  background:var(--accent); color:#fff;
+  font:600 13px/1 var(--mono); letter-spacing:.06em;
+  box-shadow:0 2px 10px rgba(0,0,0,.28);
+  pointer-events:none;   /* the range input underneath does the dragging */
+}
 .cmp-range {
   position:absolute; inset:0; width:100%; height:100%;
   opacity:0; margin:0; cursor:ew-resize;
@@ -362,6 +398,11 @@ a:hover { color:var(--accent); }
 .entries { display:grid; }
 .entry { padding-block:20px 24px; border-top:1px solid var(--hair); }
 .entry:first-child { border-top:0; padding-top:0; }
+
+/* Education reads as a progression, so the two sit side by side rather than
+   stacked — school on the left, degree on the right. */
+.entries-2up { grid-template-columns:1fr 1fr; column-gap:var(--gut); }
+.entries-2up .entry { border-top:0; padding-top:0; }
 .e-title { display:block; font:700 18px/1.3 var(--sans); letter-spacing:-0.02em; }
 .e-desc { display:block; font:400 15px/1.55 var(--sans); color:var(--body); margin-block:5px; }
 .e-when { font:400 12px/1 var(--mono); color:var(--faint); }
@@ -585,10 +626,34 @@ html.theming, html.theming * {
 
 @media (max-width:640px) {
   :root { --pad:20px; --s7:40px; --s8:52px; }
-  .topbar-in { grid-template-columns:1fr auto; gap:14px; }
-  .topnav { grid-column:1; overflow-x:auto; scrollbar-width:none; gap:16px; }
-  .topnav::-webkit-scrollbar { display:none; }
-  .mode-btn { grid-column:2; }
+
+  /* ── Hamburger ──────────────────────────────────────────
+     Five section links wouldn't fit across a phone, and scrolling them
+     sideways hid half the page's navigation behind an edge nobody looks at.
+     They become a dropdown instead. */
+  .topbar-in { grid-template-columns:auto 1fr auto; gap:10px; }
+  .nav-toggle { display:grid; }
+  .mode-btn { grid-column:3; }
+  .topnav {
+    position:absolute; left:0; right:0; top:100%;
+    grid-column:auto;
+    display:none; flex-direction:column; gap:0;
+    padding:0 var(--pad) var(--s3);
+    background:var(--paper); border-bottom:2px solid var(--rule);
+    box-shadow:0 14px 28px rgba(33,35,39,0.12);
+  }
+  .topnav.is-open { display:flex; }
+  .topnav a {
+    padding:14px 0; font-size:13px;
+    border-top:1px solid var(--hair);
+  }
+  .topnav a:first-child { border-top:0; }
+
+  /* ── The assistant goes ─────────────────────────────────
+     A floating panel over a 360px screen covers the page it is meant to
+     answer questions about. The contact block still has the email. */
+  .chat, .chat-fab { display:none !important; }
+  .contact .actions [data-open-chat] { display:none; }
 
   .hero { padding-block:var(--s6) var(--s5); }
   .hero h1 { font-size:48px; letter-spacing:-0.04em; }
@@ -622,11 +687,47 @@ html.theming, html.theming * {
   .proj { padding-block:var(--s5); }
   .feats { grid-template-columns:1fr; }
   .two-up { grid-template-columns:1fr; }
-  /* Two columns of six: a landscape shot takes the row, two phones share it,
-     so the rows still fill exactly. */
-  .shots { grid-template-columns:repeat(2,1fr); }
-  .shot { grid-column:span 2; }
-  .shot-phone { grid-column:span 1; }
+
+  /* ── Screenshots become a carousel ──────────────────────
+     One at a time, swipe or use the arrows. A grid of thumbnails at this
+     width made every shot too small to read, and scroll-snap means a swipe
+     lands on a shot rather than halfway between two.
+
+     Fixed height with contain rather than per-shot aspect ratios: the group
+     mixes 374x749 phones with 1200x604 consoles, and letting each set its
+     own height makes the carousel jump as you move through it. */
+  .shots {
+    display:flex; grid-template-columns:none;
+    overflow-x:auto; scroll-snap-type:x mandatory;
+    gap:var(--s3); scrollbar-width:none;
+    overscroll-behavior-x:contain;
+  }
+  .shots::-webkit-scrollbar { display:none; }
+  .shot, .shot-phone {
+    flex:0 0 100%; grid-column:auto;
+    aspect-ratio:auto; height:260px;
+    scroll-snap-align:center;
+  }
+  .shot:hover { transform:none; }   /* no hover on touch; the lift just sticks */
+
+  /* Injected by script.js, so a group with one image gets no controls. */
+  .shots-nav {
+    display:flex; align-items:center; gap:var(--s3);
+    margin-top:var(--s3);
+  }
+  .shots-nav button {
+    width:38px; height:38px; flex:none;
+    display:grid; place-items:center;
+    background:transparent; border:1px solid var(--hair);
+    color:var(--ink); font-size:17px; cursor:pointer;
+    transition:border-color .16s ease, opacity .16s ease;
+  }
+  .shots-nav button:hover { border-color:var(--accent); }
+  .shots-nav button[disabled] { opacity:.3; cursor:default; }
+  .shots-count {
+    font:400 12px/1 var(--mono); letter-spacing:.08em; color:var(--muted);
+    margin-left:auto;
+  }
 
   .h-lg { font-size:28px; }
   .h-md { font-size:26px; }
@@ -680,6 +781,9 @@ html.theming, html.theming * {
   .feats, .two-up { font-size:14px; }
   .facts { font-size:13px; gap:6px 12px; }
   .proj h3, .proj-sm h3 { font-size:23px; }
+  .entries-2up { grid-template-columns:1fr; }
+  .entries-2up .entry + .entry { border-top:1px solid var(--hair); padding-top:20px; }
+  .shot, .shot-phone { height:220px; }
 
   /* Both corners are occupied down here; keep them from meeting. 42px rather
      than smaller — it's a thumb target, not a mouse one. */

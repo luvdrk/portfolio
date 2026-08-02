@@ -124,6 +124,94 @@
     }
   );
 
+  /* ── Hamburger ──────────────────────────────────────────── */
+  // The panel is shown by CSS at the phone breakpoint; this only manages the
+  // open state, so on wider screens the class is inert and the nav is always
+  // visible whatever the button last did.
+  var navToggle = document.getElementById('navToggle');
+  var topnav = document.getElementById('topnav');
+
+  if (navToggle && topnav) {
+    function setNav(open) {
+      topnav.classList.toggle('is-open', open);
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    }
+
+    navToggle.addEventListener('click', function () {
+      setNav(topnav.classList.contains('is-open') === false);
+    });
+
+    // Following a link should close it — the target is behind the panel.
+    Array.prototype.forEach.call(topnav.querySelectorAll('a'), function (a) {
+      a.addEventListener('click', function () { setNav(false); });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!topnav.contains(e.target) && !navToggle.contains(e.target)) setNav(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setNav(false);
+    });
+  }
+
+  /* ── Screenshot carousel ────────────────────────────────── */
+  // Controls for the phone-width carousel. Injected rather than written into
+  // the markup so a group with a single screenshot never gets arrows, and so
+  // the page without JS is still a swipeable scroller.
+  Array.prototype.forEach.call(
+    document.querySelectorAll('.shots'),
+    function (strip) {
+      var shots = strip.querySelectorAll('.shot');
+      if (shots.length < 2) return;
+
+      var nav = document.createElement('div');
+      nav.className = 'shots-nav';
+
+      var prev = document.createElement('button');
+      prev.type = 'button';
+      prev.textContent = '‹';
+      prev.setAttribute('aria-label', 'Previous screenshot');
+
+      var next = document.createElement('button');
+      next.type = 'button';
+      next.textContent = '›';
+      next.setAttribute('aria-label', 'Next screenshot');
+
+      var count = document.createElement('span');
+      count.className = 'shots-count';
+
+      nav.appendChild(prev);
+      nav.appendChild(next);
+      nav.appendChild(count);
+      strip.parentNode.insertBefore(nav, strip.nextSibling);
+
+      function index() {
+        // Which shot is nearest the centre of the viewport of the scroller.
+        return Math.round(strip.scrollLeft / (strip.scrollWidth / shots.length));
+      }
+
+      function paint() {
+        var i = Math.min(index(), shots.length - 1);
+        count.textContent = (i + 1) + ' / ' + shots.length;
+        prev.disabled = i <= 0;
+        next.disabled = i >= shots.length - 1;
+      }
+
+      function go(step) {
+        var target = shots[Math.max(0, Math.min(shots.length - 1, index() + step))];
+        if (target) {
+          strip.scrollTo({ left: target.offsetLeft - strip.offsetLeft, behavior: 'smooth' });
+        }
+      }
+
+      prev.addEventListener('click', function () { go(-1); });
+      next.addEventListener('click', function () { go(1); });
+      strip.addEventListener('scroll', paint, { passive: true });
+      paint();
+    }
+  );
+
   /* ── Nav highlight ──────────────────────────────────────── */
   // An observer rather than a scroll handler: the browser does the maths off
   // the main thread, so this costs nothing while scrolling.
