@@ -584,7 +584,7 @@ html.theming, html.theming * {
 }
 
 @media (max-width:640px) {
-  :root { --pad:20px; }
+  :root { --pad:20px; --s7:40px; --s8:52px; }
   .topbar-in { grid-template-columns:1fr auto; gap:14px; }
   .topnav { grid-column:1; overflow-x:auto; scrollbar-width:none; gap:16px; }
   .topnav::-webkit-scrollbar { display:none; }
@@ -594,11 +594,32 @@ html.theming, html.theming * {
   .hero h1 { font-size:48px; letter-spacing:-0.04em; }
   .lede { font-size:18px; }
   .col-3, .col-4, .col-5, .col-6 { grid-column:span 12; }
-  .actions .btn { flex:1 1 100%; justify-content:center; }
   .hero-side { flex-direction:column; }
   .portrait { flex:none; max-width:260px; }
 
+  /* Full-width, stacked, and the copy-email link goes with them — left as an
+     inline button it sat orphaned under two block-level ones. */
+  .actions { gap:var(--s2); }
+  .actions .btn { flex:1 1 100%; justify-content:center; }
+  .copy-btn { flex:1 1 100%; text-align:center; padding-block:8px; }
+
+  /* Metadata moves BELOW the project. In one column it otherwise renders
+     first — a colour tile, a four-line stack and two repo links before you
+     learn what the project is. */
+  .proj-meta {
+    order:2;
+    margin-top:var(--s5); padding-top:var(--s4);
+    border-top:1px solid var(--hair);
+    flex-direction:row; flex-wrap:wrap; align-items:flex-start;
+    gap:var(--s3) var(--s5);
+  }
+  .proj-meta .tag,
+  .proj-meta .mono-tile { margin-bottom:0; }
+  .proj-meta .when,
+  .proj-meta .repos { margin-top:0; }
+
   .proj h3, .proj-sm h3 { font-size:26px; }
+  .proj { padding-block:var(--s5); }
   .feats { grid-template-columns:1fr; }
   .two-up { grid-template-columns:1fr; }
   /* Two columns of six: a landscape shot takes the row, two phones share it,
@@ -606,15 +627,64 @@ html.theming, html.theming * {
   .shots { grid-template-columns:repeat(2,1fr); }
   .shot { grid-column:span 2; }
   .shot-phone { grid-column:span 1; }
+
+  .h-lg { font-size:28px; }
+  .h-md { font-size:26px; }
+  .big, .sub { font-size:16px; }
+  .body { font-size:16px; }
+  .wip-name { font-size:20px; }
+
   .contact h2 { font-size:38px; max-width:none; }
-  .elsewhere { grid-template-columns:1fr 1fr; }
+  .elsewhere { grid-template-columns:1fr 1fr; gap:14px; }
   .ghost { font-size:120px; }
+
+  /* Four items in a row crowd at this width; let the counter drop. */
+  .lb-head { flex-wrap:wrap; gap:6px 12px; }
+  .lb-count { margin-left:0; width:100%; order:3; }
+  .lb-x { margin-left:auto; }
 
   .chat { right:12px; left:12px; width:auto; }
   .chat-fab { right:12px; }
   .lb { padding:16px 14px 22px; gap:14px; }
   .lb-body { gap:10px; }
   .lb-arrow { width:38px; height:38px; }
+}
+
+/* ── Phones ───────────────────────────────────────────────
+   Most phones report 360–414px, which the 640 rules were never tuned for:
+   at 20px padding that leaves ~320px of content, and several things were
+   still laid out as if there were twice that. */
+@media (max-width:430px) {
+  :root { --pad:16px; }
+
+  .hero h1 { font-size:38px; }
+  .lede { font-size:17px; }
+  .status { font-size:11px; gap:8px; flex-wrap:wrap; }
+  .portrait { max-width:none; }
+
+  .contact h2 { font-size:30px; }
+  .ghost { font-size:88px; }
+
+  /* 92px of label left ~200px for values like "Supabase, PostgreSQL,
+     Firebase, Python, MySQL" — three cramped lines. Label above value
+     instead. */
+  .stack-list { grid-template-columns:1fr; }
+  .stack-list dt { padding-bottom:0; border-top:1px solid var(--hair); padding-top:10px; }
+  .stack-list dd { padding-top:2px; border-top:0; }
+  .stack-list dt:first-of-type { border-top:0; }
+
+  /* Two columns put "OnlineJobs.ph ↗" in ~150px, which wrapped mid-label. */
+  .elsewhere { grid-template-columns:1fr; gap:0; }
+  .elsewhere a { padding-block:10px; }
+
+  .feats, .two-up { font-size:14px; }
+  .facts { font-size:13px; gap:6px 12px; }
+  .proj h3, .proj-sm h3 { font-size:23px; }
+
+  /* Both corners are occupied down here; keep them from meeting. 42px rather
+     than smaller — it's a thumb target, not a mouse one. */
+  .to-top { width:42px; height:42px; }
+  .chat-fab { font-size:14px; padding:10px 14px; }
 }
 
 /* ══ Reduced motion ═══════════════════════════════════════ */
