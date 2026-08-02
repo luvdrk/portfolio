@@ -684,10 +684,12 @@ html.theming, html.theming * {
   }
   .topnav a:first-child { border-top:0; }
 
-  /* The 01–05 numbering is wayfinding for a page you can see at once. On a
-     phone you only ever see one section, so it's just noise in front of
-     every label. The big ghost numerals still mark the sections. */
+  /* The 01–05 numbering is wayfinding for a page you can take in at once. On
+     a phone you only ever see one section, so it's noise in front of every
+     label — and the oversized ghost numeral is worse, because at this width
+     it sits behind the text rather than out in the margin. All of it goes. */
   .kicker .n, .topnav .n { display:none; }
+  .ghost { display:none; }
 
   /* ── The assistant goes ─────────────────────────────────
      A floating panel over a 360px screen covers the page it is meant to
@@ -810,7 +812,6 @@ html.theming, html.theming * {
   .portrait { max-width:none; }
 
   .contact h2 { font-size:30px; }
-  .ghost { font-size:88px; }
 
   /* 92px of label left ~200px for values like "Supabase, PostgreSQL,
      Firebase, Python, MySQL" — three cramped lines. Label above value
