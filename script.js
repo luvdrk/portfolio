@@ -543,6 +543,341 @@
     });
   }
 
+  /* ── Guide cursor ───────────────────────────────────────── */
+  // A second pointer with a name tag that tours the hero once per browser
+  // session: it reaches for each thing, types a line about it, then drifts
+  // off the right edge and leaves a "take the tour again" pill behind.
+  //
+  // Everything runs off one rAF clock, so the tour simply stops while the
+  // tab is hidden or the assistant / screenshot viewer is open, and picks up
+  // where it was. `goal` is where the hand means to be; `shown` chases it on
+  // a damped spring, so nothing ever snaps.
+  (function () {
+    var guide = document.getElementById('guide');
+    var promptEl = document.getElementById('guidePrompt');
+    var desktop = window.matchMedia && window.matchMedia(
+      '(min-width:1024px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
+    if (!guide || !promptEl || !desktop || !desktop.matches || !window.Promise) return;
+
+    var tag = guide.querySelector('.gd-tag');
+    var nameEl = guide.querySelector('.gd-name');
+    var clip = guide.querySelector('.gd-clip');
+    var textEl = guide.querySelector('.gd-clip .gd-text');
+    var measure = guide.querySelector('.gd-measure');
+    var caret = guide.querySelector('.gd-caret');
+    var chatPanel = document.getElementById('chatPanel');
+    var viewer = document.getElementById('lightbox');
+    var graphemes = window.Intl && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
+
+    function rand(min, max) { return min + Math.random() * (max - min); }
+    function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+    function all(selector) { return Array.prototype.slice.call(document.querySelectorAll(selector)); }
+
+    function store(key, value) {
+      try {
+        if (value === undefined) return sessionStorage.getItem(key);
+        sessionStorage.setItem(key, value);
+      } catch (e) { /* storage blocked: the tour just plays every load */ }
+      return null;
+    }
+
+    // In order. A step whose targets are off screen is skipped; a `free` one
+    // falls back to open space in the middle of the viewport.
+    var steps = [
+      { els: function () { return all('.hero h1'); }, at: 'above', free: true,
+        text: "Hi! I'm Derrick, welcome to my portfolio! 👋" },
+      { els: function () { return all('.hero .actions .btn, .hero .actions .copy-btn'); }, at: 'below',
+        text: 'Email me here, or just copy my address.' },
+      { els: function () { return all('.hero .facts'); }, at: 'left',
+        text: 'The short version: school, course, track and grad year.' },
+      { els: function () { return all('#topnav a'); }, at: 'below',
+        text: 'Jump straight to any section from up here.' },
+      { els: function () { return all('#themeToggle'); }, at: 'on',
+        text: 'Prefer it dark? Flip the theme here.' },
+      { els: function () { return all('#chatToggle'); }, at: 'on',
+        text: 'Got questions? Ask my assistant anything about me.' },
+      { free: true, text: "That's the tour. Scroll around and enjoy! ✌️" }
+    ];
+
+    // ── Clock ──
+    var SPRING = 190, DAMPING = 2 * Math.sqrt(SPRING) * 0.82;
+    var goal = { x: 0, y: 0 };
+    var shown = { x: 0, y: 0, vx: 0, vy: 0 };
+    var waiters = [];
+    var clock = 0, last = 0, running = false, away = false;
+    var move = null, rest = null, hovered = null, typing = false, tremor = 1;
+
+    function isAway() {
+      return (chatPanel && !chatPanel.hidden) || (viewer && viewer.open);
+    }
+
+    function frame(now) {
+      if (!running) return;
+      var dt = Math.min(now - last, 50);
+      last = now;
+
+      var nowAway = isAway();
+      if (nowAway !== away) {
+        away = nowAway;
+        guide.classList.toggle('is-away', away);
+      }
+
+      if (!away) {
+        clock += dt;
+
+        if (move) {
+          var p = Math.min((clock - move.t0) / move.dur, 1);
+          var u = Math.pow(p, move.skew);                      // quick launch, long settle
+          var e = u * u * u * (u * (u * 6 - 15) + 10);         // minimum-jerk, the way a hand moves
+          var to = move.to();
+          var bow = 3 * (1 - e) * (1 - e) * e * move.b1 + 3 * (1 - e) * e * e * move.b2;
+          goal.x = move.from.x + (to.x - move.from.x) * e + move.nx * bow;
+          goal.y = move.from.y + (to.y - move.from.y) * e + move.ny * bow;
+          if (p === 1) {
+            var done = move.done;
+            rest = move.to;
+            move = null;
+            done();
+          }
+        } else if (rest) {
+          var at = rest();                                     // stay pinned to the target if the page moves
+          goal.x = at.x; goal.y = at.y;
+        }
+
+        // Sub-stepped so a long frame can't make the spring overshoot wildly.
+        var hops = Math.ceil(dt / 12), h = dt / hops / 1000;
+        for (var i = 0; i < hops; i++) {
+          shown.vx += (SPRING * (goal.x - shown.x) - DAMPING * shown.vx) * h;
+          shown.vy += (SPRING * (goal.y - shown.y) - DAMPING * shown.vy) * h;
+          shown.x += shown.vx * h;
+          shown.y += shown.vy * h;
+        }
+
+        // A resting hand is never perfectly still — except while it types.
+        tremor += ((typing ? 0 : 1) - tremor) * Math.min(dt / 280, 1);
+        var x = shown.x + (Math.sin(clock / 830 + 1.3) * 1.5 + Math.sin(clock / 310 + 4.1) * 0.6) * tremor;
+        var y = shown.y + (Math.cos(clock / 1010 + 0.4) * 1.3 + Math.sin(clock / 370 + 2.2) * 0.55) * tremor;
+        guide.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
+
+        for (var w = waiters.length - 1; w >= 0; w--) {
+          if (waiters[w].at <= clock) waiters.splice(w, 1)[0].done();
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function sleep(ms) {
+      return new Promise(function (done) { waiters.push({ at: clock + ms, done: done }); });
+    }
+
+    // One continuous stroke to a live point, bowed to one side (sometimes an
+    // S-curve) so no two reaches follow the same path.
+    function glide(to, dur) {
+      return new Promise(function (done) {
+        var from = { x: goal.x, y: goal.y }, target = to();
+        var dx = target.x - from.x, dy = target.y - from.y, dist = Math.hypot(dx, dy) || 1;
+        var b1 = Math.min(dist * rand(0.08, 0.28), 64) * (Math.random() < 0.5 ? -1 : 1);
+        var b2 = Math.random() < 0.3 ? -b1 * rand(0.3, 0.8) : b1 * rand(0.4, 1.1);
+        move = { from: from, to: to, t0: clock, dur: dur, skew: rand(0.72, 0.94),
+                 nx: -dy / dist, ny: dx / dist, b1: b1, b2: b2, done: done };
+      });
+    }
+
+    // Lands a few pixels off each time, and on a long reach sometimes over- or
+    // undershoots before a small corrective nudge.
+    function moveTo(to, opts) {
+      opts = opts || {};
+      var off = { x: rand(-2.5, 2.5), y: rand(-1.5, 1.5) };
+      var aim = opts.direct ? to : function () { var t = to(); return { x: t.x + off.x, y: t.y + off.y }; };
+      var target = aim(), dx = target.x - goal.x, dy = target.y - goal.y, dist = Math.hypot(dx, dy) || 1;
+      var dur = (opts.dur || clamp(210 + Math.sqrt(dist) * 25, 330, 1000)) * rand(0.88, 1.15);
+      var roll = Math.random();
+      if (opts.direct || dist < 160 || roll > 0.65) return glide(aim, dur);
+
+      var miss = clamp(dist * rand(0.025, 0.06), 5, 22) * (roll < 0.4 ? 1 : -1);
+      var drift = rand(-0.5, 0.5) * miss;
+      var ox = dx / dist * miss - dy / dist * drift, oy = dy / dist * miss + dx / dist * drift;
+      return glide(function () { var t = aim(); return { x: t.x + ox, y: t.y + oy }; }, dur)
+        .then(function () { return sleep(rand(40, 110)); })
+        .then(function () { return glide(aim, rand(140, 230)); });
+    }
+
+    // ── Targets ──
+    function visible(el) {
+      var r = el.getBoundingClientRect();
+      return r.width > 0 && r.top >= 0 && r.bottom <= innerHeight;
+    }
+
+    function anchor(el, at) {
+      return function () {
+        var r = el.getBoundingClientRect();
+        if (at === 'above') return { x: r.left + 6, y: r.top - 24 };
+        if (at === 'below') return { x: r.left + r.width / 2, y: r.bottom + 2 };
+        if (at === 'left') return { x: r.left - 10, y: r.top + r.height / 2 };
+        if (at === 'on') return { x: r.left + r.width * 0.55, y: r.top + r.height * 0.6 };
+        return { x: r.right + 5, y: r.top + r.height / 2 };
+      };
+    }
+
+    function openSpace() {
+      var point = { x: innerWidth * rand(0.44, 0.56), y: innerHeight * rand(0.4, 0.5) };
+      return function () { return point; };
+    }
+
+    function setHover(el) {
+      if (hovered) hovered.classList.remove('is-guided');
+      hovered = el || null;
+      if (hovered) hovered.classList.add('is-guided');
+    }
+
+    // ── Bubble ──
+    function compose(text) {
+      var parts = graphemes
+        ? Array.from(graphemes.segment(text), function (s) { return s.segment; })
+        : Array.from(text);
+      var chars = parts.map(function (part) {
+        var span = document.createElement('span');
+        span.className = 'gd-ch';
+        span.textContent = part;
+        return span;
+      });
+      measure.replaceChildren.apply(measure, chars);
+      var boxes = chars.map(function (span) {
+        return { right: span.offsetLeft + span.offsetWidth, top: span.offsetTop, bottom: span.offsetTop + span.offsetHeight };
+      });
+      // Rounded up: a fraction of a pixel short and the last word wraps
+      // differently in the bubble than it did here.
+      return { parts: parts, chars: chars, boxes: boxes,
+               width: Math.ceil(measure.getBoundingClientRect().width), height: measure.offsetHeight };
+    }
+
+    // Flip the bubble above and/or left of the arrow when it would run off screen.
+    function place(point, layout, prefer) {
+      var w = Math.max(nameEl.offsetWidth, layout.width) + 22;
+      var h = nameEl.offsetHeight + layout.height + 10;
+      var fitsBelow = point.y + 19 + h + 10 <= innerHeight;
+      var fitsAbove = point.y - h - 10 >= 0;
+      guide.classList.toggle('is-up', fitsAbove && (prefer === 'above' || !fitsBelow));
+      guide.classList.toggle('is-left', point.x + 16 + w + 10 > innerWidth);
+    }
+
+    function type(layout) {
+      textEl.style.width = layout.width + 'px';
+      textEl.replaceChildren.apply(textEl, layout.chars.concat(caret));
+      tag.classList.add('is-talking', 'is-typing');
+      typing = true;
+      var pace = rand(0.85, 1.25), width = 0, i = 0;
+
+      function next() {
+        if (i >= layout.chars.length) {
+          typing = false;
+          tag.classList.remove('is-typing');
+          return Promise.resolve();
+        }
+        var box = layout.boxes[i], part = layout.parts[i];
+        layout.chars[i].classList.add('is-on');
+        width = Math.max(width, box.right);
+        clip.style.width = Math.ceil(width) + 2 + 'px';
+        clip.style.height = box.bottom + 'px';
+        caret.style.transform = 'translate(' + box.right + 'px,' + box.top + 'px)';
+
+        var wait = rand(7, 20) * pace;
+        if (/[.!?]/.test(part)) wait = rand(80, 150);
+        else if (/[,:]/.test(part)) wait = rand(45, 90);
+        else if (part === ' ' && Math.random() < 0.12) wait += rand(60, 150);   // thinking of the next word
+        else if (Math.random() < 0.07) wait += rand(30, 80);                    // a small stumble
+        i++;
+        return sleep(wait).then(next);
+      }
+      return next();
+    }
+
+    function hush() {
+      clip.style.width = clip.style.height = '0px';
+      tag.classList.remove('is-talking', 'is-typing');
+    }
+
+    function say(step) {
+      var els = step.els ? step.els().filter(visible) : [];
+      if (!els.length && !step.free) return Promise.resolve();
+      var points = els.length
+        ? els.map(function (el) { return anchor(el, step.at); })
+        : [openSpace()];
+      var layout = compose(step.text);
+      hush();
+      place(points[0](), layout, els.length ? step.at : null);
+      setHover(els[0]);
+
+      return moveTo(points[0])
+        .then(function () { return sleep(rand(60, 140)); })
+        .then(function () { return type(layout); })
+        .then(function () {
+          if (points.length < 2) return sleep((850 + layout.chars.length * 20) * rand(0.95, 1.15));
+          // A group: let the line land, then sweep across the rest of it.
+          var chain = sleep(rand(550, 800));
+          points.slice(1).forEach(function (point, k) {
+            chain = chain
+              .then(function () { return sleep(rand(90, 190)); })
+              .then(function () { setHover(els[k + 1]); return moveTo(point, { dur: rand(240, 340) }); });
+          });
+          return chain.then(function () { return sleep(rand(550, 750)); });
+        })
+        .then(function () { setHover(null); });
+    }
+
+    // ── Replay pill ──
+    function showPrompt() {
+      if (store('pf-tour-prompt') !== 'off') promptEl.classList.add('is-on');
+    }
+
+    promptEl.querySelector('[data-guide-replay]').addEventListener('click', function () {
+      promptEl.classList.remove('is-on');
+      start();
+    });
+    promptEl.querySelector('[data-guide-dismiss]').addEventListener('click', function () {
+      promptEl.classList.remove('is-on');
+      store('pf-tour-prompt', 'off');
+    });
+
+    function run() {
+      var chain = sleep(500).then(function () {
+        guide.classList.add('is-here');
+        store('pf-tour-seen', '1');
+      });
+      steps.forEach(function (step) {
+        chain = chain.then(function () { return say(step); });
+      });
+      // Tour over: wander off the right edge.
+      return chain
+        .then(function () { hush(); return sleep(rand(300, 500)); })
+        .then(function () {
+          var exit = { x: innerWidth + 90, y: innerHeight * rand(0.18, 0.42) };
+          return moveTo(function () { return exit; }, { direct: true });
+        })
+        .then(function () { guide.classList.remove('is-here'); return sleep(500); })
+        .then(function () { running = false; showPrompt(); });
+    }
+
+    // Enters from just off the right edge.
+    function start() {
+      if (running) return;
+      running = true;
+      move = rest = null;
+      goal.x = shown.x = innerWidth + 40;
+      goal.y = shown.y = innerHeight * rand(0.5, 0.7);
+      shown.vx = shown.vy = 0;
+      guide.classList.remove('is-up', 'is-left');
+      guide.style.transform = 'translate3d(' + goal.x + 'px,' + goal.y + 'px,0)';
+      requestAnimationFrame(function (now) { last = now; frame(now); });
+      run();
+    }
+
+    // Plays by itself once per browser session (or with ?tour in the URL);
+    // after that it's on request from the pill.
+    if (store('pf-tour-seen') !== '1' || /[?&]tour\b/.test(location.search)) start();
+    else showPrompt();
+  })();
+
   /* ── Footer year ────────────────────────────────────────── */
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
