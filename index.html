@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f6f5f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
 <title>Derrick John F. Azaola — IT student &amp; developer</title>
-<meta name="description" content="Derrick John F. Azaola — third-year BS Information Technology student at PHINMA University of Pangasinan. System development, mobile apps, and AI video work.">
+<meta name="description" content="Derrick John F. Azaola — third-year BS Information Technology student at PHINMA University of Pangasinan. System development, mobile apps, and AI video editing for short-form TikTok product ads.">
 
 <meta property="og:title" content="Derrick John F. Azaola">
 <meta property="og:description" content="IT student, system development. Building Panzi, an AI smart pantry system.">
@@ -37,7 +37,7 @@
 <!-- ?v= is bumped whenever styles.css changes. Without it a browser that has
      already cached the old file will happily keep using it, which looks
      exactly like a broken layout. -->
-<link rel="stylesheet" href="styles.css?v=40">
+<link rel="stylesheet" href="styles.css?v=42">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23212327'/%3E%3Ctext y='66' x='50' text-anchor='middle' font-size='42' font-family='sans-serif' font-weight='800' fill='%23f6f5f3'%3EDA%3C/text%3E%3C/svg%3E">
 
 <!-- Structured data. This is what lets a search engine treat the page as a
@@ -55,7 +55,7 @@
   "url": "https://derrickazaola.vercel.app/",
   "image": "https://derrickazaola.vercel.app/me-formal.jpg",
   "jobTitle": "Information Technology Student",
-  "description": "Third-year BS Information Technology student at PHINMA University of Pangasinan. System development, mobile apps, and AI video work.",
+  "description": "Third-year BS Information Technology student at PHINMA University of Pangasinan. System development, mobile apps, and AI video editing for short-form TikTok product ads.",
   "email": "mailto:djazaola24@gmail.com",
   "address": {
     "@type": "PostalAddress",
@@ -79,13 +79,18 @@
     "MySQL",
     "Supabase",
     "Graphic design",
-    "Video editing"
+    "Video editing",
+    "AI video generation",
+    "Short-form video advertising",
+    "ElevenLabs",
+    "CapCut"
   ],
   "sameAs": [
     "https://github.com/luvdrk",
     "https://www.tiktok.com/@coleeditsae",
     "https://www.facebook.com/ColeDesigns123",
-    "https://v2.onlinejobs.ph/jobseekers/info/3135638"
+    "https://v2.onlinejobs.ph/jobseekers/info/3135638",
+    "https://contra.com/derrickjohn"
   ]
 }
 </script>
@@ -116,8 +121,9 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
       <a href="#about"><span class="n">01 </span>about</a>
       <a href="#work"><span class="n">02 </span>work</a>
       <a href="#design"><span class="n">03 </span>design</a>
-      <a href="#background"><span class="n">04 </span>background</a>
-      <a href="#contact"><span class="n">05 </span>contact</a>
+      <a href="#video"><span class="n">04 </span>ai video</a>
+      <a href="#background"><span class="n">05 </span>background</a>
+      <a href="#contact"><span class="n">06 </span>contact</a>
     </nav>
     <button id="themeToggle" class="mode-btn" type="button" aria-label="Toggle colour theme">
       <span id="themeLabel">LIGHT</span>
@@ -176,7 +182,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
       <div class="g12 band-in">
         <h2 class="kicker col-3"><span class="n">01 / </span>ABOUT</h2>
         <p class="col-5 big">I'm a third-year BS Information Technology student at PHINMA University of Pangasinan. Android apps, web systems, AI-assisted tools — I like the part where a thing stops being a mockup and starts working.</p>
-        <p class="col-4 big">Most of my time now goes to <strong>Panzi</strong>, an AI pantry system I'm building with a team, and to freelance AI video work. I'm open to internships, junior roles and freelance projects.</p>
+        <p class="col-4 big">Most of my time now goes to <strong>Panzi</strong>, an AI pantry system I'm building with a team, and to freelance AI video — short-form product ads for TikTok, researched, scripted, generated and cut by me. I'm open to internships, junior roles and freelance projects.</p>
       </div>
     </div>
   </section>
@@ -193,13 +199,72 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
         </div>
         <div class="col-9">
           <p class="h-lg">Systems I've built</p>
-          <p class="sub">Three shipped, two in progress. Each one ran past the demo — real users, real edge cases, real fixes.</p>
+          <p class="sub">Four built, one still in progress. Each one ran past the demo — real users, real edge cases, real fixes.</p>
         </div>
       </div>
 
       <article class="proj g12" data-reveal>
         <div class="col-3 proj-meta">
           <span class="tag">PROJECT 01</span>
+          <span class="mono-tile" style="--lang:#5BA829">PZ</span>
+          <span class="stack">React Native<br>TypeScript<br>MongoDB<br>Firebase</span>
+          <span class="when">UPDATED OCT 2026<br>TEAM PROJECT</span>
+        </div>
+        <div class="col-9">
+          <h3>Panzi — AI smart pantry</h3>
+          <p class="body">A pantry app built with a team, running on iOS with real accounts. Snap a photo of a shelf and Panzi logs each item, reads the use-by date off the label or estimates one, warns you before food goes off, and suggests Filipino recipes from what you already have — finishing a recipe takes its ingredients back out of the pantry. Behind it sits the admin console I built: live usage, the user community, saved recipes, AI API costs and an audit log.</p>
+          <ul class="feats">
+            <li>Shelf scanning &amp; date reading</li>
+            <li>Use-by estimates &amp; reminders</li>
+            <li>Pantry-only recipe matching</li>
+            <li>Step-by-step cook mode</li>
+            <li>Ask Panzi chat</li>
+            <li>Admin console &amp; API costs</li>
+          </ul>
+          <!-- Six phone captures (2 columns each) then two console ones (3
+               each), so every row fills the six-column grid exactly. User
+               names, emails and account IDs in the console captures are
+               blurred before they get here. -->
+          <div class="shots">
+            <button class="shot shot-phone" type="button" data-group="panzi" data-cap="MEET PANZI">
+              <img src="shots/panzi-welcome.jpg" width="462" height="1000" loading="lazy"
+                   alt="Panzi welcome screen: the chameleon mascot in an apron waving, above the line Your pantry, sorted.">
+            </button>
+            <button class="shot shot-phone" type="button" data-group="panzi" data-cap="SCAN AN ITEM">
+              <img src="shots/panzi-scan.jpg" width="462" height="1000" loading="lazy"
+                   alt="Scan screen pointed at a pack of SkyFlakes crackers, with cards for reading dates off labels and judging fruit ripeness.">
+            </button>
+            <button class="shot shot-phone" type="button" data-group="panzi" data-cap="PANTRY">
+              <img src="shots/panzi-pantry.jpg" width="462" height="1000" loading="lazy"
+                   alt="Pantry list of seven items, with crackers, chicken breast and cheddar flagged under Use soon.">
+            </button>
+            <button class="shot shot-phone" type="button" data-group="panzi" data-cap="RECIPE">
+              <img src="shots/panzi-recipe.jpg" width="462" height="1000" loading="lazy"
+                   alt="Chicken inasal recipe with estimated nutrition, the ingredients already in the pantry, and the ones still needed.">
+            </button>
+            <button class="shot shot-phone" type="button" data-group="panzi" data-cap="COOK MODE">
+              <img src="shots/panzi-cooked.jpg" width="462" height="1000" loading="lazy"
+                   alt="Chicken tinola done screen showing 6 steps, 35 minutes and 2 servings, with a Rate this cook button.">
+            </button>
+            <button class="shot shot-phone" type="button" data-group="panzi" data-cap="ASK PANZI">
+              <img src="shots/panzi-chat.jpg" width="462" height="1000" loading="lazy"
+                   alt="Ask Panzi chat with suggested questions such as what to cook tonight and what is going off soon.">
+            </button>
+            <button class="shot" type="button" data-group="panzi" data-cap="ADMIN DASHBOARD">
+              <img src="shots/panzi-admin-dashboard.jpg" width="1200" height="598" loading="lazy"
+                   alt="Panzi admin dashboard: active users, items scanned and new signups over the last 30 days.">
+            </button>
+            <button class="shot" type="button" data-group="panzi" data-cap="ADMIN · USERS">
+              <img src="shots/panzi-admin-users.jpg" width="1200" height="597" loading="lazy"
+                   alt="Admin users table with pantry items, scans, device and last activity per account; names and emails blurred.">
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <article class="proj g12" data-reveal>
+        <div class="col-3 proj-meta">
+          <span class="tag">PROJECT 02</span>
           <span class="mono-tile" style="--lang:#A97BFF">CG</span>
           <span class="stack">Kotlin<br>React<br>Supabase<br>Firebase</span>
           <span class="when">UPDATED MAR 2026</span>
@@ -249,7 +314,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 
       <article class="proj g12" data-reveal>
         <div class="col-3 proj-meta">
-          <span class="tag">PROJECT 02</span>
+          <span class="tag">PROJECT 03</span>
           <span class="mono-tile" style="--lang:#4F5D95">RQ</span>
           <span class="stack">PHP<br>JavaScript<br>MySQL</span>
           <span class="when">UPDATED OCT 2025<br>TEAM OF 5 — I LED IT</span>
@@ -281,7 +346,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 
       <article class="proj proj-sm g12" data-reveal>
         <div class="col-3 proj-meta">
-          <span class="tag">PROJECT 03</span>
+          <span class="tag">PROJECT 04</span>
           <span class="mono-tile" style="--lang:#E34C26">CC</span>
           <span class="stack">HTML<br>CSS</span>
           <span class="when">UPDATED MAR 2025</span>
@@ -302,21 +367,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 
       <div class="proj wip g12" data-reveal>
         <h3 class="kicker col-3">IN PROGRESS</h3>
-        <div class="col-5">
-          <div class="wip-head">
-            <span class="wip-name">Panzi — AI smart pantry</span>
-            <span class="pill">BUILDING</span>
-          </div>
-          <p class="body">Photograph what's on your shelf. Panzi recognises the items, tracks inventory, estimates freshness, and tells you what to cook before anything spoils.</p>
-          <ol class="steps">
-            <li><span>01</span>Image recognition of food items</li>
-            <li><span>02</span>Freshness &amp; spoilage alerts</li>
-            <li><span>03</span>Recipe recommendations</li>
-            <li><span>04</span>Auto shopping lists &amp; low-stock</li>
-          </ol>
-          <span class="stack-row">React Native · Python · Vision API</span>
-        </div>
-        <div class="col-4">
+        <div class="col-6">
           <div class="wip-head">
             <span class="wip-name"><a href="https://github.com/luvdrk/Informative-Pantry-Website" target="_blank" rel="noopener">Panzi website ↗</a></span>
             <span class="pill">BUILDING</span>
@@ -371,19 +422,48 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
     </div>
   </section>
 
-  <!-- ── 04 Background ──────────────────────────────────── -->
-  <section id="background" class="band" data-reveal>
+  <!-- ── 04 AI video ────────────────────────────────────── -->
+  <section id="video" class="band" data-reveal>
     <span class="ghost ghost-r" aria-hidden="true">04</span>
     <div class="wrap">
       <div class="g12 band-in">
-        <h2 class="kicker col-3"><span class="n">04 / </span>BACKGROUND</h2>
+        <h2 class="kicker col-3"><span class="n">04 / </span>AI VIDEO</h2>
+
+        <div class="col-4">
+          <p class="h-md">AI video editor &amp;<br>TikTok ad creator</p>
+          <p class="body">Freelance work, made end to end: I research the ads already performing in a product's niche, write the hook and script, generate the footage, voice it, cut it, and hand the finished video to the client, who publishes it on TikTok. Mostly beauty and personal-care products — the brief is a product, the deliverable is an ad that holds someone for thirty seconds.</p>
+          <p class="body">Most recently: 18 product ads for one e-commerce client in nine days in October 2026, each made twice — once with an American presenter, once with an Asian one.</p>
+          <span class="stack-row">Google Flow · ElevenLabs · CapCut · Claude</span>
+        </div>
+
+        <div class="col-5">
+          <span class="label">HOW ONE GETS MADE</span>
+          <ol class="steps">
+            <li><span>01</span>Creative research — take apart the ads already getting views</li>
+            <li><span>02</span>Script and hook, written with Claude</li>
+            <li><span>03</span>Footage generated in Google Flow</li>
+            <li><span>04</span>Voiceover in ElevenLabs</li>
+            <li><span>05</span>Cut, captions and product payoff in CapCut</li>
+            <li><span>06</span>Delivered to the client for posting</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 05 Background ──────────────────────────────────── -->
+  <section id="background" class="band" data-reveal>
+    <span class="ghost ghost-l" aria-hidden="true">05</span>
+    <div class="wrap">
+      <div class="g12 band-in">
+        <h2 class="kicker col-3"><span class="n">05 / </span>BACKGROUND</h2>
 
         <div class="col-5">
           <span class="label">EXPERIENCE</span>
           <div class="entries">
             <div class="entry">
-              <span class="e-title">AI video content creation — freelance</span>
-              <span class="e-desc">Scripting, generation and editing for short-form content in Google Flow, ElevenLabs and CapCut. Run directly with clients, brief to delivery.</span>
+              <span class="e-title">AI video editor &amp; TikTok ad content creator — freelance</span>
+              <span class="e-desc">Product ads for TikTok, brief to delivery: creative research, scripting with Claude, footage in Google Flow, voiceover in ElevenLabs, edit in CapCut.</span>
               <span class="e-when">2025 — PRESENT</span>
             </div>
             <div class="entry">
@@ -407,7 +487,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
             <dt>MOBILE</dt><dd>Kotlin, React Native, Android Studio</dd>
             <dt>BACKEND</dt><dd>Supabase, PostgreSQL, Firebase, Python, MySQL</dd>
             <dt>DESIGN</dt><dd>Photoshop, Illustrator, After Effects, Canva, Figma</dd>
-            <dt>AI MEDIA</dt><dd>CapCut, ElevenLabs, Google Flow</dd>
+            <dt>AI MEDIA</dt><dd>Google Flow, ElevenLabs, CapCut, Claude</dd>
             <dt>LANGUAGES</dt><dd>English, Filipino, Pangasinan</dd>
           </dl>
         </div>
@@ -432,11 +512,11 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
     </div>
   </section>
 
-  <!-- ── 05 Contact ─────────────────────────────────────── -->
+  <!-- ── 06 Contact ─────────────────────────────────────── -->
   <section id="contact" class="band contact">
-    <span class="ghost ghost-l" aria-hidden="true">05</span>
+    <span class="ghost ghost-r" aria-hidden="true">06</span>
     <div class="wrap contact-in">
-      <span class="kicker"><span class="n">05 / </span>CONTACT</span>
+      <span class="kicker"><span class="n">06 / </span>CONTACT</span>
       <h2>Open to internships, junior roles and freelance work.</h2>
       <p class="lede">Development or AI video. Email is the fastest way to reach me — I answer everything.</p>
       <div class="actions">
@@ -450,6 +530,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
         <li><a href="https://www.tiktok.com/@coleeditsae" target="_blank" rel="noopener"><span class="l-name">TikTok ↗</span><span class="l-sub">ANIME EDITS</span></a></li>
         <li><a href="https://www.facebook.com/ColeDesigns123" target="_blank" rel="noopener"><span class="l-name">Facebook ↗</span><span class="l-sub">COLE GRPHX PAGE</span></a></li>
         <li><a href="https://v2.onlinejobs.ph/jobseekers/info/3135638" target="_blank" rel="noopener"><span class="l-name">OnlineJobs.ph ↗</span><span class="l-sub">HIRE ME</span></a></li>
+        <li><a href="https://contra.com/derrickjohn" target="_blank" rel="noopener"><span class="l-name">Contra ↗</span><span class="l-sub">SERVICES &amp; RATES</span></a></li>
       </ul>
       <p class="copyright">© <span id="year">2026</span> DERRICK JOHN F. AZAOLA · PANGASINAN, PH</p>
     </div>
@@ -524,7 +605,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
   <button class="gp-x" type="button" data-guide-dismiss aria-label="Dismiss">×</button>
 </div>
 
-<script src="script.js?v=39"></script>
+<script src="script.js?v=41"></script>
 
 <!-- Vercel Web Analytics. Served from this same domain, so no third-party
      request and nothing for a tracker blocker to catch. It counts page views

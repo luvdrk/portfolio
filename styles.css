@@ -494,7 +494,7 @@ a:hover { color:var(--accent); }
 .btn-ghost { background:transparent; color:#f6f5f3; border-color:#4a4d53; }
 .btn-ghost:hover { border-color:#f6f5f3; color:#f6f5f3; }
 
-.elsewhere { display:grid; grid-template-columns:repeat(5,1fr); gap:20px; }
+.elsewhere { display:grid; grid-template-columns:repeat(6,1fr); gap:20px; }
 .elsewhere a { display:block; text-decoration:none; color:#f6f5f3; border-top:1px solid #3a3d43; padding-top:10px; }
 .elsewhere a:hover { color:#fff; border-top-color:var(--accent); }
 .l-name { display:block; font:700 16px/1.3 var(--sans); }
@@ -753,6 +753,10 @@ html.theming, html.theming * {
              border-color .5s ease, box-shadow .5s ease !important;
 }
 
+/* ══ 04 AI video ══════════════════════════════════════════ */
+#video .body { margin-bottom:var(--s4); }
+#video .stack-row { display:block; }
+
 /* ══ Responsive ═══════════════════════════════════════════ */
 @media (max-width:1080px) {
   .hero h1 { font-size:70px; }
@@ -762,6 +766,11 @@ html.theming, html.theming * {
 
 @media (max-width:900px) {
   :root { --pad:28px; --gut:20px; }
+
+  /* Six section links rather than five. The old gap ran the last one
+     into the theme toggle in the band just above the hamburger. */
+  .topnav { gap:14px; letter-spacing:0.04em; }
+
   .col-8, .col-9 { grid-column:span 12; }
   .col-3, .col-4, .col-5, .col-6 { grid-column:span 6; }
   .hero .col-4 { grid-column:span 12; }

@@ -448,11 +448,13 @@
   // and it can't invent a claim about him that isn't written here.
   var KB = [
     ['What is he building now?',
-     'Panzi — an AI smart pantry system. You photograph your shelf; it recognises the items, tracks inventory, estimates freshness and suggests what to cook before anything spoils. React Native, Python and a vision API, built with a team.'],
+     'Panzi — an AI smart pantry app, built with a team and running on iOS with real accounts. You photograph your shelf; it logs the items, reads or estimates use-by dates, warns before food goes off and suggests Filipino recipes from what you have. He also built its admin console: usage, users, recipes, AI API costs and an audit log.'],
     ['Biggest project?',
      'CarGO — a full ride-hailing and parcel platform: a native Android app for riders and drivers plus a web ops console. Driver onboarding, bookings, GCash payouts, SOS alerts, audit logs. 33 Supabase edge functions behind it.'],
     ['What is his stack?',
-     'Web: HTML, CSS, JavaScript, TypeScript, PHP, React. Mobile: Kotlin, React Native, Android Studio. Backend: Supabase, PostgreSQL, Firebase, Python, MySQL. Plus Photoshop, Illustrator, After Effects and CapCut on the design side.'],
+     'Web: HTML, CSS, JavaScript, TypeScript, PHP, React. Mobile: Kotlin, React Native, Android Studio. Backend: Supabase, PostgreSQL, Firebase, Python, MySQL. Design and video: Photoshop, Illustrator, After Effects, Figma, plus Google Flow, ElevenLabs and CapCut.'],
+    ['What is the AI video work?',
+     'Freelance short-form product ads for TikTok, end to end. He researches the ads already performing in the niche, writes the hook and script with Claude, generates the footage in Google Flow, voices it in ElevenLabs and cuts it in CapCut. The client posts the finished video. Most recently he delivered 18 ads to one e-commerce client in nine days, each in an American and an Asian version.'],
     ['Is he available?',
      'Yes — open to internships, junior developer roles and freelance work in development or AI video. Email djazaola24@gmail.com; he answers everything.'],
     ['Has he led a team?',
